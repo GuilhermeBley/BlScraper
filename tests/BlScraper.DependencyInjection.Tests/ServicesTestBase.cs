@@ -34,7 +34,7 @@ public class ServicesTestBase
     private IConfiguration BuildConfiguration()
     {
         IConfigurationBuilder configurationBuilder =
-            new ConfigurationBuilder().AddJsonFile("appsettings.Development.json");
+            new ConfigurationBuilder().AddJsonFile("appsettings.Development.json").AddJsonFile("appsettings.json");
 
         return configurationBuilder.Build();
     }
