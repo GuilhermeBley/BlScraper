@@ -834,7 +834,7 @@ public class ModelScraperTest
         Assert.Equal(ModelStateEnum.Disposed, model.State);
     }
 
-    [Fact(Timeout = 5000)]
+    [Fact(Timeout = 20000)]
     public async Task ExecuteModel_Pause_PauseSeveralTimes()
     {
         const int maxWaiting = 1000;
