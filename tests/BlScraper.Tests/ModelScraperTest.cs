@@ -15,7 +15,7 @@ public class ModelScraperTest
         _output = output;
     }
 
-    [Fact(Timeout = 5000)]
+    [Fact(Timeout = 20000)]
     public async Task ExecuteModel_Exec_Add10ItemsToListWith1Thread()
     {
         BlockingCollection<DateTime> blockList = new();
@@ -44,7 +44,7 @@ public class ModelScraperTest
         Assert.True(resultStop.IsSucess && model.State == ModelStateEnum.Disposed);
     }
 
-    [Fact(Timeout = 5000)]
+    [Fact(Timeout = 20000)]
     public async Task ExecuteModel_Exec_Add20ItemsToListWith2Thread()
     {
         BlockingCollection<DateTime> blockList = new();
@@ -71,7 +71,7 @@ public class ModelScraperTest
         Assert.True(resultStop.IsSucess && model.State == ModelStateEnum.Disposed);
     }
 
-    [Fact(Timeout = 5000)]
+    [Fact(Timeout = 20000)]
     public async Task ExecuteModel_Exec_Add1000ItemsToListWith10Thread()
     {
         BlockingCollection<DateTime> blockList = new();
@@ -98,7 +98,7 @@ public class ModelScraperTest
         Assert.True(resultStop.IsSucess && model.State == ModelStateEnum.Disposed);
     }
 
-    [Fact(Timeout = 5000)]
+    [Fact(Timeout = 20000)]
     public async Task ExecuteModel_Exec_Add1000ItemsToListWith10ThreadWithConfirmationData()
     {
         BlockingCollection<int> blockList = new();
@@ -127,7 +127,7 @@ public class ModelScraperTest
         Assert.True(resultStop.IsSucess && model.State == ModelStateEnum.Disposed);
     }
 
-    [Fact(Timeout = 5000)]
+    [Fact(Timeout = 20000)]
     public async Task ExecuteModel_Oredered_ChecksOrderFromData()
     {
         BlockingCollection<int> blockList = new();
@@ -161,7 +161,7 @@ public class ModelScraperTest
         Assert.True(resultStop.IsSucess && model.State == ModelStateEnum.Disposed && isFinished);
     }
 
-    [Fact(Timeout = 5000)]
+    [Fact(Timeout = 20000)]
     public async Task ExecuteModel_Oredered_ChecksOrderFromDataWithException()
     {
         const int onError = 32;
@@ -245,7 +245,7 @@ public class ModelScraperTest
         Assert.True(model.State == ModelStateEnum.Disposed);
     }
 
-    [Fact(Timeout = 5000)]
+    [Fact(Timeout = 20000)]
     public async Task StopModel_Dispose_Stop()
     {
         var monitor = new SimpleMonitor();
@@ -276,7 +276,7 @@ public class ModelScraperTest
         Assert.True(model.State == ModelStateEnum.Disposed);
     }
 
-    [Fact(Timeout = 5000)]
+    [Fact(Timeout = 20000)]
     public async Task PauseModel_Pause_CancelPause()
     {
         IModelScraper model =
@@ -301,7 +301,7 @@ public class ModelScraperTest
             () => model.PauseAsync(true, cancellationToken: cancellationTokenSource.Token));
     }
 
-    [Fact(Timeout = 5000)]
+    [Fact(Timeout = 20000)]
     public async Task StopModel_Dispose_CancelStop()
     {
         IModelScraper model =
@@ -324,7 +324,7 @@ public class ModelScraperTest
             () => model.StopAsync(cancellationToken: cancellationTokenSource.Token));
     }
 
-    [Fact(Timeout = 5000)]
+    [Fact(Timeout = 20000)]
     public async Task ExecuteModel_Exec_With0DataAnd1ThreadWithoutError()
     {
         BlockingCollection<DateTime> blockList = new();
@@ -354,7 +354,7 @@ public class ModelScraperTest
         Assert.True(resultStop.IsSucess && model.State == ModelStateEnum.Disposed);
     }
 
-    [Fact(Timeout = 5000)]
+    [Fact(Timeout = 20000)]
     public async Task ExecuteModel_Exec_With0DataAnd10ThreadWithoutError()
     {
         BlockingCollection<DateTime> blockList = new();
@@ -384,7 +384,7 @@ public class ModelScraperTest
         Assert.True(resultStop.IsSucess && model.State == ModelStateEnum.Disposed);
     }
 
-    [Fact(Timeout = 5000)]
+    [Fact(Timeout = 20000)]
     public async Task ExecuteModel_Exec_With0DataAnd100ThreadWithoutError()
     {
         BlockingCollection<DateTime> blockList = new();
@@ -410,7 +410,7 @@ public class ModelScraperTest
         Assert.True(resultStop.IsSucess && model.State == ModelStateEnum.Disposed);
     }
 
-    [Fact(Timeout = 5000)]
+    [Fact(Timeout = 20000)]
     public async Task ExecuteModel_Exec_WhenAllWorkFinished()
     {
         BlockingCollection<DateTime> blockList = new();
@@ -439,7 +439,7 @@ public class ModelScraperTest
         Assert.True(resultStop.IsSucess);
     }
 
-    [Fact(Timeout = 5000)]
+    [Fact(Timeout = 20000)]
     public async Task ExecuteModel_Exec_WhenDataFinished()
     {
         BlockingCollection<DateTime> blockList = new();
@@ -464,7 +464,7 @@ public class ModelScraperTest
         Assert.True(model.State == ModelStateEnum.Disposed && isWhenDataFinished);
     }
 
-    [Fact(Timeout = 5000)]
+    [Fact(Timeout = 20000)]
     public async Task ExecuteModel_Exec_WhenOccursExceptionOk()
     {
         BlockingCollection<int> blockList = new();
@@ -492,7 +492,7 @@ public class ModelScraperTest
             isWhenDataFinished && isSucessDataSearch);
     }
 
-    [Fact(Timeout = 5000)]
+    [Fact(Timeout = 20000)]
     public async Task ExecuteModel_Pause_WhenPauseDoesNotCollectData()
     {
         const int maxWaiting = 100;
@@ -545,7 +545,7 @@ public class ModelScraperTest
         Assert.True(model.State == ModelStateEnum.Disposed);
     }
 
-    [Fact(Timeout = 5000)]
+    [Fact(Timeout = 20000)]
     public async Task ExecuteModel_Pause_WhenPauseDoesCheckCollectData()
     {
         const int maxWaiting = 1000;
@@ -597,7 +597,7 @@ public class ModelScraperTest
         Assert.True(model.State == ModelStateEnum.Disposed);
     }
 
-    [Fact(Timeout = 5000)]
+    [Fact(Timeout = 20000)]
     public async Task ExecuteModel_Stop_WhenStopDoesNotCollectData()
     {
         const int maxWaiting = 100;
@@ -637,7 +637,7 @@ public class ModelScraperTest
         Assert.True(model.State == ModelStateEnum.Disposed);
     }
 
-    [Fact(Timeout = 5000)]
+    [Fact(Timeout = 20000)]
     public async Task ExecuteModel_Stop_WhenStopDoesCheckCollectData()
     {
         const int maxWaiting = 1000;
@@ -677,7 +677,7 @@ public class ModelScraperTest
         Assert.True(model.State == ModelStateEnum.Disposed);
     }
 
-    [Fact(Timeout = 5000)]
+    [Fact(Timeout = 20000)]
     public async Task ExecuteModel_PauseAndDispose_DisposeWhenHavePaused()
     {
         const int maxWaiting = 1000;
@@ -727,7 +727,7 @@ public class ModelScraperTest
         Assert.Equal(ModelStateEnum.Disposed, model.State);
     }
 
-    [Fact(Timeout = 5000)]
+    [Fact(Timeout = 20000)]
     public async Task ExecuteModel_PauseAndDispose_DisposeAndPause()
     {
         const int maxWaiting = 1000;
@@ -781,7 +781,7 @@ public class ModelScraperTest
         Assert.Equal(ModelStateEnum.Disposed, model.State);
     }
 
-    [Fact(Timeout = 5000)]
+    [Fact(Timeout = 20000)]
     public async Task ExecuteModel_Pause_PauseAndUnPauseSeveralTimes()
     {
         const int maxWaiting = 1000;
@@ -893,7 +893,7 @@ public class ModelScraperTest
         Assert.Equal(ModelStateEnum.Disposed, model.State);
     }
 
-    [Fact(Timeout = 5000)]
+    [Fact(Timeout = 20000)]
     public async Task ExecuteModel_CollectSearchList_SucessSameElements()
     {
         IEnumerable<IntegerData> dataToSearch = IntegerDataFactory.GetData(100);
