@@ -120,7 +120,7 @@ public class ModelScraperTest
 
         Assert.True(isFinished);
 
-        Assert.True(blockList.Distinct().Count()>1);
+        Assert.True(blockList.Distinct().Any());
 
         var resultStop = model.StopAsync().GetAwaiter().GetResult();
 
