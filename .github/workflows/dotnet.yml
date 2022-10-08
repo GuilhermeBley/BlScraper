@@ -22,4 +22,6 @@ jobs:
     - name: Build
       run: dotnet build --no-restore
     - name: Test
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet test tests\BlScraper.Tests --no-build --verbosity --interactive
+    - name: Test DI
+      run: dotnet test tests\BlScraper.DependencyInjection.Tests --no-build --verbosity normal --interactive
