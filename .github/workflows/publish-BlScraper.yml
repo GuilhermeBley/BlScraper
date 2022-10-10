@@ -31,4 +31,4 @@ jobs:
       run: dotnet pack $SOLUTION -c Release -o out --no-build
       
     - name: Publish nuget
-      run: dotnet nuget push out/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.KEY_NUGET }} --skip-duplicate --no-symbols true
+      run: dotnet nuget push out/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.KEY_NUGET }} --no-symbols false
