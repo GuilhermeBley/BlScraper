@@ -218,20 +218,20 @@ public class ModelScraper<TQuest, TData> : IModelScraper
         if (pause && stateLocked == ModelStateEnum.WaitingPause)
         {
             await WaitStateAllContexts(ModelStateEnum.Paused, cancellationToken);
-            return ResultBase<PauseModel>.GetSucess(new PauseModel(PauseModelEnum.InProcess));
+            return ResultBase<PauseModel>.GetSuccess(new PauseModel(PauseModelEnum.InProcess));
         }
 
         if (!pause && stateLocked == ModelStateEnum.WaitingRunning)
         {
             await WaitStateAllContexts(ModelStateEnum.Running, cancellationToken);
-            return ResultBase<PauseModel>.GetSucess(new PauseModel(PauseModelEnum.InProcess));
+            return ResultBase<PauseModel>.GetSuccess(new PauseModel(PauseModelEnum.InProcess));
         }
 
         if (pause && _status.State == ModelStateEnum.Paused)
-            return ResultBase<PauseModel>.GetSucess(new PauseModel(PauseModelEnum.Paused));
+            return ResultBase<PauseModel>.GetSuccess(new PauseModel(PauseModelEnum.Paused));
 
         if (!pause && _status.State == ModelStateEnum.Running)
-            return ResultBase<PauseModel>.GetSucess(new PauseModel(PauseModelEnum.Running));
+            return ResultBase<PauseModel>.GetSuccess(new PauseModel(PauseModelEnum.Running));
 
         if (pause)
         {
@@ -256,7 +256,7 @@ public class ModelScraper<TQuest, TData> : IModelScraper
 
             await WaitStateAllContexts(ModelStateEnum.Paused, cancellationToken);
 
-            return ResultBase<PauseModel>.GetSucess(new PauseModel(PauseModelEnum.Paused));
+            return ResultBase<PauseModel>.GetSuccess(new PauseModel(PauseModelEnum.Paused));
         }
 
         if (!pause)
@@ -285,7 +285,7 @@ public class ModelScraper<TQuest, TData> : IModelScraper
 
             await WaitStateAllContexts(ModelStateEnum.Running, cancellationToken);
 
-            return ResultBase<PauseModel>.GetSucess(new PauseModel(PauseModelEnum.Running));
+            return ResultBase<PauseModel>.GetSuccess(new PauseModel(PauseModelEnum.Running));
         }
 
         else
@@ -373,7 +373,7 @@ public class ModelScraper<TQuest, TData> : IModelScraper
             lock (_stateLock)
                 _status.SetState(ModelStateEnum.Running);
 
-            return ResultBase<RunModel>.GetSucess(new RunModel(RunModelEnum.OkRequest, _countScraper));
+            return ResultBase<RunModel>.GetSuccess(new RunModel(RunModelEnum.OkRequest, _countScraper));
         }
         finally
         {
@@ -389,7 +389,7 @@ public class ModelScraper<TQuest, TData> : IModelScraper
         if (_status.IsDisposed())
         {
             await Task.CompletedTask;
-            return ResultBase<StopModel>.GetSucess(new StopModel(StopModelEnum.Stoped, "Already disposed"));
+            return ResultBase<StopModel>.GetSuccess(new StopModel(StopModelEnum.Stoped, "Already disposed"));
         }
 
         _mreWaitProcessing.WaitOne();
@@ -399,7 +399,7 @@ public class ModelScraper<TQuest, TData> : IModelScraper
         if (_status.State == ModelStateEnum.WaitingDispose)
             await WaitStateAllContexts(ModelStateEnum.Disposed, cancellationToken);
 
-        return ResultBase<StopModel>.GetSucess(new StopModel(StopModelEnum.Stoped));
+        return ResultBase<StopModel>.GetSuccess(new StopModel(StopModelEnum.Stoped));
     }
 
     /// <summary>
@@ -483,7 +483,7 @@ public class ModelScraper<TQuest, TData> : IModelScraper
                 RunLoopSearch(executionContext);
 
             executionContext.Context.SetCurrentStatusFinished();
-            return ResultBase<Exception?>.GetSucess(exceptionEnd);
+            return ResultBase<Exception?>.GetSuccess(exceptionEnd);
         }
         catch (Exception e)
         {
@@ -496,6 +496,9 @@ public class ModelScraper<TQuest, TData> : IModelScraper
     /// <summary>
     /// each worker thread execute this method
     /// </summary>
+    /// <remarks>
+    ///     <para>If this method return, this means which the execution was completed with success.</para>
+    /// </remarks>
     /// <param name="executionContext">Context execution</param>
     /// <exception cref="ArgumentNullException"><paramref name="executionContext"/></exception>
     private void RunLoopSearch(TQuest executionContext, TData? dataToSearch = null)
@@ -529,13 +532,11 @@ public class ModelScraper<TQuest, TData> : IModelScraper
 
         context.SetCurrentStatus(ContextRunEnum.Running);
 
-        if (_status.State != ModelStateEnum.Running &&
-            _contexts.All(context => context.Context.CurrentStatus == ContextRunEnum.Running))
+        if (_status.State != ModelStateEnum.Running)
         {
             lock(_stateLock)
                 _status.SetState(ModelStateEnum.Running);
         }
-
 
         if (dataToSearch is null)
             _searchData.TryDequeue(out dataToSearch);
@@ -565,9 +566,18 @@ public class ModelScraper<TQuest, TData> : IModelScraper
                 _whenOccursException.Invoke(e, dataToSearch);
         }
 
+        if (executionResult.ActionToNextData == ExecutionResultEnum.DisposeAll)
+        {
+            _searchData.Enqueue(dataToSearch);
+            _whenDataFinished?.Invoke(ResultBase<TData>.GetWithError(dataToSearch));
+            context.SetCurrentStatusWithException(new OperationCanceledException());
+            TryRequestStop();
+            throw new OperationCanceledException();
+        }
+
         if (executionResult.ActionToNextData == ExecutionResultEnum.Next)
         {
-            _whenDataFinished?.Invoke(ResultBase<TData>.GetSucess(dataToSearch));
+            _whenDataFinished?.Invoke(ResultBase<TData>.GetSuccess(dataToSearch));
             RunLoopSearch(executionContext, null);
             return;
         }
@@ -592,7 +602,7 @@ public class ModelScraper<TQuest, TData> : IModelScraper
             _searchData.Enqueue(dataToSearch);
             _whenDataFinished?.Invoke(ResultBase<TData>.GetWithError(dataToSearch));
             context.SetCurrentStatusWithException(exception);
-            return;
+            throw new OperationCanceledException();
         }
 
         if (_searchData.Any())
@@ -679,10 +689,10 @@ public class ModelScraper<TQuest, TData> : IModelScraper
                     return ResultBase<string>.GetWithError("Already started.");
 
                 if (state == _state)
-                    return ResultBase<string>.GetSucess($"Ok");
+                    return ResultBase<string>.GetSuccess($"Ok");
 
                 _state = state;
-                return ResultBase<string>.GetSucess("Ok");
+                return ResultBase<string>.GetSuccess("Ok");
             }
         }
 

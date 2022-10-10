@@ -66,14 +66,11 @@ public sealed class ContextRun
     /// <returns><see cref="ResultBase"/></returns>
     internal ResultBase<RequestStatusEnum> SetRequestStatus(ContextRunEnum requestStatus)
     {
-        if (Thread.CurrentThread.ManagedThreadId == _id)
-            return ResultBase<RequestStatusEnum>.GetWithError(RequestStatusEnum.NotAllowed);
-
         if (IsStatusDiposed(_requestStatus))
             return ResultBase<RequestStatusEnum>.GetWithError(RequestStatusEnum.Disposed);
 
         if (requestStatus.Equals(_requestStatus))
-            return ResultBase<RequestStatusEnum>.GetSucess(RequestStatusEnum.AlreadyRequested);
+            return ResultBase<RequestStatusEnum>.GetSuccess(RequestStatusEnum.AlreadyRequested);
 
         if (requestStatus.Equals(ContextRunEnum.DisposedWithError) ||
             requestStatus.Equals(ContextRunEnum.DisposedWithError))
@@ -81,7 +78,7 @@ public sealed class ContextRun
 
         _requestStatus = requestStatus;
 
-        return ResultBase<RequestStatusEnum>.GetSucess(RequestStatusEnum.Requested);
+        return ResultBase<RequestStatusEnum>.GetSuccess(RequestStatusEnum.Requested);
     }
 
     /// <summary>
@@ -101,11 +98,11 @@ public sealed class ContextRun
             return ResultBase<RequestStatusEnum>.GetWithError(RequestStatusEnum.Disposed);
 
         if (requestStatus.Equals(_currentStatus))
-            return ResultBase<RequestStatusEnum>.GetSucess(RequestStatusEnum.AlreadyRequested);
+            return ResultBase<RequestStatusEnum>.GetSuccess(RequestStatusEnum.AlreadyRequested);
 
         _currentStatus = requestStatus;
 
-        return ResultBase<RequestStatusEnum>.GetSucess(RequestStatusEnum.Requested);
+        return ResultBase<RequestStatusEnum>.GetSuccess(RequestStatusEnum.Requested);
     }
 
     /// <summary>
@@ -127,16 +124,16 @@ public sealed class ContextRun
             return ResultBase<RequestStatusEnum>.GetWithError(RequestStatusEnum.Disposed);
 
         if (requestStatus.Equals(_currentStatus))
-            return ResultBase<RequestStatusEnum>.GetSucess(RequestStatusEnum.AlreadyRequested);
+            return ResultBase<RequestStatusEnum>.GetSuccess(RequestStatusEnum.AlreadyRequested);
 
         _currentStatus = requestStatus;
         _exception = e;
 
-        return ResultBase<RequestStatusEnum>.GetSucess(RequestStatusEnum.Requested);
+        return ResultBase<RequestStatusEnum>.GetSuccess(RequestStatusEnum.Requested);
     }
 
     /// <summary>
-    /// Set the <see cref="CurrentStatus"/> equals a finished with sucess.
+    /// Set the <see cref="CurrentStatus"/> equals a finished with Success.
     /// </summary>
     /// <remarks>
     ///     <para>Only acessible with the context thread</para>
@@ -153,11 +150,11 @@ public sealed class ContextRun
             return ResultBase<RequestStatusEnum>.GetWithError(RequestStatusEnum.Disposed);
 
         if (requestStatus.Equals(_currentStatus))
-            return ResultBase<RequestStatusEnum>.GetSucess(RequestStatusEnum.AlreadyRequested);
+            return ResultBase<RequestStatusEnum>.GetSuccess(RequestStatusEnum.AlreadyRequested);
 
         _currentStatus = requestStatus;
 
-        return ResultBase<RequestStatusEnum>.GetSucess(RequestStatusEnum.Requested);
+        return ResultBase<RequestStatusEnum>.GetSuccess(RequestStatusEnum.Requested);
     }
 
     /// <summary>

@@ -37,7 +37,7 @@ public class QuestResult
     /// <see cref="QuestResult"/> with state Ok/Next
     /// </summary>
     /// <param name="message">Optional message</param>
-    /// <returns>new instace of <see cref="QuestResult"/></returns>
+    /// <returns>new instace of <see cref="QuestResult"/> with state equals a <see cref="ExecutionResultEnum.Next"/></returns>
     public static QuestResult Ok(object? message = null)
     {
         return new QuestResult(ExecutionResultEnum.Next, message);
@@ -47,7 +47,7 @@ public class QuestResult
     /// <see cref="QuestResult"/> with state Retry Same
     /// </summary>
     /// <param name="message">Optional message</param>
-    /// <returns>new instace of <see cref="QuestResult"/></returns>
+    /// <returns>new instace of <see cref="QuestResult"/> with state equals a <see cref="ExecutionResultEnum.RetrySame"/></returns>
     public static QuestResult RetrySame(object? message = null)
     {
         return new QuestResult(ExecutionResultEnum.RetrySame, message);
@@ -57,7 +57,7 @@ public class QuestResult
     /// <see cref="QuestResult"/> with state Retry Other
     /// </summary>
     /// <param name="message">Optional message</param>
-    /// <returns>new instace of <see cref="QuestResult"/></returns>
+    /// <returns>new instace of <see cref="QuestResult"/> with state equals a <see cref="ExecutionResultEnum.RetryOther"/></returns>
     public static QuestResult RetryOther(object? message = null)
     {
         return new QuestResult(ExecutionResultEnum.RetryOther, message);
@@ -67,10 +67,20 @@ public class QuestResult
     /// <see cref="QuestResult"/> with state Throw Exception
     /// </summary>
     /// <param name="message">Optional exception</param>
-    /// <returns>new instace of <see cref="QuestResult"/></returns>
+    /// <returns>new instace of <see cref="QuestResult"/> with state equals a <see cref="ExecutionResultEnum.ThrowException"/></returns>
     public static QuestResult ThrowException(Exception? exception = null)
     {
         return new QuestResult(ExecutionResultEnum.ThrowException, exception);
+    }
+
+    /// <summary>
+    /// Request all quests to dispose, cancel token and dispose <see cref="IModelScraper"/>
+    /// </summary>
+    /// <param name="args">Args</param>
+    /// <returns>new instace of <see cref="QuestResult"/> with state equals a <see cref="ExecutionResultEnum.DisposeAll"/></returns>
+    public static QuestResult DisposeAll(object? args = null)
+    {
+        return new QuestResult(ExecutionResultEnum.DisposeAll, args);
     }
 }
 
@@ -97,5 +107,10 @@ public enum ExecutionResultEnum : sbyte
     /// <summary>
     /// Throw exception
     /// </summary>
-    ThrowException = 4
+    ThrowException = 4,
+
+    /// <summary>
+    /// Dispose all scrapers
+    /// </summary>
+    DisposeAll = 5
 }
