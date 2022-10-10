@@ -3,17 +3,17 @@ namespace BlScraper.Results;
 public class ResultBase
 {
     private readonly object? _result;
-    private readonly bool _isSucess;
-    public bool IsSucess => _isSucess;
+    private readonly bool _isSuccess;
+    public bool IsSuccess => _isSuccess;
     public virtual object? ResultBaseObj => _result;
 
-    protected ResultBase(bool isSucess, object? result)
+    protected ResultBase(bool isSuccess, object? result)
     {
         _result = result;
-        _isSucess = isSucess;
+        _isSuccess = isSuccess;
     }
 
-    public static ResultBase GetSucess(object? result = null)
+    public static ResultBase GetSuccess(object? result = null)
     {
         return new ResultBase(true, result);
     }
@@ -30,12 +30,12 @@ public class ResultBase<T> : ResultBase
     public T Result => _result;
     public override object ResultBaseObj => _result!;
 
-    protected ResultBase(bool isSucess, object? resultBase, T result) : base(isSucess, resultBase)
+    protected ResultBase(bool isSuccess, object? resultBase, T result) : base(isSuccess, resultBase)
     {
         _result = result;
     }
 
-    public static ResultBase<T> GetSucess(T result)
+    public static ResultBase<T> GetSuccess(T result)
     {
         return new ResultBase<T>(true, result, result);
     }

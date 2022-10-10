@@ -21,7 +21,7 @@ public class ModelDisposeTest
     }
 
     [Fact(Timeout = 5000)]
-    public async Task Dispose_RunAndDispose_SucessDisposeOrWaitDipose()
+    public async Task Dispose_RunAndDispose_SuccessDisposeOrWaitDipose()
     {
         IModelScraper model =
             new ModelScraper<IntegerExecution, IntegerData>
@@ -33,7 +33,7 @@ public class ModelDisposeTest
 
         using (model)
         {
-            Assert.True((await model.Run()).IsSucess);
+            Assert.True((await model.Run()).IsSuccess);
         }
 
         Assert.True(ModelStateEnum.Disposed == model.State || 
@@ -41,7 +41,7 @@ public class ModelDisposeTest
     }
 
     [Fact(Timeout = 5000)]
-    public async Task Dispose_RunAndDisposeAsync_SucessDispose()
+    public async Task Dispose_RunAndDisposeAsync_SuccessDispose()
     {
         IModelScraper model =
             new ModelScraper<IntegerExecution, IntegerData>
@@ -51,7 +51,7 @@ public class ModelDisposeTest
                 async () => { await Task.CompletedTask; return IntegerDataFactory.GetData(100); }
             );
 
-        Assert.True((await model.Run()).IsSucess);
+        Assert.True((await model.Run()).IsSuccess);
 
         await model.DisposeAsync();
 
@@ -79,12 +79,12 @@ public class ModelDisposeTest
         var result = await model.Run();
 
         Assert.False(searched);
-        Assert.False(result.IsSucess);
+        Assert.False(result.IsSuccess);
         Assert.Equal(ModelStateEnum.Disposed, model.State);
     }
 
     [Fact(Timeout = 5000)]
-    public async Task Dispose_DisposeAndRunPauseAndUnpause_SucessDisposeOrWait()
+    public async Task Dispose_DisposeAndRunPauseAndUnpause_SuccessDisposeOrWait()
     {
         IModelScraper model =
             new ModelScraper<IntegerExecution, IntegerData>
@@ -96,24 +96,24 @@ public class ModelDisposeTest
 
         using (model)
         {
-            Assert.True((await model.Run()).IsSucess);    
+            Assert.True((await model.Run()).IsSuccess);    
         }
 
         var resultRun = await model.Run();
-        Assert.False(resultRun.IsSucess);
+        Assert.False(resultRun.IsSuccess);
 
         var resultPause = await model.PauseAsync(true);
-        Assert.False(resultPause.IsSucess);
+        Assert.False(resultPause.IsSuccess);
 
         var resultUnPause = await model.PauseAsync(false);
-        Assert.False(resultUnPause.IsSucess);
+        Assert.False(resultUnPause.IsSuccess);
 
         Assert.True(ModelStateEnum.Disposed == model.State || 
             ModelStateEnum.WaitingDispose == model.State);
     }
 
     [Fact(Timeout = 5000)]
-    public async Task Dispose_DisposeAndPauseAndUnpause_SucessDisposeOrWait()
+    public async Task Dispose_DisposeAndPauseAndUnpause_SuccessDisposeOrWait()
     {
         IModelScraper model =
             new ModelScraper<IntegerExecution, IntegerData>
@@ -125,14 +125,14 @@ public class ModelDisposeTest
 
         using (model)
         {
-            Assert.True((await model.Run()).IsSucess);    
+            Assert.True((await model.Run()).IsSuccess);    
         }
 
         var resultPause = await model.PauseAsync(true);
-        Assert.False(resultPause.IsSucess);
+        Assert.False(resultPause.IsSuccess);
 
         var resultUnPause = await model.PauseAsync(false);
-        Assert.False(resultUnPause.IsSucess);
+        Assert.False(resultUnPause.IsSuccess);
 
         Assert.True(ModelStateEnum.Disposed == model.State || 
             ModelStateEnum.WaitingDispose == model.State);
@@ -157,7 +157,7 @@ public class ModelDisposeTest
     }
 
     [Fact(Timeout = 5000)]
-    public async Task Dispose_RunAndDiposeAndDisposeAsync_SucessDispose()
+    public async Task Dispose_RunAndDiposeAndDisposeAsync_SuccessDispose()
     {
         const int maxData = 100;
         const int timeWaitExc = 100;
@@ -169,12 +169,12 @@ public class ModelDisposeTest
                 maxData/2,
                 () => new WaitingExecution(timeWaitExc),
                 async () => { await Task.CompletedTask; return IntegerDataFactory.GetData(maxData); },
-                whenDataFinished: (resultData) => { if (resultData.IsSucess) CollectedData.Add(resultData.Result); }
+                whenDataFinished: (resultData) => { if (resultData.IsSuccess) CollectedData.Add(resultData.Result); }
             );
 
         using (model)
         {
-            Assert.True((await model.Run()).IsSucess);
+            Assert.True((await model.Run()).IsSuccess);
             new SimpleMonitor().Wait(timeWaitExc / 2);
         }
 
@@ -183,5 +183,33 @@ public class ModelDisposeTest
         Assert.Equal(maxData / 2, CollectedData.Count);
 
         Assert.Equal(ModelStateEnum.Disposed, model.State);
+    }
+
+    [Fact(Timeout = 5000)]
+    public async Task DisposeQuest_RunAndWaitModelCompareDisposeExc_SuccessDisposeQuest()
+    {
+        ConcurrentDictionary<OnDisposeExecution, int> countDiposedExc = new();
+        IModelScraper model =
+            new ModelScraper<OnDisposeExecution, IntegerData>
+            (
+                20,
+                () => new OnDisposeExecution((exc) => { 
+                    if (countDiposedExc.TryAdd(exc, exc.DisposedCount))
+                        countDiposedExc.TryUpdate(exc, exc.DisposedCount, countDiposedExc[exc]); 
+                    }),
+                async () => { await Task.CompletedTask; return IntegerDataFactory.GetData(1000); }
+            );
+
+        using (model)
+        {
+            Assert.True((await model.Run()).IsSuccess);
+            await WaitFinishModel(model);
+        }
+
+        Assert.Equal(ModelStateEnum.Disposed, model.State);
+
+        Assert.All(countDiposedExc, dispExc => {
+            Assert.Equal(1, dispExc.Value);
+        });
     }
 }
