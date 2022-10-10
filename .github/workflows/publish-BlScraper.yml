@@ -12,7 +12,8 @@ jobs:
     runs-on: ubuntu-latest
     
     env:
-      config: 'Release'
+      BUILD_CONFIG: 'Release'
+      SOLUTION: 'src/BlScraper/BlScraper.csproj'
 
     steps:
     - uses: actions/checkout@v3
@@ -23,38 +24,11 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore
     - name: Build
-      run: dotnet build --no-restore --configuration $config
+      run: dotnet build $SOLUTION --no-restore --configuration $BUILD_CONFIG
       
-    - name: publish on version change
+    - name: pack version change
       id: publish_nuget
-      uses: brandedoutcast/publish-nuget@v2
-      with:
-        # Filepath of the project to be packaged, relative to root of repository
-        PROJECT_FILE_PATH: src/BlScraper/BlScraper.csproj      
-
-        # NuGet package id, used for version detection & defaults to project name
-        PACKAGE_NAME: BlScraper
-
-        # Filepath with version info, relative to root of repository & defaults to PROJECT_FILE_PATH
-        # VERSION_FILE_PATH: Directory.Build.props
-
-        # Regex pattern to extract version info in a capturing group
-        VERSION_REGEX: ^\s*<Version>(.*)<\/Version>\s*$
-
-        # Useful with external providers like Nerdbank.GitVersioning, ignores VERSION_FILE_PATH & VERSION_REGEX
-        # VERSION_STATIC: 1.0.x
-
-        # Flag to toggle git tagging, enabled by default
-        # TAG_COMMIT: true
-
-        # Format of the git tag, [*] gets replaced with actual version
-        # TAG_FORMAT: v*
-
-        # API key to authenticate with NuGet server
-        NUGET_KEY: ${{secrets.KEY_NUGET}}
-
-        # NuGet server uri hosting the packages, defaults to https://api.nuget.org
-        NUGET_SOURCE: https://api.nuget.org/v3
-
-        # Flag to toggle pushing symbols along with nuget package to the server, disabled by default
-        INCLUDE_SYMBOLS: false
+      run: dotnet pack $SOLUTION -c Release -o out --no-build
+      
+    - name: Publish nuget
+      run: dotnet nuget push out/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.KEY_NUGET }} --skip-duplicate --no-symbols true
