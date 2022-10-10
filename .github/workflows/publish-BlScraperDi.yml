@@ -13,7 +13,7 @@ jobs:
     
     env:
       BUILD_CONFIG: 'Release'
-      SOLUTION: 'src/BlScraper.DependencyInjection/BlScraper.csproj'
+      SOLUTION: 'src/BlScraper.DependencyInjection/BlScraper.DependencyInjection.csproj'
 
     steps:
     - uses: actions/checkout@v3
