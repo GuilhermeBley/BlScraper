@@ -1,0 +1,36 @@
+name: .NET
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    
+    env:
+      BUILD_CONFIG: 'Release'
+      SOLUTION: 'src/BlScraper.DependencyInjection/BlScraper.csproj'
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 6.0.x
+        
+    - name: Restore dependencies
+      run: dotnet restore
+      
+    - name: Build
+      run: dotnet build $SOLUTION --no-restore --configuration $BUILD_CONFIG
+      
+    - name: pack version change
+      id: publish_nuget
+      run: dotnet pack $SOLUTION -c Release -o out --no-build
+      
+    - name: Publish nuget
+      run: dotnet nuget push out/*.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.KEY_NUGET }} --skip-duplicate
