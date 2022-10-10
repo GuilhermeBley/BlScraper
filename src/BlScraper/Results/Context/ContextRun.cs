@@ -66,9 +66,6 @@ public sealed class ContextRun
     /// <returns><see cref="ResultBase"/></returns>
     internal ResultBase<RequestStatusEnum> SetRequestStatus(ContextRunEnum requestStatus)
     {
-        if (Thread.CurrentThread.ManagedThreadId == _id)
-            return ResultBase<RequestStatusEnum>.GetWithError(RequestStatusEnum.NotAllowed);
-
         if (IsStatusDiposed(_requestStatus))
             return ResultBase<RequestStatusEnum>.GetWithError(RequestStatusEnum.Disposed);
 

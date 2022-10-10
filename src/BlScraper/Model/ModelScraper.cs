@@ -529,13 +529,11 @@ public class ModelScraper<TQuest, TData> : IModelScraper
 
         context.SetCurrentStatus(ContextRunEnum.Running);
 
-        if (_status.State != ModelStateEnum.Running &&
-            _contexts.All(context => context.Context.CurrentStatus == ContextRunEnum.Running))
+        if (_status.State != ModelStateEnum.Running)
         {
             lock(_stateLock)
                 _status.SetState(ModelStateEnum.Running);
         }
-
 
         if (dataToSearch is null)
             _searchData.TryDequeue(out dataToSearch);
@@ -563,6 +561,14 @@ public class ModelScraper<TQuest, TData> : IModelScraper
             executionResult =
                 _whenOccursException is null ? QuestResult.ThrowException(e) :
                 _whenOccursException.Invoke(e, dataToSearch);
+        }
+
+        if (executionResult.ActionToNextData == ExecutionResultEnum.DisposeAll)
+        {
+            _searchData.Enqueue(dataToSearch);
+            _whenDataFinished?.Invoke(ResultBase<TData>.GetWithError(dataToSearch));
+            TryRequestStop();
+            return;
         }
 
         if (executionResult.ActionToNextData == ExecutionResultEnum.Next)
