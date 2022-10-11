@@ -73,7 +73,7 @@ public sealed class ContextRun
             return ResultBase<RequestStatusEnum>.GetSuccess(RequestStatusEnum.AlreadyRequested);
 
         if (requestStatus.Equals(ContextRunEnum.DisposedWithError) ||
-            requestStatus.Equals(ContextRunEnum.DisposedWithError))
+            requestStatus.Equals(ContextRunEnum.DisposedBecauseIsFinished))
             return ResultBase<RequestStatusEnum>.GetWithError(RequestStatusEnum.NotAllowed);
 
         _requestStatus = requestStatus;

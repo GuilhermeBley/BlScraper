@@ -20,8 +20,8 @@ public class ModelDisposeTest
         _output = output;
     }
 
-    [Fact(Timeout = 5000)]
-    public async Task Dispose_RunAndDispose_SuccessDisposeOrWaitDipose()
+    [Fact]
+    public async void Dispose_RunAndDispose_SuccessDisposeOrWaitDipose()
     {
         IModelScraper model =
             new ModelScraper<IntegerExecution, IntegerData>
@@ -40,8 +40,8 @@ public class ModelDisposeTest
             ModelStateEnum.WaitingDispose == model.State);
     }
 
-    [Fact(Timeout = 5000)]
-    public async Task Dispose_RunAndDisposeAsync_SuccessDispose()
+    [Fact]
+    public async void Dispose_RunAndDisposeAsync_SuccessDispose()
     {
         IModelScraper model =
             new ModelScraper<IntegerExecution, IntegerData>
@@ -58,8 +58,8 @@ public class ModelDisposeTest
         Assert.Equal(ModelStateEnum.Disposed, model.State);
     }
 
-    [Fact(Timeout = 5000)]
-    public async Task Dispose_DisposeAndRun_FailedRun()
+    [Fact]
+    public async void Dispose_DisposeAndRun_FailedRun()
     {
         bool searched = false;
         IModelScraper model =
@@ -83,8 +83,8 @@ public class ModelDisposeTest
         Assert.Equal(ModelStateEnum.Disposed, model.State);
     }
 
-    [Fact(Timeout = 5000)]
-    public async Task Dispose_DisposeAndRunPauseAndUnpause_SuccessDisposeOrWait()
+    [Fact]
+    public async void Dispose_DisposeAndRunPauseAndUnpause_SuccessDisposeOrWait()
     {
         IModelScraper model =
             new ModelScraper<IntegerExecution, IntegerData>
@@ -112,8 +112,8 @@ public class ModelDisposeTest
             ModelStateEnum.WaitingDispose == model.State);
     }
 
-    [Fact(Timeout = 5000)]
-    public async Task Dispose_DisposeAndPauseAndUnpause_SuccessDisposeOrWait()
+    [Fact]
+    public async void Dispose_DisposeAndPauseAndUnpause_SuccessDisposeOrWait()
     {
         IModelScraper model =
             new ModelScraper<IntegerExecution, IntegerData>
@@ -156,8 +156,8 @@ public class ModelDisposeTest
         return;
     }
 
-    [Fact(Timeout = 5000)]
-    public async Task Dispose_RunAndDiposeAndDisposeAsync_SuccessDispose()
+    [Fact]
+    public async void Dispose_RunAndDiposeAndDisposeAsync_SuccessDispose()
     {
         const int maxData = 100;
         const int timeWaitExc = 100;
@@ -185,8 +185,8 @@ public class ModelDisposeTest
         Assert.Equal(ModelStateEnum.Disposed, model.State);
     }
 
-    [Fact(Timeout = 5000)]
-    public async Task DisposeQuest_RunAndWaitModelCompareDisposeExc_SuccessDisposeQuest()
+    [Fact]
+    public async void DisposeQuest_RunAndWaitModelCompareDisposeExc_SuccessDisposeQuest()
     {
         ConcurrentDictionary<OnDisposeExecution, int> countDiposedExc = new();
         IModelScraper model =

@@ -14,7 +14,7 @@ namespace BlScraper.DependencyInjection.Tests;
 public class ModelScraperDiTest
 {
     [Fact(Timeout = 5000)]
-    public async Task ModelServices_InstanceAndRunWithoutServices_Success()
+    public async void ModelServices_InstanceAndRunWithoutServices_Success()
     {
         var servicesBase
             = new ServicesTestBase();
@@ -35,7 +35,7 @@ public class ModelScraperDiTest
     }
 
     [Fact(Timeout = 5000)]
-    public async Task ModelServices_InstanceAndRunWithObjUnusedInExc_FailedInstance()
+    public async void ModelServices_InstanceAndRunWithObjUnusedInExc_FailedInstance()
     {
         var servicesBase
             = new ServicesTestBase();
@@ -63,7 +63,7 @@ public class ModelScraperDiTest
 
 
     [Fact(Timeout = 5000)]
-    public async Task ModelServices_TryExecutionWith100ThreadsWith1ConstructorInExc_Success()
+    public async void ModelServices_TryExecutionWith100ThreadsWith1ConstructorInExc_Success()
     {
         var servicesBase
             = new ServicesTestBase((services) =>
@@ -114,7 +114,7 @@ public class ModelScraperDiTest
     }
 
     [Fact(Timeout = 5000)]
-    public async Task ModelServices_DiWithObjAndService_Success()
+    public async void ModelServices_DiWithObjAndService_Success()
     {
         var servicesBase
             = new ServicesTestBase((services) =>
@@ -138,7 +138,7 @@ public class ModelScraperDiTest
     }
 
     [Fact(Timeout = 5000)]
-    public async Task ModelServices_DiWithoutObjAndWithService_FailedRunExpectInvalidOperation()
+    public async void ModelServices_DiWithoutObjAndWithService_FailedRunExpectInvalidOperation()
     {
         var servicesBase
             = new ServicesTestBase((services) =>
@@ -165,7 +165,7 @@ public class ModelScraperDiTest
     }
 
     [Fact(Timeout = 5000)]
-    public async Task ModelServices_DiWithoutService_FailedRunExpectInvalidOperation()
+    public async void ModelServices_DiWithoutService_FailedRunExpectInvalidOperation()
     {
         var servicesBase
             = new ServicesTestBase((services) =>
@@ -193,7 +193,7 @@ public class ModelScraperDiTest
     }
 
     [Fact(Timeout = 5000)]
-    public async Task ModelServices_DiWithoutServiceAndObj_FailedRunExpectInvalidOperation()
+    public async void ModelServices_DiWithoutServiceAndObj_FailedRunExpectInvalidOperation()
     {
         var servicesBase
             = new ServicesTestBase((services) =>
@@ -219,7 +219,7 @@ public class ModelScraperDiTest
     }
 
     [Fact(Timeout = 5000)]
-    public async Task ModelServices_DiWithIServiceInArgs_SuccessArgsPriority()
+    public async void ModelServices_DiWithIServiceInArgs_SuccessArgsPriority()
     {
         var servicesBase
             = new ServicesTestBase((services) =>
@@ -250,7 +250,7 @@ public class ModelScraperDiTest
     }
 
     [Fact(Timeout = 5000)]
-    public async Task ModelServices_DiWithServiceInArgs_SuccessArgsPriority()
+    public async void ModelServices_DiWithServiceInArgs_SuccessArgsPriority()
     {
         var servicesBase
             = new ServicesTestBase((services) =>
@@ -281,7 +281,7 @@ public class ModelScraperDiTest
     }
 
     [Fact(Timeout = 5000)]
-    public async Task ServiceProvidier_DiWithTransient_FailedAllDifferent()
+    public async void ServiceProvidier_DiWithTransient_FailedAllDifferent()
     {
         var servicesBase
             = new ServicesTestBase((services) =>
@@ -313,7 +313,7 @@ public class ModelScraperDiTest
     }
 
     [Fact(Timeout = 5000)]
-    public async Task ServiceProvidier_DiWithScooped_SuccessAllExcEqual()
+    public async void ServiceProvidier_DiWithScooped_SuccessAllExcEqual()
     {
         var servicesBase
             = new ServicesTestBase((services) =>
@@ -349,7 +349,7 @@ public class ModelScraperDiTest
     }
 
     [Fact(Timeout = 5000)]
-    public async Task ServiceProvidier_DiWithSingleton_SuccessAllEqual()
+    public async void ServiceProvidier_DiWithSingleton_SuccessAllEqual()
     {
         var servicesBase
             = new ServicesTestBase((services) =>
@@ -386,7 +386,7 @@ public class ModelScraperDiTest
     }
 
     [Fact(Timeout = 5000)]
-    public async Task ShareService_DiSameServiceWithTransient_Success()
+    public async void ShareService_DiSameServiceWithTransient_Success()
     {
         var servicesBase
             = new ServicesTestBase((services) =>
@@ -436,7 +436,7 @@ public class ModelScraperDiTest
     }
 
     [Fact(Timeout = 5000)]
-    public async Task ShareService_DiSameServiceWithScooped_Success()
+    public async void ShareService_DiSameServiceWithScooped_Success()
     {
         var servicesBase
             = new ServicesTestBase((services) =>
@@ -486,7 +486,7 @@ public class ModelScraperDiTest
     }
 
     [Fact(Timeout = 5000)]
-    public async Task ShareService_DiSameServiceWithSingleton_Success()
+    public async void ShareService_DiSameServiceWithSingleton_Success()
     {
         var servicesBase
             = new ServicesTestBase((services) =>
@@ -536,7 +536,7 @@ public class ModelScraperDiTest
 
 
     [Fact(Timeout = 5000)]
-    public async Task ServiceProvidier_ServiceNeedsObj_FailedInjectObj()
+    public async void ServiceProvidier_ServiceNeedsObj_FailedInjectObj()
     {
         var servicesBase
             = new ServicesTestBase((services) =>
