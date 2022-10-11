@@ -192,7 +192,7 @@ public class ModelScraperTest
         Assert.True(resultStop.IsSuccess && model.State == ModelStateEnum.Disposed);
     }
 
-    [Fact(Timeout = Timeout.Infinite)]
+    [Fact(Timeout = 5000)]
     public async Task PauseModel_Pause_Pause()
     {
         IEnumerable<Results.ResultBase<Exception?>>? finishedList = null;
@@ -281,11 +281,12 @@ public class ModelScraperTest
     [Fact(Timeout = 5000)]
     public async Task PauseModel_Pause_CancelPause()
     {
+        CancellationTokenSource cts = new();
         IModelScraper model =
             new ModelScraper<EndlessWhileExecution, SimpleData>
             (
                 1,
-                () => new EndlessWhileExecution(),
+                () => new EndlessWhileExecution(cts.Token),
                 async () => { await Task.CompletedTask; return SimpleDataFactory.GetData(1); }
             );
 
@@ -295,22 +296,27 @@ public class ModelScraperTest
 
         var cancellationTokenSource = new CancellationTokenSource();
 
-        new Thread(
-            () => { Thread.Sleep(50); cancellationTokenSource.Cancel(); }
-        ).Start();
+        cancellationTokenSource.Cancel();
 
         await Assert.ThrowsAnyAsync<OperationCanceledException>(
             () => model.PauseAsync(true, cancellationToken: cancellationTokenSource.Token));
+
+        Assert.True(model.State == ModelStateEnum.WaitingPause 
+            || model.State == ModelStateEnum.Paused);
+
+        cts.Cancel();
+        cts.Dispose();
     }
 
     [Fact(Timeout = 5000)]
     public async Task StopModel_Dispose_CancelStop()
     {
+        CancellationTokenSource cts = new();
         IModelScraper model =
             new ModelScraper<EndlessWhileExecution, SimpleData>
             (
                 1,
-                () => new EndlessWhileExecution(),
+                () => new EndlessWhileExecution(cts.Token),
                 async () => { await Task.CompletedTask; return SimpleDataFactory.GetData(1); }
             );
 
@@ -324,6 +330,9 @@ public class ModelScraperTest
 
         await Assert.ThrowsAnyAsync<OperationCanceledException>(
             () => model.StopAsync(cancellationToken: cancellationTokenSource.Token));
+
+        cts.Cancel();
+        cts.Dispose();
     }
 
     [Fact(Timeout = 5000)]
@@ -975,7 +984,7 @@ public class ModelScraperTest
         IModelScraper model =
             new ModelScraper<DisposeAllExecution, IntegerData>
             (
-                20,
+                1,
                 () => new DisposeAllExecution(1),
                 async () => { await Task.CompletedTask; return IntegerDataFactory.GetData(1000); },
                 whenDataFinished: (resultData) => { if (resultData.IsSuccess) dataToCheck.Add(resultData.Result); }
