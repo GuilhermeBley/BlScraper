@@ -44,13 +44,32 @@ internal class ScrapBuilder : IScrapBuilder
         }
     }
 
-    public IModelScraper? CreateModelByQuestOrDefault(string name)
+    public IModelScraper? CreateModelByQuestOrDefault(string name, int initialQuantity)
     {
+        Type? questTypeFinded = null;
+
+        lock(_lock)
+        foreach (var assembly in _assemblies)
+        {
+            var localQuestTypeFinded = Type.GetType($"{assembly.FullName}.{name}", throwOnError: false, ignoreCase: true);
+
+            if (questTypeFinded is not null &&
+                localQuestTypeFinded is not null)
+                throw new ArgumentException($"Duplicate QuestTypes with name {name} was found.");
+
+            if (questTypeFinded is null)
+                continue;
+
+            questTypeFinded = localQuestTypeFinded;
+        }
+
+        if (questTypeFinded is null)
+            throw new ArgumentNullException($"QuestTypes with name {name} wasn't found.");
         
-        throw new NotImplementedException();
+        return Create(questTypeFinded, initialQuantity);
     }
 
-    private IModelScraper? Create(Type questType)
+    private IModelScraper? Create(Type questType, int initialQuantity)
     {
         if (!typeof(Quest<>).IsAssignableFrom(questType))
             return null;
@@ -76,6 +95,7 @@ internal class ScrapBuilder : IScrapBuilder
                 modelScraperType,
                 new object[]
                 {
+                    initialQuantity
                 }
             );
     }
