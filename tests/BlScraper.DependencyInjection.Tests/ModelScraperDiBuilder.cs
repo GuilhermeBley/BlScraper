@@ -13,6 +13,19 @@ namespace BlScraper.DependencyInjection.Tests;
 public class ModelScraperDiBuilder
 {
     [Fact]
+    public async Task AddScraperBuilder_UseExtensionService_SuccessAdd()
+    {
+        await Task.CompletedTask;
+        var servicesBase
+            = new ServicesTestBase(services => {
+                services
+                    .AddScraperBuilder();
+            });
+        
+        Assert.NotNull(servicesBase.ServiceProvider.GetService<IScrapBuilder>());
+    }
+
+    [Fact]
     public async Task AddScraperBuilder_AddSameService_SuccessSameTypeLocal()
     {
         await Task.CompletedTask;
@@ -22,8 +35,10 @@ public class ModelScraperDiBuilder
                     .AddScraperBuilder()
                     .AddScoped<IScrapBuilder, ScrapBuilderFake>();
             });
+        
+        var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
+
         Assert.IsType(
-            typeof(ScrapBuilderFake), 
-            servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>().GetType());
+            typeof(ScrapBuilderFake), service);
     }
 }
