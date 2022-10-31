@@ -1,7 +1,6 @@
-using BlScraper.DependencyInjection.Model;
-using BlScraper.Model;
+using BlScraper.DependencyInjection.Builder;
+using BlScraper.DependencyInjection.Extension.Builder;
 using Microsoft.Extensions.DependencyInjection;
-using System.Collections.Concurrent;
 
 namespace BlScraper.DependencyInjection.Tests;
 
@@ -17,5 +16,8 @@ public class ModelScraperDiBuilder
     public async Task Test()
     {
         await Task.CompletedTask;
+        var servicesBase
+            = new ServicesTestBase(services => services.AddScraperBuilder());
+        var scrapBuilder = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
     }
 }
