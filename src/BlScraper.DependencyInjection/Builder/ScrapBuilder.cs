@@ -1,3 +1,4 @@
+using BlScraper.DependencyInjection.ConfigureBuilder;
 using BlScraper.DependencyInjection.Model;
 using BlScraper.Model;
 
@@ -30,15 +31,17 @@ internal class ScrapBuilder : IScrapBuilder
     public ScrapBuilder(IServiceProvider serviceProvider)
     {
         _serviceProvider = serviceProvider;
+        _assemblies.Add(System.Reflection.Assembly.GetExecutingAssembly());
     }
 
     /// <summary>
-    /// Try add new assemblies to map
+    /// Instance with service provider
     /// </summary>
-    /// <param name="assembly">Assemblie to add</param>
-    public void AddAssembly(System.Reflection.Assembly assembly)
+    /// <param name="serviceProvider"></param>
+    public ScrapBuilder(IServiceProvider serviceProvider, AssemblyBuilderAdd assemblyBuilderAdd)
     {
-        lock(_lock)
+        _serviceProvider = serviceProvider;
+        foreach (var assembly in assemblyBuilderAdd.Assemblies)
         {
             _assemblies.Add(assembly);
         }
@@ -48,24 +51,25 @@ internal class ScrapBuilder : IScrapBuilder
     {
         Type? questTypeFinded = null;
 
-        lock(_lock)
-        foreach (var assembly in _assemblies)
-        {
-            var localQuestTypeFinded = Type.GetType($"{assembly.FullName}.{name}", throwOnError: false, ignoreCase: true);
+        lock (_lock)
+            foreach (var assembly in _assemblies)
+            {
+                var localQuestTypeFinded
+                    = MapClassFromAssemblie(assembly).FirstOrDefault(pair => pair.Key == name.ToUpper()).Value;
 
-            if (questTypeFinded is not null &&
-                localQuestTypeFinded is not null)
-                throw new ArgumentException($"Duplicate QuestTypes with name {name} was found.");
+                if (questTypeFinded is not null &&
+                    localQuestTypeFinded is not null)
+                    throw new ArgumentException($"Duplicate QuestTypes with name {name} was found.");
 
-            if (questTypeFinded is null)
-                continue;
+                if (localQuestTypeFinded is null)
+                    continue;
 
-            questTypeFinded = localQuestTypeFinded;
-        }
+                questTypeFinded = localQuestTypeFinded;
+            }
 
         if (questTypeFinded is null)
             throw new ArgumentNullException($"QuestTypes with name {name} wasn't found.");
-        
+
         return Create(questTypeFinded, initialQuantity);
     }
 
@@ -88,7 +92,7 @@ internal class ScrapBuilder : IScrapBuilder
 
         var modelScraperGenericType = typeof(ModelScraperService<,>);
 
-        var modelScraperType = modelScraperGenericType.MakeGenericType(new Type[]{ questType, tData });
+        var modelScraperType = modelScraperGenericType.MakeGenericType(new Type[] { questType, tData });
 
         return
             (IModelScraper?)Activator.CreateInstance(
@@ -98,5 +102,45 @@ internal class ScrapBuilder : IScrapBuilder
                     initialQuantity
                 }
             );
+    }
+
+    /// <summary>
+    /// Map all classes which is a instance of type <see cref="BlScraper.Model.Quest{TData}"/>
+    /// </summary>
+    /// <param name="assembly">assembly types</param>
+    /// <returns>Type list of quests</returns>
+    /// <exception cref="ArgumentException"/>
+    private static IEnumerable<KeyValuePair<string, Type>> MapClassFromAssemblie(System.Reflection.Assembly assembly)
+    {
+        Dictionary<string, Type> dictionaryTypeQuests = new();
+
+        foreach (Type type in assembly.GetTypes())
+        {
+            if (type.IsClass &&
+                !type.IsAbstract &&
+                IsSubclassOfRawGeneric(typeof(BlScraper.Model.Quest<>), type))
+            {
+                var normalizedName = type.Name.ToUpper();
+                if (dictionaryTypeQuests.ContainsKey(normalizedName))
+                    throw new ArgumentException($"Duplicate names with value {normalizedName}.");
+                dictionaryTypeQuests.Add(normalizedName, type);
+            }
+        }
+
+        return dictionaryTypeQuests;
+    }
+
+    static bool IsSubclassOfRawGeneric(Type generic, Type toCheck)
+    {
+        while (toCheck != null && toCheck != typeof(object))
+        {
+            var cur = toCheck.IsGenericType ? toCheck.GetGenericTypeDefinition() : toCheck;
+            if (generic == cur)
+            {
+                return true;
+            }
+            toCheck = toCheck.BaseType!;
+        }
+        return false;
     }
 }
