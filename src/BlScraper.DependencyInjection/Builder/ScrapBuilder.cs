@@ -130,7 +130,7 @@ internal class ScrapBuilder : IScrapBuilder
         return dictionaryTypeQuests;
     }
 
-    static bool IsSubclassOfRawGeneric(Type generic, Type toCheck)
+    private static bool IsSubclassOfRawGeneric(Type generic, Type toCheck)
     {
         while (toCheck != null && toCheck != typeof(object))
         {
