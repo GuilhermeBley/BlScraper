@@ -73,7 +73,8 @@ internal class ScrapBuilder : IScrapBuilder
         return Create(questTypeFinded, initialQuantity);
     }
 
-    private IModelScraper? Create(Type questType, int initialQuantity)
+    private IModelScraper? Create(
+        Type questType, int initialQuantity)
     {
         if (!typeof(Quest<>).IsAssignableFrom(questType))
             return null;
