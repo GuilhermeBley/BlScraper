@@ -1,4 +1,5 @@
 using BlScraper.DependencyInjection.ConfigureBuilder;
+using BlScraper.DependencyInjection.ConfigureModel;
 using BlScraper.DependencyInjection.Model;
 using BlScraper.Model;
 
@@ -70,15 +71,14 @@ internal class ScrapBuilder : IScrapBuilder
         if (questTypeFinded is null)
             throw new ArgumentNullException($"QuestTypes with name {name} wasn't found.");
 
-        return Create(questTypeFinded, initialQuantity);
+        return Create(questTypeFinded);
     }
 
-    private IModelScraper? Create(
-        Type questType, int initialQuantity)
+    private IModelScraper? Create(Type questType)
     {
         if (!typeof(Quest<>).IsAssignableFrom(questType))
             return null;
-
+        
         Type? tData = null;
         foreach (var interfaceQuest in questType.GetInterfaces())
         {
@@ -94,13 +94,13 @@ internal class ScrapBuilder : IScrapBuilder
         var modelScraperGenericType = typeof(ModelScraperService<,>);
 
         var modelScraperType = modelScraperGenericType.MakeGenericType(new Type[] { questType, tData });
-
+        
         return
             (IModelScraper?)Activator.CreateInstance(
                 modelScraperType,
                 new object[]
                 {
-                    initialQuantity
+                    
                 }
             );
     }
@@ -131,6 +131,12 @@ internal class ScrapBuilder : IScrapBuilder
         return dictionaryTypeQuests;
     }
 
+    /// <summary>
+    /// Checks if type is assignable from a generic
+    /// </summary>
+    /// <param name="generic">Generic type</param>
+    /// <param name="toCheck">Type to check</param>
+    /// <returns>true : is assignable from generic type, false : don't is</returns>
     private static bool IsSubclassOfRawGeneric(Type generic, Type toCheck)
     {
         while (toCheck != null && toCheck != typeof(object))
