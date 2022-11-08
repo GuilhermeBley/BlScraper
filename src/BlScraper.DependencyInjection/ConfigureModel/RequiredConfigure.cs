@@ -7,10 +7,43 @@ namespace BlScraper.DependencyInjection.ConfigureModel;
 /// </summary>
 /// <typeparam name="TQuest">Identifier quest</typeparam>
 /// <typeparam name="TData">Data type</typeparam>
-public interface IRequiredConfigure<TQuest, TData>
+public abstract class RequiredConfigure<TQuest, TData> : IRequiredConfigure
     where TQuest : Quest<TData>
     where TData : class
-{   
+{
+    /// <inheritdoc cref="IRequiredConfigure.IsRequiredAllWorksEnd" path="*"/>
+    public virtual bool IsRequiredAllWorksEnd => false;
+
+    /// <inheritdoc cref="IRequiredConfigure.IsRequiredArgs" path="*"/>
+    public virtual bool IsRequiredArgs => false;
+
+    /// <inheritdoc cref="IRequiredConfigure.IsRequiredDataCollected" path="*"/>
+    public virtual bool IsRequiredDataCollected => false;
+
+    /// <inheritdoc cref="IRequiredConfigure.IsRequiredDataFinished" path="*"/>
+    public virtual bool IsRequiredDataFinished => false;
+
+    /// <inheritdoc cref="IRequiredConfigure.IsRequiredQuestCreated" path="*"/>
+    public virtual bool IsRequiredQuestCreated => false;
+
+    /// <inheritdoc cref="IRequiredConfigure.IsRequiredQuestException" path="*"/>
+    public virtual bool IsRequiredQuestException => false;
+
+    /// <inheritdoc cref="IRequiredConfigure.initialQuantity" path="*"/>
+    public abstract int initialQuantity { get; }
+
+    /// <summary>
+    /// Called to collect data to search
+    /// </summary>
+    /// <returns>Async list of data</returns>
+    public abstract Task<IEnumerable<TData>> GetData();
+}
+
+/// <summary>
+/// Required events
+/// </summary>
+internal interface IRequiredConfigure
+{
     /// <summary>
     /// Checks if is required type of <see cref="IOnAllWorksEndConfigure{TQuest, TData}"/>
     /// </summary>
@@ -63,10 +96,4 @@ public interface IRequiredConfigure<TQuest, TData>
     /// Initial quantity to execute
     /// </summary>
     int initialQuantity { get; }
-
-    /// <summary>
-    /// Called to collect data to search
-    /// </summary>
-    /// <returns>Async list of data</returns>
-    Task<IEnumerable<TData>> GetData();
 }
