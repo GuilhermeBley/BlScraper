@@ -63,7 +63,7 @@ internal static class TypeUtils
         {
             if (type.IsClass &&
                 !type.IsAbstract &&
-                !type.IsPublic &&
+                type.IsPublic &&
                 TypeUtils.IsSubclassOfRawGeneric(typeGenericToMap, type))
             {
                 var normalizedName = type.Name.ToUpper();
@@ -111,17 +111,18 @@ internal static class TypeUtils
     }
 
     /// <summary>
-    /// Create delegate by method info
+    /// Create delegate by methodinfo in target
     /// </summary>
     /// <param name="method">method info</param>
+    /// <param name="target">A instance of the object which contains the method where will be execute</param>
     /// <returns>delegate or null</returns>
-    public static Delegate? CreateDelegate(MethodInfo? method, object? target)
+    public static Delegate? CreateDelegateWithTarget(MethodInfo? method, object? target)
     {
         if (method is null ||
             target is null)
             return null;
 
-        if (!method.IsStatic)
+        if (method.IsStatic)
             return null;
 
         if (method.IsGenericMethod)

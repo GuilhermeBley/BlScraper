@@ -68,7 +68,7 @@ public class ModelScraperService<TQuest, TData> : ModelScraper<TQuest, TData>
         var functionExc = () =>
         {
             IServiceScope scope = serviceProvider.CreateScope();
-            var exc = ActivatorUtilities.CreateInstance<TQuest>(scope.ServiceProvider, args);
+            var exc = (TQuest)ActivatorUtilities.CreateInstance(scope.ServiceProvider, typeof(TQuest), args);
             whenExecutionCreated?.Invoke(exc);
             return exc;
         };

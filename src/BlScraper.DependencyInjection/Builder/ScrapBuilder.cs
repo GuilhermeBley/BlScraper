@@ -25,16 +25,6 @@ internal class ScrapBuilder : IScrapBuilder
     /// Instance with service provider
     /// </summary>
     /// <param name="serviceProvider"></param>
-    public ScrapBuilder(IServiceProvider serviceProvider)
-    {
-        _serviceProvider = serviceProvider;
-        _assemblies.Add(System.Reflection.Assembly.GetExecutingAssembly());
-    }
-
-    /// <summary>
-    /// Instance with service provider
-    /// </summary>
-    /// <param name="serviceProvider"></param>
     public ScrapBuilder(IServiceProvider serviceProvider, AssemblyBuilderAdd assemblyBuilderAdd)
     {
         _serviceProvider = serviceProvider;
@@ -46,6 +36,18 @@ internal class ScrapBuilder : IScrapBuilder
 
     public IModelScraper? CreateModelByQuestOrDefault(string name)
     {
+        try
+        {
+            return CreateModelByQuest(name);
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    public IModelScraper CreateModelByQuest(string name)
+    {
         Type? questTypeFinded = null;
 
         foreach (var assembly in _assemblies)
@@ -56,7 +58,7 @@ internal class ScrapBuilder : IScrapBuilder
 
             if (questTypeFinded is not null &&
                 localQuestTypeFinded is not null)
-                throw new ArgumentException($"Duplicate QuestTypes with name {name} was found.");
+                throw new ArgumentException($"Duplicate QuestTypes with name {name} was found in {localQuestTypeFinded.FullName} and {questTypeFinded.FullName}.");
 
             if (localQuestTypeFinded is null)
                 continue;
@@ -70,16 +72,14 @@ internal class ScrapBuilder : IScrapBuilder
         return Create(questTypeFinded);
     }
 
-    private IModelScraper? Create(Type questType)
+    private IModelScraper Create(Type questType)
     {
         var model = new ScrapModelsInternal(questType);
 
         SetParametersOnModel(model);
 
-        var modelScraperGenericType = typeof(ModelScraperService<,>);
+        var modelScraperType = typeof(ModelScraperService<,>).MakeGenericType(model.QuestType, model.DataType);
 
-        var modelScraperType = modelScraperGenericType.MakeGenericType(model.QuestType, model.DataType);
-        
         return
             (IModelScraper?)Activator.CreateInstance(
                 modelScraperType,
@@ -87,15 +87,15 @@ internal class ScrapBuilder : IScrapBuilder
                 {
                     ((IRequiredConfigure)model.InstaceRequired!).initialQuantity,
                     _serviceProvider,
-                    TypeUtils.CreateDelegate(model.InstaceRequired.GetType().GetMethod("GetData"), model.InstaceRequired) ?? throw new ArgumentNullException("GetData"),
-                    TypeUtils.CreateDelegate(model.InstanceQuestException?.GetType().GetMethod("OnOccursException", new Type[] { typeof(Exception), model.DataType }), model.InstanceQuestException) ?? null!,
-                    TypeUtils.CreateDelegate(model.InstanceDataFinished?.GetType().GetMethod("OnDataFinished", new Type[] { typeof(Results.ResultBase<>).MakeGenericType(model.DataType) }), model.InstanceDataFinished) ?? null!,
-                    TypeUtils.CreateDelegate(model.InstanceAllWorksEnd?.GetType().GetMethod("OnFinished", new Type[] { typeof(IEnumerable<Results.ResultBase<Exception?>>) }), model.InstanceAllWorksEnd) ?? null!,
-                    TypeUtils.CreateDelegate(model.InstanceDataCollected?.GetType().GetMethod("OnCollected", new Type[] { typeof(IEnumerable<>).MakeGenericType(model.DataType) }), model.InstanceDataCollected) ?? null!,
-                    TypeUtils.CreateDelegate(model.InstanceQuestCreated?.GetType().GetMethod("OnCreated", new Type[] { model.QuestType }), model.InstanceQuestCreated) ?? null!,
-                    (object[]?) model.InstanceArgs?.GetType().GetMethod("GetArgs")?.Invoke(model.InstanceArgs, null) ?? null!
+                    TypeUtils.CreateDelegateWithTarget(model.InstaceRequired.GetType().GetMethod("GetData"), model.InstaceRequired) ?? throw new ArgumentNullException("GetData"),
+                    TypeUtils.CreateDelegateWithTarget(model.InstanceQuestException?.GetType().GetMethod("OnOccursException", new Type[] { typeof(Exception), model.DataType }), model.InstanceQuestException) ?? null!,
+                    TypeUtils.CreateDelegateWithTarget(model.InstanceDataFinished?.GetType().GetMethod("OnDataFinished", new Type[] { typeof(Results.ResultBase<>).MakeGenericType(model.DataType) }), model.InstanceDataFinished) ?? null!,
+                    TypeUtils.CreateDelegateWithTarget(model.InstanceAllWorksEnd?.GetType().GetMethod("OnFinished", new Type[] { typeof(IEnumerable<Results.ResultBase<Exception?>>) }), model.InstanceAllWorksEnd) ?? null!,
+                    TypeUtils.CreateDelegateWithTarget(model.InstanceDataCollected?.GetType().GetMethod("OnCollected", new Type[] { typeof(IEnumerable<>).MakeGenericType(model.DataType) }), model.InstanceDataCollected) ?? null!,
+                    TypeUtils.CreateDelegateWithTarget(model.InstanceQuestCreated?.GetType().GetMethod("OnCreated", new Type[] { model.QuestType }), model.InstanceQuestCreated) ?? null!,
+                    (object[]?) model.InstanceArgs?.GetType().GetMethod("GetArgs")?.Invoke(model.InstanceArgs, null) ?? new object[0]
                 }
-            );
+            ) ?? throw new ArgumentNullException(nameof(IModelScraper));
     }
 
     private void SetParametersOnModel(ScrapModelsInternal model)
@@ -103,7 +103,7 @@ internal class ScrapBuilder : IScrapBuilder
         #region RequiredConfigure
         Type typeInstaceRequired =
             TypeUtils.TryGetUniqueAssignableFrom(_assemblies.ToArray(), typeof(RequiredConfigure<,>).MakeGenericType(model.QuestType, model.DataType)) 
-            ?? throw new ArgumentException($"Is necessary a {typeof(RequiredConfigure<,>).Name} of quest {model.QuestType.FullName}.");
+            ?? throw new ArgumentException($"Is necessary a {typeof(RequiredConfigure<,>).FullName} of quest {model.QuestType.FullName}.");
 
         model.InstaceRequired =
             ActivatorUtilities.CreateInstance(_serviceProvider.CreateScope().ServiceProvider, typeInstaceRequired);
@@ -204,5 +204,4 @@ internal class ScrapBuilder : IScrapBuilder
 
         return dictionaryTypeQuests;
     }
-
 }
