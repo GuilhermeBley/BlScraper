@@ -12,5 +12,5 @@ public interface IScrapBuilder
     /// </summary>
     /// <param name="name">Quest Name</param>
     /// <returns>Model Scraper or null</returns>
-    IModelScraper? CreateModelByQuestOrDefault(string name, int initialQuantity);
+    IModelScraper? CreateModelByQuestOrDefault(string name);
 }

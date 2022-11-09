@@ -44,7 +44,7 @@ internal class ScrapBuilder : IScrapBuilder
         }
     }
 
-    public IModelScraper? CreateModelByQuestOrDefault(string name, int initialQuantity)
+    public IModelScraper? CreateModelByQuestOrDefault(string name)
     {
         Type? questTypeFinded = null;
 
@@ -86,8 +86,14 @@ internal class ScrapBuilder : IScrapBuilder
                 new object[]
                 {
                     ((IRequiredConfigure)model.InstaceRequired!).initialQuantity,
-                    _serviceProvider
-
+                    _serviceProvider,
+                    TypeUtils.CreateDelegate(model.InstaceRequired.GetType().GetMethod("GetData"), model.InstaceRequired) ?? throw new ArgumentNullException("GetData"),
+                    TypeUtils.CreateDelegate(model.InstanceQuestException?.GetType().GetMethod("OnOccursException", new Type[] { typeof(Exception), model.DataType }), model.InstanceQuestException) ?? null!,
+                    TypeUtils.CreateDelegate(model.InstanceDataFinished?.GetType().GetMethod("OnDataFinished", new Type[] { typeof(Results.ResultBase<>).MakeGenericType(model.DataType) }), model.InstanceDataFinished) ?? null!,
+                    TypeUtils.CreateDelegate(model.InstanceAllWorksEnd?.GetType().GetMethod("OnFinished", new Type[] { typeof(IEnumerable<Results.ResultBase<Exception?>>) }), model.InstanceAllWorksEnd) ?? null!,
+                    TypeUtils.CreateDelegate(model.InstanceDataCollected?.GetType().GetMethod("OnCollected", new Type[] { typeof(IEnumerable<>).MakeGenericType(model.DataType) }), model.InstanceDataCollected) ?? null!,
+                    TypeUtils.CreateDelegate(model.InstanceQuestCreated?.GetType().GetMethod("OnCreated", new Type[] { model.QuestType }), model.InstanceQuestCreated) ?? null!,
+                    (object[]?) model.InstanceArgs?.GetType().GetMethod("GetArgs")?.Invoke(model.InstanceArgs, null) ?? null!
                 }
             );
     }

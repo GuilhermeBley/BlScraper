@@ -115,9 +115,10 @@ internal static class TypeUtils
     /// </summary>
     /// <param name="method">method info</param>
     /// <returns>delegate or null</returns>
-    static Delegate? CreateDelegate(MethodInfo method)
+    public static Delegate? CreateDelegate(MethodInfo? method, object? target)
     {
-        if (method == null)
+        if (method is null ||
+            target is null)
             return null;
 
         if (!method.IsStatic)
@@ -129,6 +130,6 @@ internal static class TypeUtils
         return method.CreateDelegate(Expression.GetDelegateType(
             (from parameter in method.GetParameters() select parameter.ParameterType)
             .Concat(new[] { method.ReturnType })
-            .ToArray()));
+            .ToArray()), target);
     }
 }
