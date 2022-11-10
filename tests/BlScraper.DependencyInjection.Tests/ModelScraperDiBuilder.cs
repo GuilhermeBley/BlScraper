@@ -159,4 +159,37 @@ public class ModelScraperDiBuilder
         var model = service.CreateModelByQuestOrDefault("ObsoleteQuest");
         Assert.Null(model);
     }
+
+    [Fact]
+    public async Task CreateModel_TryInstanceModelTwoWithSameName_FailedBecauseBothAsSameName()
+    {
+        await Task.CompletedTask;
+        var servicesBase
+            = new ServicesTestBase(services => {
+                services
+                    .AddScraperBuilder(config => config.AddAssembly(this.GetType().Assembly));
+            });
+        
+        var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
+
+        var model = service.CreateModelByQuestOrDefault(nameof(SimpleQuestDuplicated));
+        Assert.Null(model);
+    }
+
+    
+    [Fact]
+    public async Task CreateModel_TryInstanceModelTwoWithSameName_SuccessBecauseOneIsObsolete()
+    {
+        await Task.CompletedTask;
+        var servicesBase
+            = new ServicesTestBase(services => {
+                services
+                    .AddScraperBuilder(config => config.AddAssembly(this.GetType().Assembly));
+            });
+        
+        var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
+
+        var model = service.CreateModelByQuestOrDefault(nameof(SimpleQuestDuplicatedObsolete));
+        Assert.IsType<Model.ModelScraperService<SimpleQuestDuplicatedObsolete, PublicSimpleData>>(model);
+    }
 }

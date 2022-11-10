@@ -48,20 +48,28 @@ internal class ScrapBuilder : IScrapBuilder
 
     public IModelScraper CreateModelByQuest(string name)
     {
+        if (string.IsNullOrEmpty(name))
+            throw new ArgumentNullException(nameof(name));
+
         Type? questTypeFinded = null;
 
         foreach (var assembly in _assemblies)
         {
-            var localQuestTypeFinded
-                = MapClassByQuestNameAssemblie(assembly)
-                    .FirstOrDefault(pair => pair.Key == name.ToUpper()).Value;
+            var localValuePair = 
+                MapClassByQuestNameAssemblie(assembly)
+                    .Where(pair => pair.Name == name.ToUpper());
+
+            if (!localValuePair.Any())
+                continue;
+
+            if (localValuePair.Count() != 1)
+                throw new ArgumentException($"Duplicate names with value {localValuePair.First().Name} in: {string.Join('\n', localValuePair.Select(pair => pair.Type.FullName))}.");
+
+            var localQuestTypeFinded = localValuePair.First().Type;
 
             if (questTypeFinded is not null &&
                 localQuestTypeFinded is not null)
                 throw new ArgumentException($"Duplicate QuestTypes with name {name} was found in {localQuestTypeFinded.FullName} and {questTypeFinded.FullName}.", nameof(name));
-
-            if (localQuestTypeFinded is null)
-                continue;
 
             questTypeFinded = localQuestTypeFinded;
         }
@@ -187,25 +195,24 @@ internal class ScrapBuilder : IScrapBuilder
     /// <summary>
     /// Map all classes which is a instance of type <see cref="BlScraper.Model.Quest{TData}"/>
     /// </summary>
+    /// <remarks>
+    ///     <para>If found a class with same name, the value going to be null</para>
+    /// </remarks>
     /// <param name="assembly">assembly types</param>
     /// <returns>Type list of quests</returns>
-    /// <exception cref="ArgumentException"/>
-    private static IEnumerable<KeyValuePair<string, Type>> MapClassByQuestNameAssemblie(System.Reflection.Assembly assembly)
+    private static IEnumerable<(string Name, Type Type)> MapClassByQuestNameAssemblie(System.Reflection.Assembly assembly)
     {
-        Dictionary<string, Type> dictionaryTypeQuests = new();
+        List<(string Name, Type Type)> listTypeQuests = new();
 
         foreach (Type type in TypeUtils.MapClassFromAssemblie(assembly, typeof(BlScraper.Model.Quest<>)))
         {
             if (TypeUtils.IsObsolete(type))
                 continue;
-
-            var normalizedName = type.Name.ToUpper();
-            if (dictionaryTypeQuests.ContainsKey(normalizedName))
-                throw new ArgumentException($"Duplicate names with value {normalizedName} in {type.FullName} and {dictionaryTypeQuests[normalizedName].FullName}.");
-            dictionaryTypeQuests.Add(normalizedName, type);
+                
+            listTypeQuests.Add((type.Name.ToUpper(), type));
         }
 
-        return dictionaryTypeQuests;
+        return listTypeQuests;
     }
 
     /// <summary>
