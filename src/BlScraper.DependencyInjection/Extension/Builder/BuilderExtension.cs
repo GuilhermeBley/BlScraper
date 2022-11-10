@@ -6,14 +6,6 @@ namespace BlScraper.DependencyInjection.Extension.Builder;
 
 public static class BuilderExtension
 {
-    public static IServiceCollection AddScraperBuilder(this IServiceCollection serviceCollection)
-    {
-        return 
-            serviceCollection
-                .AddSingleton(typeof(IScrapBuilder), typeof(ScrapBuilder));
-    }
-
-    
     public static IServiceCollection AddScraperBuilder(this IServiceCollection serviceCollection, Action<AssemblyBuilderAdd> onAddAssemblies)
     {
         return 

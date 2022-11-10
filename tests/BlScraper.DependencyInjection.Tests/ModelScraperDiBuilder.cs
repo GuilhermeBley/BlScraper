@@ -21,7 +21,7 @@ public class ModelScraperDiBuilder
         var servicesBase
             = new ServicesTestBase(services => {
                 services
-                    .AddScraperBuilder();
+                    .AddScraperBuilder(config => config.AddAssembly(this.GetType().Assembly));
             });
         
         Assert.NotNull(servicesBase.ServiceProvider.GetService<IScrapBuilder>());
@@ -34,7 +34,7 @@ public class ModelScraperDiBuilder
         var servicesBase
             = new ServicesTestBase(services => {
                 services
-                    .AddScraperBuilder()
+                    .AddScraperBuilder(config=>config.AddAssembly(this.GetType().Assembly))
                     .AddScoped<IScrapBuilder, ScrapBuilderFake>();
             });
         
@@ -51,7 +51,7 @@ public class ModelScraperDiBuilder
             = new ServicesTestBase(services => {
                 services
                     .AddScoped<IScrapBuilder, ScrapBuilderFake>()
-                    .AddScraperBuilder();
+                    .AddScraperBuilder(config=>config.AddAssembly(this.GetType().Assembly));
             });
         
         var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
@@ -142,5 +142,21 @@ public class ModelScraperDiBuilder
         
         Assert.True(await model.WaitModelDispose(new CancellationTokenSource(5000).Token));
         Assert.Equal(countData, SimpleQuest.Counter);
+    }
+
+    [Fact]
+    public async Task CreateModel_TryInstanceModel_FailedBecauseQuestIsObsolete()
+    {
+        await Task.CompletedTask;
+        var servicesBase
+            = new ServicesTestBase(services => {
+                services
+                    .AddScraperBuilder(config => config.AddAssembly(this.GetType().Assembly));
+            });
+        
+        var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
+
+        var model = service.CreateModelByQuestOrDefault("ObsoleteQuest");
+        Assert.Null(model);
     }
 }

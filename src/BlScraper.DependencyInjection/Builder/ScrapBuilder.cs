@@ -58,7 +58,7 @@ internal class ScrapBuilder : IScrapBuilder
 
             if (questTypeFinded is not null &&
                 localQuestTypeFinded is not null)
-                throw new ArgumentException($"Duplicate QuestTypes with name {name} was found in {localQuestTypeFinded.FullName} and {questTypeFinded.FullName}.");
+                throw new ArgumentException($"Duplicate QuestTypes with name {name} was found in {localQuestTypeFinded.FullName} and {questTypeFinded.FullName}.", nameof(name));
 
             if (localQuestTypeFinded is null)
                 continue;
@@ -67,7 +67,7 @@ internal class ScrapBuilder : IScrapBuilder
         }
 
         if (questTypeFinded is null)
-            throw new ArgumentNullException($"QuestTypes with name {name} wasn't found.");
+            throw new ArgumentException($"QuestTypes with name {name} wasn't found. Check if the possible class target is public, non-obsolete and concrete.", nameof(name));
 
         return Create(questTypeFinded);
     }
@@ -101,9 +101,9 @@ internal class ScrapBuilder : IScrapBuilder
     private void SetParametersOnModel(ScrapModelsInternal model)
     {
         #region RequiredConfigure
-        Type typeInstaceRequired =
-            TypeUtils.TryGetUniqueAssignableFrom(_assemblies.ToArray(), typeof(RequiredConfigure<,>).MakeGenericType(model.QuestType, model.DataType)) 
-            ?? throw new ArgumentException($"Is necessary a {typeof(RequiredConfigure<,>).FullName} of quest {model.QuestType.FullName}.");
+        Type typeInstaceRequired = 
+            TypeUtils.TryGetUniqueAssignableFrom(_assemblies.ToArray(), typeof(RequiredConfigure<,>).MakeGenericType(model.QuestType, model.DataType))
+            ?? throw ThrowRequiredTypeNotFound(model, typeof(RequiredConfigure<,>));
 
         model.InstaceRequired =
             ActivatorUtilities.CreateInstance(_serviceProvider.CreateScope().ServiceProvider, typeInstaceRequired);
@@ -116,7 +116,7 @@ internal class ScrapBuilder : IScrapBuilder
             TypeUtils.TryGetUniqueAssignableFrom(_assemblies.ToArray(), typeof(IOnAllWorksEndConfigure<,>).MakeGenericType(model.QuestType, model.DataType));
 
         if (typeInstaceAllWorksEnd is null && configure.IsRequiredAllWorksEnd)
-            throw new ArgumentException($"Is necessary a {typeof(IOnAllWorksEndConfigure<,>).Name} of quest {model.QuestType.FullName}.");
+            throw ThrowRequiredTypeNotFound(model, typeof(IOnAllWorksEndConfigure<,>));
 
         if (typeInstaceAllWorksEnd is not null)
             model.InstanceAllWorksEnd = 
@@ -128,7 +128,7 @@ internal class ScrapBuilder : IScrapBuilder
             TypeUtils.TryGetUniqueAssignableFrom(_assemblies.ToArray(), typeof(IGetArgsConfigure<,>).MakeGenericType(model.QuestType, model.DataType));
 
         if (typeInstaceArgs is null && configure.IsRequiredArgs)
-            throw new ArgumentException($"Is necessary a {typeof(IGetArgsConfigure<,>).Name} of quest {model.QuestType.FullName}.");
+            throw ThrowRequiredTypeNotFound(model, typeof(IGetArgsConfigure<,>));
 
         if (typeInstaceArgs is not null)
             model.InstanceArgs = 
@@ -140,7 +140,7 @@ internal class ScrapBuilder : IScrapBuilder
             TypeUtils.TryGetUniqueAssignableFrom(_assemblies.ToArray(), typeof(IOnDataCollectedConfigure<,>).MakeGenericType(model.QuestType, model.DataType));
 
         if (typeDataCollected is null && configure.IsRequiredDataCollected)
-            throw new ArgumentException($"Is necessary a {typeof(IOnDataCollectedConfigure<,>).Name} of quest {model.QuestType.FullName}.");
+            throw ThrowRequiredTypeNotFound(model, typeof(IOnDataCollectedConfigure<,>));
 
         if (typeDataCollected is not null)
             model.InstanceDataCollected = 
@@ -152,7 +152,7 @@ internal class ScrapBuilder : IScrapBuilder
             TypeUtils.TryGetUniqueAssignableFrom(_assemblies.ToArray(), typeof(IDataFinishedConfigure<,>).MakeGenericType(model.QuestType, model.DataType));
 
         if (typeDataFinished is null && configure.IsRequiredDataFinished)
-            throw new ArgumentException($"Is necessary a {typeof(IDataFinishedConfigure<,>).Name} of quest {model.QuestType.FullName}.");
+            throw ThrowRequiredTypeNotFound(model, typeof(IDataFinishedConfigure<,>));
 
         if (typeDataFinished is not null)
             model.InstanceDataFinished = 
@@ -164,7 +164,7 @@ internal class ScrapBuilder : IScrapBuilder
             TypeUtils.TryGetUniqueAssignableFrom(_assemblies.ToArray(), typeof(IOnQuestCreatedConfigure<,>).MakeGenericType(model.QuestType, model.DataType));
 
         if (typeQuestCreated is null && configure.IsRequiredQuestCreated)
-            throw new ArgumentException($"Is necessary a {typeof(IOnQuestCreatedConfigure<,>).Name} of quest {model.QuestType.FullName}.");
+            throw ThrowRequiredTypeNotFound(model, typeof(IOnQuestCreatedConfigure<,>));
 
         if (typeQuestCreated is not null)
             model.InstanceQuestCreated = 
@@ -176,7 +176,7 @@ internal class ScrapBuilder : IScrapBuilder
             TypeUtils.TryGetUniqueAssignableFrom(_assemblies.ToArray(), typeof(IQuestExceptionConfigure<,>).MakeGenericType(model.QuestType, model.DataType));
 
         if (typeQuestException is null && configure.IsRequiredQuestException)
-            throw new ArgumentException($"Is necessary a {typeof(IQuestExceptionConfigure<,>).Name} of quest {model.QuestType.FullName}.");
+            throw ThrowRequiredTypeNotFound(model, typeof(IQuestExceptionConfigure<,>));
 
         if (typeQuestException is not null)
             model.InstanceQuestException = 
@@ -196,6 +196,9 @@ internal class ScrapBuilder : IScrapBuilder
 
         foreach (Type type in TypeUtils.MapClassFromAssemblie(assembly, typeof(BlScraper.Model.Quest<>)))
         {
+            if (TypeUtils.IsObsolete(type))
+                continue;
+
             var normalizedName = type.Name.ToUpper();
             if (dictionaryTypeQuests.ContainsKey(normalizedName))
                 throw new ArgumentException($"Duplicate names with value {normalizedName} in {type.FullName} and {dictionaryTypeQuests[normalizedName].FullName}.");
@@ -203,5 +206,14 @@ internal class ScrapBuilder : IScrapBuilder
         }
 
         return dictionaryTypeQuests;
+    }
+
+    /// <summary>
+    /// Return a exception
+    /// </summary>
+    private static ArgumentException ThrowRequiredTypeNotFound(ScrapModelsInternal model, Type typeNotFound)
+    {
+        return new ArgumentException($"Is necessary a {typeNotFound.FullName} of quest {model.QuestType.FullName}."+
+            " Check if the possible class target is public, non-obsolete and concrete.", $"{typeNotFound.Name}");
     }
 }

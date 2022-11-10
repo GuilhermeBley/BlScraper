@@ -81,9 +81,10 @@ internal static class TypeUtils
     /// <param name="typeTo">type to check assignable from</param>
     /// <param name="onlyClass">Only classes is mapped, true to map only classes</param>
     /// <param name="nonAbstract">Abstract members isn't mapped, true to non map abstract</param>
+    /// <param name="nonObsolete">If true, Don't map type which contains <see cref="ObsoleteAttribute"/></param>
     /// <returns>Type founded or null</returns>
     /// <exception cref="ArgumentException">Conflict</exception>
-    public static Type? TryGetUniqueAssignableFrom(Assembly[] assemblies, Type typeTo, bool onlyClass = true, bool nonAbstract = true)
+    public static Type? TryGetUniqueAssignableFrom(Assembly[] assemblies, Type typeTo, bool onlyClass = true, bool nonAbstract = true, bool nonObsolete = true)
     {
         Type? finded = null;
 
@@ -91,10 +92,13 @@ internal static class TypeUtils
         {
             foreach (var type in assembly.GetTypes())
             {
-                if (!type.IsClass && onlyClass)
+                if (onlyClass && !type.IsClass)
                     continue;
 
-                if (type.IsAbstract && nonAbstract)
+                if (nonAbstract && type.IsAbstract)
+                    continue;
+
+                if (nonObsolete && IsObsolete(type))
                     continue;
 
                 if (!typeTo.IsAssignableFrom(type))
@@ -132,5 +136,49 @@ internal static class TypeUtils
             (from parameter in method.GetParameters() select parameter.ParameterType)
             .Concat(new[] { method.ReturnType })
             .ToArray()), target);
+    }
+
+    /// <summary>
+    /// Checks if type contains attribute obsolete
+    /// </summary>
+    /// <param name="type">Type to check</param>
+    /// <param name="checkBase">If true, Checks all of the base type</param>
+    /// <returns>true : obsolete attribute was find</returns>
+    public static bool IsObsolete(Type? type, bool checkBase = true)
+    {
+        if (type is null)
+            return false;
+
+        do
+        {
+            if (type.GetCustomAttribute<ObsoleteAttribute>() is not null)
+                return true;
+
+            type = type.BaseType;
+        } while (checkBase && type is not null);
+
+        return false;
+    }
+
+    /// <summary>
+    /// Checks if method contains attribute obsolete
+    /// </summary>
+    /// <param name="methodInfo">Method to check</param>
+    /// <param name="checkBase">If true, Checks all of the base methods</param>
+    /// <returns>true : obsolete attribute was find</returns>
+    public static bool IsObsolete(MethodInfo? methodInfo, bool checkBase = true)
+    {
+        if (methodInfo is null)
+            return false;
+
+        do
+        {
+            if (methodInfo.GetCustomAttribute<ObsoleteAttribute>() is not null)
+                return true;
+
+            methodInfo = methodInfo.GetRuntimeBaseDefinition();
+        } while (checkBase && methodInfo is not null);
+
+        return false;
     }
 }
