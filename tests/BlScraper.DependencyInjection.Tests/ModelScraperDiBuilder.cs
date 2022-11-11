@@ -3,6 +3,7 @@ using BlScraper.DependencyInjection.Extension.Builder;
 using BlScraper.DependencyInjection.Tests.QuestsBuilder;
 using Microsoft.Extensions.DependencyInjection;
 using BlScraper.DependencyInjection.Tests.Extension;
+using BlScraper.DependencyInjection.ConfigureModel;
 
 namespace BlScraper.DependencyInjection.Tests;
 
@@ -175,7 +176,6 @@ public class ModelScraperDiBuilder
         var model = service.CreateModelByQuestOrDefault(nameof(SimpleQuestDuplicated));
         Assert.Null(model);
     }
-
     
     [Fact]
     public async Task CreateModel_TryInstanceModelTwoWithSameName_SuccessBecauseOneIsObsolete()
@@ -191,5 +191,115 @@ public class ModelScraperDiBuilder
 
         var model = service.CreateModelByQuestOrDefault(nameof(SimpleQuestDuplicatedObsolete));
         Assert.IsType<Model.ModelScraperService<SimpleQuestDuplicatedObsolete, PublicSimpleData>>(model);
+    }
+
+    [Fact]
+    public async Task RequiredConfig_TryInstanceWithoutRequiredConifg_FailedAllWorksEnd()
+    {
+        await Task.CompletedTask;
+        var servicesBase
+            = new ServicesTestBase(services => {
+                services
+                    .AddScraperBuilder(config => config.AddAssembly(this.GetType().Assembly));
+            });
+        
+        var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
+        
+        Assert.Throws<ArgumentException>(
+            typeof(IOnAllWorksEndConfigure<,>).Name, ()=>{ 
+                service.CreateModelByQuest(nameof(WithoutAllWorksEndQuest));        
+            });
+    }
+    
+    [Fact]
+    public async Task RequiredConfig_TryInstanceWithoutRequiredConifg_FailedGetArgs()
+    {
+        await Task.CompletedTask;
+        var servicesBase
+            = new ServicesTestBase(services => {
+                services
+                    .AddScraperBuilder(config => config.AddAssembly(this.GetType().Assembly));
+            });
+        
+        var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
+        
+        Assert.Throws<ArgumentException>(
+            typeof(IGetArgsConfigure<,>).Name, ()=>{ 
+                service.CreateModelByQuest(nameof(WithoutGetArgsQuest));        
+            });
+    }
+
+    
+    [Fact]
+    public async Task RequiredConfig_TryInstanceWithoutRequiredConifg_FailedDataCollected()
+    {
+        await Task.CompletedTask;
+        var servicesBase
+            = new ServicesTestBase(services => {
+                services
+                    .AddScraperBuilder(config => config.AddAssembly(this.GetType().Assembly));
+            });
+        
+        var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
+        
+        Assert.Throws<ArgumentException>(
+            typeof(IOnDataCollectedConfigure<,>).Name, ()=>{ 
+                service.CreateModelByQuest(nameof(WithoutDataCollectedQuest));        
+            });
+    }
+
+    [Fact]
+    public async Task RequiredConfig_TryInstanceWithoutRequiredConifg_FailedDataFinished()
+    {
+        await Task.CompletedTask;
+        var servicesBase
+            = new ServicesTestBase(services => {
+                services
+                    .AddScraperBuilder(config => config.AddAssembly(this.GetType().Assembly));
+            });
+        
+        var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
+        
+        Assert.Throws<ArgumentException>(
+            typeof(IDataFinishedConfigure<,>).Name, ()=>{ 
+                service.CreateModelByQuest(nameof(WithoutDataFinishedQuest));        
+            });
+    }
+    
+    [Fact]
+    public async Task RequiredConfig_TryInstanceWithoutRequiredConifg_FailedQuestCreated()
+    {
+        await Task.CompletedTask;
+        var servicesBase
+            = new ServicesTestBase(services => {
+                services
+                    .AddScraperBuilder(config => config.AddAssembly(this.GetType().Assembly));
+            });
+        
+        var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
+        
+        Assert.Throws<ArgumentException>(
+            typeof(IOnQuestCreatedConfigure<,>).Name, ()=>{ 
+                service.CreateModelByQuest(nameof(WithoutQuestCreatedQuest));        
+            });
+    }
+
+    
+    [Fact]
+    public async Task RequiredConfig_TryInstanceWithoutRequiredConifg_FailedQuestException()
+    {
+        await Task.CompletedTask;
+        var servicesBase
+            = new ServicesTestBase(services => {
+                services
+                    .AddScraperBuilder(config => config.AddAssembly(this.GetType().Assembly));
+            });
+        
+        var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
+        
+        Assert.Throws<ArgumentException>(
+            typeof(IQuestExceptionConfigure<,>).Name, ()=>{ 
+                service.CreateModelByQuest(nameof(WithoutQuestExceptionQuest));        
+            });
     }
 }
