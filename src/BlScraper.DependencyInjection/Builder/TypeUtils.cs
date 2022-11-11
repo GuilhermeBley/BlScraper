@@ -84,7 +84,7 @@ internal static class TypeUtils
     /// <param name="nonObsolete">If true, Don't map type which contains <see cref="ObsoleteAttribute"/></param>
     /// <returns>Type founded or null</returns>
     /// <exception cref="ArgumentException">Conflict</exception>
-    public static Type? TryGetUniqueAssignableFrom(Assembly[] assemblies, Type typeTo, bool onlyClass = true, bool nonAbstract = true, bool nonObsolete = true)
+    public static Type? GetUniqueAssignableFrom(Assembly[] assemblies, Type typeTo, bool onlyClass = true, bool nonAbstract = true, bool nonObsolete = true)
     {
         Type? finded = null;
 
