@@ -16,5 +16,5 @@ public interface IDataFinishedConfigure<TQuest, TData>
     /// On data finished
     /// </summary>
     /// <param name="resultFinished">Result after search</param>
-    Task OnDataFinished(ResultBase<TData> resultFinished);
+    void OnDataFinished(ResultBase<TData> resultFinished);
 }

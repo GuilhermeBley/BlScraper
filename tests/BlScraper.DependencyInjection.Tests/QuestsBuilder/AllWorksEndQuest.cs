@@ -40,9 +40,8 @@ public class AllWorksEndConfigure : IOnAllWorksEndConfigure<AllWorksEndQuest, Pu
         _routeService = routeService;
     }
 
-    public async Task OnFinished(IEnumerable<ResultBase<Exception?>> results)
+    public void OnFinished(IEnumerable<ResultBase<Exception?>> results)
     {
-        await Task.CompletedTask;
         _routeService.Add(this.GetType().GetMethod(nameof(OnFinished)));
     }
 }

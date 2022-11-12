@@ -39,9 +39,8 @@ public class DataFinishedConfigure : IDataFinishedConfigure<DataFinishedQuest, P
     {
         _routeService = routeService;
     }
-    public async Task OnDataFinished(ResultBase<PublicSimpleData> resultFinished)
+    public void OnDataFinished(ResultBase<PublicSimpleData> resultFinished)
     {
-        await Task.CompletedTask;
         _routeService.Add(this.GetType().GetMethod(nameof(OnDataFinished)));
     }
 }

@@ -284,7 +284,6 @@ public class ModelScraperDiBuilder
             });
     }
 
-    
     [Fact]
     public async Task RequiredConfig_TryInstanceWithoutRequiredConifg_FailedQuestException()
     {
@@ -301,5 +300,149 @@ public class ModelScraperDiBuilder
             typeof(IQuestExceptionConfigure<,>).Name, ()=>{ 
                 service.CreateModelByQuest(nameof(WithoutQuestExceptionQuest));        
             });
+    }
+    
+    [Fact]
+    public async Task RequiredConfig_TryInstanceWithRequiredConifg_SuccessDataCollected()
+    {
+        const int countData = 10;
+        var servicesBase
+            = new ServicesTestBase(services => {
+                services
+                    .AddScraperBuilder(config => config.AddAssembly(this.GetType().Assembly))
+                    .AddSingleton<IRouteService, RouteService>()
+                    .AddScoped<IServiceMocPublicSimpleData>((serviceProvider)=> new ServiceMocPublicSimpleData(countData));;
+            });
+        
+        var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
+        var serviceRoute = servicesBase.ServiceProvider.GetRequiredService<IRouteService>();
+        
+        var model = service.CreateModelByQuest(nameof(DataCollectedQuest));
+        await model.Run();
+
+        Assert.True(await model.WaitModelDispose(new CancellationTokenSource(3000).Token));
+
+        Assert.Contains(typeof(DataCollectedConfigure).GetMethod(nameof(DataCollectedConfigure.OnCollected)),
+            serviceRoute.Routes);
+    }
+    
+    [Fact]
+    public async Task RequiredConfig_TryInstanceWithRequiredConifg_SuccessAllWorksEnd()
+    {
+        const int countData = 10;
+        var servicesBase
+            = new ServicesTestBase(services => {
+                services
+                    .AddScraperBuilder(config => config.AddAssembly(this.GetType().Assembly))
+                    .AddSingleton<IRouteService, RouteService>()
+                    .AddScoped<IServiceMocPublicSimpleData>((serviceProvider)=> new ServiceMocPublicSimpleData(countData));;
+            });
+        
+        var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
+        var serviceRoute = servicesBase.ServiceProvider.GetRequiredService<IRouteService>();
+        
+        var model = service.CreateModelByQuest(nameof(AllWorksEndQuest));
+        await model.Run();
+
+        Assert.True(await model.WaitModelDispose(new CancellationTokenSource(3000).Token));
+
+        Assert.Contains(typeof(AllWorksEndConfigure).GetMethod(nameof(AllWorksEndConfigure.OnFinished)),
+            serviceRoute.Routes);
+    }
+
+    [Fact]
+    public async Task RequiredConfig_TryInstanceWithRequiredConifg_SuccessDataFinished()
+    {
+        const int countData = 10;
+        var servicesBase
+            = new ServicesTestBase(services => {
+                services
+                    .AddScraperBuilder(config => config.AddAssembly(this.GetType().Assembly))
+                    .AddSingleton<IRouteService, RouteService>()
+                    .AddScoped<IServiceMocPublicSimpleData>((serviceProvider)=> new ServiceMocPublicSimpleData(countData));;
+            });
+        
+        var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
+        var serviceRoute = servicesBase.ServiceProvider.GetRequiredService<IRouteService>();
+        
+        var model = service.CreateModelByQuest(nameof(DataFinishedQuest));
+        await model.Run();
+
+        Assert.True(await model.WaitModelDispose(new CancellationTokenSource(3000).Token));
+
+        Assert.Contains(typeof(DataFinishedConfigure).GetMethod(nameof(DataFinishedConfigure.OnDataFinished)),
+            serviceRoute.Routes);
+    }
+    
+    [Fact]
+    public async Task RequiredConfig_TryInstanceWithRequiredConifg_SuccessGetArgs()
+    {
+        const int countData = 10;
+        var servicesBase
+            = new ServicesTestBase(services => {
+                services
+                    .AddScraperBuilder(config => config.AddAssembly(this.GetType().Assembly))
+                    .AddSingleton<IRouteService, RouteService>()
+                    .AddScoped<IServiceMocPublicSimpleData>((serviceProvider)=> new ServiceMocPublicSimpleData(countData));;
+            });
+        
+        var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
+        var serviceRoute = servicesBase.ServiceProvider.GetRequiredService<IRouteService>();
+        
+        var model = service.CreateModelByQuest(nameof(GetArgsQuest));
+        await model.Run();
+
+        Assert.True(await model.WaitModelDispose(new CancellationTokenSource(3000).Token));
+
+        Assert.Contains(typeof(GetArgsConfigure).GetMethod(nameof(GetArgsConfigure.GetArgs)),
+            serviceRoute.Routes);
+    }
+    
+    [Fact]
+    public async Task RequiredConfig_TryInstanceWithRequiredConifg_SuccessQuestCreated()
+    {
+        const int countData = 10;
+        var servicesBase
+            = new ServicesTestBase(services => {
+                services
+                    .AddScraperBuilder(config => config.AddAssembly(this.GetType().Assembly))
+                    .AddSingleton<IRouteService, RouteService>()
+                    .AddScoped<IServiceMocPublicSimpleData>((serviceProvider)=> new ServiceMocPublicSimpleData(countData));;
+            });
+        
+        var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
+        var serviceRoute = servicesBase.ServiceProvider.GetRequiredService<IRouteService>();
+        
+        var model = service.CreateModelByQuest(nameof(QuestCreatedQuest));
+        await model.Run();
+
+        Assert.True(await model.WaitModelDispose(new CancellationTokenSource(3000).Token));
+
+        Assert.Contains(typeof(QuestCreatedConfigure).GetMethod(nameof(QuestCreatedConfigure.OnCreated)),
+            serviceRoute.Routes);
+    }
+
+    [Fact]
+    public async Task RequiredConfig_TryInstanceWithRequiredConifg_SuccessQuestException()
+    {
+        const int countData = 10;
+        var servicesBase
+            = new ServicesTestBase(services => {
+                services
+                    .AddScraperBuilder(config => config.AddAssembly(this.GetType().Assembly))
+                    .AddSingleton<IRouteService, RouteService>()
+                    .AddScoped<IServiceMocPublicSimpleData>((serviceProvider)=> new ServiceMocPublicSimpleData(countData));;
+            });
+        
+        var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
+        var serviceRoute = servicesBase.ServiceProvider.GetRequiredService<IRouteService>();
+        
+        var model = service.CreateModelByQuest(nameof(QuestExceptionQuest));
+        await model.Run();
+
+        Assert.True(await model.WaitModelDispose(new CancellationTokenSource(3000).Token));
+
+        Assert.Contains(typeof(QuestExceptionConfigure).GetMethod(nameof(QuestExceptionConfigure.OnOccursException)),
+            serviceRoute.Routes);
     }
 }

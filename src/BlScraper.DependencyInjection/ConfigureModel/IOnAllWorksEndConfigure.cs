@@ -18,5 +18,5 @@ public interface IOnAllWorksEndConfigure<TQuest, TData>
     /// </summary>
     /// <param name="results">results of quests completed</param>
     /// <returns>async</returns>
-    Task OnFinished(IEnumerable<ResultBase<Exception?>> results);
+    void OnFinished(IEnumerable<ResultBase<Exception?>> results);
 }
