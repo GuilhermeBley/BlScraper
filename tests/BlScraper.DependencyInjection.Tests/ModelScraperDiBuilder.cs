@@ -303,7 +303,7 @@ public class ModelScraperDiBuilder
     }
     
     [Fact]
-    public async Task RequiredConfig_TryInstanceWithRequiredConifg_SuccessDataCollected()
+    public async Task RequiredConfig_TryInstanceWithRequiredConfig_SuccessDataCollected()
     {
         const int countData = 10;
         var servicesBase
@@ -327,7 +327,7 @@ public class ModelScraperDiBuilder
     }
     
     [Fact]
-    public async Task RequiredConfig_TryInstanceWithRequiredConifg_SuccessAllWorksEnd()
+    public async Task RequiredConfig_TryInstanceWithRequiredConfig_SuccessAllWorksEnd()
     {
         const int countData = 10;
         var servicesBase
@@ -351,7 +351,7 @@ public class ModelScraperDiBuilder
     }
 
     [Fact]
-    public async Task RequiredConfig_TryInstanceWithRequiredConifg_SuccessDataFinished()
+    public async Task RequiredConfig_TryInstanceWithRequiredConfig_SuccessDataFinished()
     {
         const int countData = 10;
         var servicesBase
@@ -375,7 +375,7 @@ public class ModelScraperDiBuilder
     }
     
     [Fact]
-    public async Task RequiredConfig_TryInstanceWithRequiredConifg_SuccessGetArgs()
+    public async Task RequiredConfig_TryInstanceWithRequiredConfig_SuccessGetArgs()
     {
         const int countData = 10;
         var servicesBase
@@ -399,7 +399,7 @@ public class ModelScraperDiBuilder
     }
     
     [Fact]
-    public async Task RequiredConfig_TryInstanceWithRequiredConifg_SuccessQuestCreated()
+    public async Task RequiredConfig_TryInstanceWithRequiredConfig_SuccessQuestCreated()
     {
         const int countData = 10;
         var servicesBase
@@ -423,7 +423,7 @@ public class ModelScraperDiBuilder
     }
 
     [Fact]
-    public async Task RequiredConfig_TryInstanceWithRequiredConifg_SuccessQuestException()
+    public async Task RequiredConfig_TryInstanceWithRequiredConfig_SuccessQuestException()
     {
         const int countData = 10;
         var servicesBase
@@ -443,6 +443,90 @@ public class ModelScraperDiBuilder
         Assert.True(await model.WaitModelDispose(new CancellationTokenSource(3000).Token));
 
         Assert.Contains(typeof(QuestExceptionConfigure).GetMethod(nameof(QuestExceptionConfigure.OnOccursException)),
+            serviceRoute.Routes);
+    }
+    
+    [Fact]
+    public async Task RequiredConfig_TryInstanceWithRequiredConfigAll_SuccessConfigureAll()
+    {
+        const int countData = 10;
+        var servicesBase
+            = new ServicesTestBase(services => {
+                services
+                    .AddScraperBuilder(config => config.AddAssembly(this.GetType().Assembly))
+                    .AddSingleton<IRouteService, RouteService>()
+                    .AddScoped<IServiceMocPublicSimpleData>((serviceProvider)=> new ServiceMocPublicSimpleData(countData));;
+            });
+        
+        var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
+        var serviceRoute = servicesBase.ServiceProvider.GetRequiredService<IRouteService>();
+        
+        var model = service.CreateModelByQuest(nameof(AllConfigureQuests));
+        await model.Run();
+
+        Assert.True(await model.WaitModelDispose(new CancellationTokenSource(3000).Token));
+
+        Assert.Contains(typeof(AllWorkEndConfigureAll).GetMethod(nameof(AllWorkEndConfigureAll.OnFinished)),
+            serviceRoute.Routes);
+
+        Assert.Contains(typeof(DataCollectedConfigureAll).GetMethod(nameof(DataCollectedConfigureAll.OnCollected)),
+            serviceRoute.Routes);
+
+        Assert.Contains(typeof(DataFinishedConfigureAll).GetMethod(nameof(DataFinishedConfigureAll.OnDataFinished)),
+            serviceRoute.Routes);
+
+        Assert.Contains(typeof(GetArgsConfigureAll).GetMethod(nameof(GetArgsConfigureAll.GetArgs)),
+            serviceRoute.Routes);
+
+        Assert.Contains(typeof(QuestCreatedConfigureAll).GetMethod(nameof(QuestCreatedConfigureAll.OnCreated)),
+            serviceRoute.Routes);
+
+        Assert.Contains(typeof(RequiredConfigureAll).GetMethod(nameof(RequiredConfigureAll.GetData)),
+            serviceRoute.Routes);
+
+        Assert.Contains(typeof(QuestExceptionConfigureAll).GetMethod(nameof(QuestExceptionConfigureAll.OnOccursException)),
+            serviceRoute.Routes);
+    }
+    
+    [Fact]
+    public async Task RequiredConfig_TryInstanceWithoutRequiredConfigAll_SuccessConfigureAll()
+    {
+        const int countData = 10;
+        var servicesBase
+            = new ServicesTestBase(services => {
+                services
+                    .AddScraperBuilder(config => config.AddAssembly(this.GetType().Assembly))
+                    .AddSingleton<IRouteService, RouteService>()
+                    .AddScoped<IServiceMocPublicSimpleData>((serviceProvider)=> new ServiceMocPublicSimpleData(countData));;
+            });
+        
+        var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
+        var serviceRoute = servicesBase.ServiceProvider.GetRequiredService<IRouteService>();
+        
+        var model = service.CreateModelByQuest(nameof(AllWithOutRequiredConfigureQuests));
+        await model.Run();
+
+        Assert.True(await model.WaitModelDispose(new CancellationTokenSource(3000).Token));
+
+        Assert.Contains(typeof(AllWorkEndWithoutRequiredConfigureAll).GetMethod(nameof(AllWorkEndWithoutRequiredConfigureAll.OnFinished)),
+            serviceRoute.Routes);
+
+        Assert.Contains(typeof(DataCollectedWithoutRequiredConfigureAll).GetMethod(nameof(DataCollectedWithoutRequiredConfigureAll.OnCollected)),
+            serviceRoute.Routes);
+
+        Assert.Contains(typeof(DataFinishedWithoutRequiredConfigureAll).GetMethod(nameof(DataFinishedWithoutRequiredConfigureAll.OnDataFinished)),
+            serviceRoute.Routes);
+
+        Assert.Contains(typeof(GetArgsWithoutRequiredConfigureAll).GetMethod(nameof(GetArgsWithoutRequiredConfigureAll.GetArgs)),
+            serviceRoute.Routes);
+
+        Assert.Contains(typeof(QuestCreatedWithoutRequiredConfigureAll).GetMethod(nameof(QuestCreatedWithoutRequiredConfigureAll.OnCreated)),
+            serviceRoute.Routes);
+
+        Assert.Contains(typeof(RequiredWithoutRequiredConfigureAll).GetMethod(nameof(RequiredWithoutRequiredConfigureAll.GetData)),
+            serviceRoute.Routes);
+
+        Assert.Contains(typeof(QuestExceptionWithoutRequiredConfigureAll).GetMethod(nameof(QuestExceptionWithoutRequiredConfigureAll.OnOccursException)),
             serviceRoute.Routes);
     }
 }
