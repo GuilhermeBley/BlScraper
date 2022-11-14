@@ -121,10 +121,10 @@ internal class ScrapBuilder : IScrapBuilder
 
         #region IOnAllWorksEndConfigure
         Type? typeInstaceAllWorksEnd =
-            TypeUtils.GetUniqueAssignableFrom(_assemblies.ToArray(), typeof(IOnAllWorksEndConfigure<,>).MakeGenericType(model.QuestType, model.DataType));
+            TypeUtils.GetUniqueAssignableFrom(_assemblies.ToArray(), typeof(IAllWorksEndConfigure<,>).MakeGenericType(model.QuestType, model.DataType));
 
         if (typeInstaceAllWorksEnd is null && configure.IsRequiredAllWorksEnd)
-            throw ThrowRequiredTypeNotFound(model, typeof(IOnAllWorksEndConfigure<,>));
+            throw ThrowRequiredTypeNotFound(model, typeof(IAllWorksEndConfigure<,>));
 
         if (typeInstaceAllWorksEnd is not null)
             model.InstanceAllWorksEnd = 
@@ -145,10 +145,10 @@ internal class ScrapBuilder : IScrapBuilder
                 
         #region IOnDataCollectedConfigure
         Type? typeDataCollected =
-            TypeUtils.GetUniqueAssignableFrom(_assemblies.ToArray(), typeof(IOnDataCollectedConfigure<,>).MakeGenericType(model.QuestType, model.DataType));
+            TypeUtils.GetUniqueAssignableFrom(_assemblies.ToArray(), typeof(IDataCollectedConfigure<,>).MakeGenericType(model.QuestType, model.DataType));
 
         if (typeDataCollected is null && configure.IsRequiredDataCollected)
-            throw ThrowRequiredTypeNotFound(model, typeof(IOnDataCollectedConfigure<,>));
+            throw ThrowRequiredTypeNotFound(model, typeof(IDataCollectedConfigure<,>));
 
         if (typeDataCollected is not null)
             model.InstanceDataCollected = 
@@ -169,10 +169,10 @@ internal class ScrapBuilder : IScrapBuilder
         
         #region IOnQuestCreatedConfigure
         Type? typeQuestCreated =
-            TypeUtils.GetUniqueAssignableFrom(_assemblies.ToArray(), typeof(IOnQuestCreatedConfigure<,>).MakeGenericType(model.QuestType, model.DataType));
+            TypeUtils.GetUniqueAssignableFrom(_assemblies.ToArray(), typeof(IQuestCreatedConfigure<,>).MakeGenericType(model.QuestType, model.DataType));
 
         if (typeQuestCreated is null && configure.IsRequiredQuestCreated)
-            throw ThrowRequiredTypeNotFound(model, typeof(IOnQuestCreatedConfigure<,>));
+            throw ThrowRequiredTypeNotFound(model, typeof(IQuestCreatedConfigure<,>));
 
         if (typeQuestCreated is not null)
             model.InstanceQuestCreated = 

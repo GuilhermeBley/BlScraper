@@ -206,7 +206,7 @@ public class ModelScraperDiBuilder
         var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
         
         Assert.Throws<ArgumentException>(
-            typeof(IOnAllWorksEndConfigure<,>).Name, ()=>{ 
+            typeof(IAllWorksEndConfigure<,>).Name, ()=>{ 
                 service.CreateModelByQuest(nameof(WithoutAllWorksEndQuest));        
             });
     }
@@ -243,7 +243,7 @@ public class ModelScraperDiBuilder
         var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
         
         Assert.Throws<ArgumentException>(
-            typeof(IOnDataCollectedConfigure<,>).Name, ()=>{ 
+            typeof(IDataCollectedConfigure<,>).Name, ()=>{ 
                 service.CreateModelByQuest(nameof(WithoutDataCollectedQuest));        
             });
     }
@@ -279,7 +279,7 @@ public class ModelScraperDiBuilder
         var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
         
         Assert.Throws<ArgumentException>(
-            typeof(IOnQuestCreatedConfigure<,>).Name, ()=>{ 
+            typeof(IQuestCreatedConfigure<,>).Name, ()=>{ 
                 service.CreateModelByQuest(nameof(WithoutQuestCreatedQuest));        
             });
     }

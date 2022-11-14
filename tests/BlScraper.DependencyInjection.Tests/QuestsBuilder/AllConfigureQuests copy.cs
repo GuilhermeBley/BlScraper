@@ -20,7 +20,7 @@ public class AllWithOutRequiredConfigureQuests : Quest<PublicSimpleData>
     }
 }
 
-public class AllWorkEndWithoutRequiredConfigureAll : IOnAllWorksEndConfigure<AllWithOutRequiredConfigureQuests, PublicSimpleData>
+public class AllWorkEndWithoutRequiredConfigureAll : IAllWorksEndConfigure<AllWithOutRequiredConfigureQuests, PublicSimpleData>
 {
     private readonly IRouteService _routeService;
 
@@ -61,7 +61,7 @@ public class RequiredWithoutRequiredConfigureAll : RequiredConfigure<AllWithOutR
     }
 }
 
-public class DataCollectedWithoutRequiredConfigureAll : IOnDataCollectedConfigure<AllWithOutRequiredConfigureQuests, PublicSimpleData>
+public class DataCollectedWithoutRequiredConfigureAll : IDataCollectedConfigure<AllWithOutRequiredConfigureQuests, PublicSimpleData>
 {
     private readonly IRouteService _routeService;
 
@@ -107,7 +107,7 @@ public class GetArgsWithoutRequiredConfigureAll : IGetArgsConfigure<AllWithOutRe
     }
 }
 
-public class QuestCreatedWithoutRequiredConfigureAll : IOnQuestCreatedConfigure<AllWithOutRequiredConfigureQuests, PublicSimpleData>
+public class QuestCreatedWithoutRequiredConfigureAll : IQuestCreatedConfigure<AllWithOutRequiredConfigureQuests, PublicSimpleData>
 {
     private readonly IRouteService _routeService;
 

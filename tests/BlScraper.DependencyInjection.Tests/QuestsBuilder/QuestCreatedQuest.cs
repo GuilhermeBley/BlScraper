@@ -30,7 +30,7 @@ public class QuestCreatedRequired : RequiredConfigure<QuestCreatedQuest, PublicS
     }
 }
 
-public class QuestCreatedConfigure : IOnQuestCreatedConfigure<QuestCreatedQuest, PublicSimpleData>
+public class QuestCreatedConfigure : IQuestCreatedConfigure<QuestCreatedQuest, PublicSimpleData>
 {
     private readonly IRouteService _routeService;
 

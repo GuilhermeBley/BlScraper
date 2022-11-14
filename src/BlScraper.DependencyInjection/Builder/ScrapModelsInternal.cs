@@ -25,7 +25,7 @@ internal class ScrapModelsInternal
     public Type DataType => _dataType;
 
     /// <summary>
-    /// Contains instance of type <see cref="IOnAllWorksEndConfigure{TQuest, TData}}"/> or null
+    /// Contains instance of type <see cref="IAllWorksEndConfigure{TQuest, TData}}"/> or null
     /// </summary>
     private object? _instanceAllWorksEnd;
 
@@ -35,7 +35,7 @@ internal class ScrapModelsInternal
     private object? _instanceArgs;
 
     /// <summary>
-    /// Contains instance of type <see cref="IOnDataCollectedConfigure{TQuest, TData}"/> or null
+    /// Contains instance of type <see cref="IDataCollectedConfigure{TQuest, TData}"/> or null
     /// </summary>
     private object? _instanceDataCollected;
     
@@ -55,7 +55,7 @@ internal class ScrapModelsInternal
     private object? _instanceQuestException;
     
     /// <summary>
-    /// Contains instance of type <see cref="IOnQuestCreatedConfigure{TQuest, TData}{TQuest, TData}"/> or null
+    /// Contains instance of type <see cref="IQuestCreatedConfigure{TQuest, TData}{TQuest, TData}"/> or null
     /// </summary>
     private object? _instanceQuestCreated;
     
@@ -66,7 +66,7 @@ internal class ScrapModelsInternal
             if (value is null)
                 throw new ArgumentNullException(nameof(InstanceAllWorksEnd));
             var typeInstanceRequired =
-                typeof(IOnAllWorksEndConfigure<,>).MakeGenericType(_questType, _dataType);
+                typeof(IAllWorksEndConfigure<,>).MakeGenericType(_questType, _dataType);
             if (typeInstanceRequired.IsAssignableFrom(value.GetType()))
                 _instanceAllWorksEnd = value;
             else
@@ -94,7 +94,7 @@ internal class ScrapModelsInternal
             if (value is null)
                 throw new ArgumentNullException(nameof(InstanceDataCollected));
             var typeInstanceRequired =
-                typeof(IOnDataCollectedConfigure<,>).MakeGenericType(_questType, _dataType);
+                typeof(IDataCollectedConfigure<,>).MakeGenericType(_questType, _dataType);
             if (typeInstanceRequired.IsAssignableFrom(value.GetType()))
                 _instanceDataCollected = value;
             else
@@ -136,7 +136,7 @@ internal class ScrapModelsInternal
             if (value is null)
                 throw new ArgumentNullException(nameof(InstanceQuestCreated));
             var typeInstanceRequired =
-                typeof(IOnQuestCreatedConfigure<,>).MakeGenericType(_questType, _dataType);
+                typeof(IQuestCreatedConfigure<,>).MakeGenericType(_questType, _dataType);
             if (typeInstanceRequired.IsAssignableFrom(value.GetType()))
                 _instanceQuestCreated = value;
             else

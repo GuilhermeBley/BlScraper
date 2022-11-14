@@ -3,17 +3,17 @@ using BlScraper.Model;
 namespace BlScraper.DependencyInjection.ConfigureModel;
 
 /// <summary>
-/// Implementation for classes which want manage events on data collected
+/// Implementation for classes which want manage event on create quests
 /// </summary>
 /// <typeparam name="TQuest">Identifier quest</typeparam>
 /// <typeparam name="TData">Data type</typeparam>
-public interface IOnDataCollectedConfigure<TQuest, TData>
+public interface IQuestCreatedConfigure<TQuest, TData>
     where TQuest : Quest<TData>
     where TData : class
 {
     /// <summary>
-    /// Called when data collected to search
+    /// Called when quest created
     /// </summary>
-    /// <param name="dataCollected">Data to quest</param>
-    void OnCollected(IEnumerable<TData> dataCollected);
+    /// <param name="questCreated">quest created</param>
+    void OnCreated(TQuest questCreated);
 }

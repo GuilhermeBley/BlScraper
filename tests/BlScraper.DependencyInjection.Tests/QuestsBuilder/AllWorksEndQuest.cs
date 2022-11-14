@@ -31,7 +31,7 @@ public class AllWorksEndRequired : RequiredConfigure<AllWorksEndQuest, PublicSim
     }
 }
 
-public class AllWorksEndConfigure : IOnAllWorksEndConfigure<AllWorksEndQuest, PublicSimpleData>
+public class AllWorksEndConfigure : IAllWorksEndConfigure<AllWorksEndQuest, PublicSimpleData>
 {
     private readonly IRouteService _routeService;
 

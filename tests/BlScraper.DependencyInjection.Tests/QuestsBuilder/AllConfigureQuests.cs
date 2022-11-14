@@ -20,7 +20,7 @@ public class AllConfigureQuests : Quest<PublicSimpleData>
     }
 }
 
-public class AllWorkEndConfigureAll : IOnAllWorksEndConfigure<AllConfigureQuests, PublicSimpleData>
+public class AllWorkEndConfigureAll : IAllWorksEndConfigure<AllConfigureQuests, PublicSimpleData>
 {
     private readonly IRouteService _routeService;
 
@@ -61,7 +61,7 @@ public class RequiredConfigureAll : RequiredConfigure<AllConfigureQuests, Public
     }
 }
 
-public class DataCollectedConfigureAll : IOnDataCollectedConfigure<AllConfigureQuests, PublicSimpleData>
+public class DataCollectedConfigureAll : IDataCollectedConfigure<AllConfigureQuests, PublicSimpleData>
 {
     private readonly IRouteService _routeService;
 
@@ -107,7 +107,7 @@ public class GetArgsConfigureAll : IGetArgsConfigure<AllConfigureQuests, PublicS
     }
 }
 
-public class QuestCreatedConfigureAll : IOnQuestCreatedConfigure<AllConfigureQuests, PublicSimpleData>
+public class QuestCreatedConfigureAll : IQuestCreatedConfigure<AllConfigureQuests, PublicSimpleData>
 {
     private readonly IRouteService _routeService;
 

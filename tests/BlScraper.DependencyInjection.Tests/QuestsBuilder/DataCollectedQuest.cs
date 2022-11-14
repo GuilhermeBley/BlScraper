@@ -30,7 +30,7 @@ public class DataCollectedRequired : RequiredConfigure<DataCollectedQuest, Publi
     }
 }
 
-public class DataCollectedConfigure : IOnDataCollectedConfigure<DataCollectedQuest, PublicSimpleData>
+public class DataCollectedConfigure : IDataCollectedConfigure<DataCollectedQuest, PublicSimpleData>
 {
     private readonly IRouteService _routeService;
 

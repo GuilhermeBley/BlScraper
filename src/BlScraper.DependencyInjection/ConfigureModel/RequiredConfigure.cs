@@ -45,7 +45,7 @@ public abstract class RequiredConfigure<TQuest, TData> : IRequiredConfigure
 internal interface IRequiredConfigure
 {
     /// <summary>
-    /// Checks if is required type of <see cref="IOnAllWorksEndConfigure{TQuest, TData}"/>
+    /// Checks if is required type of <see cref="IAllWorksEndConfigure{TQuest, TData}"/>
     /// </summary>
     /// <remarks>
     ///     <para>True : Is necessary to the execution, false: don't is</para>
@@ -61,7 +61,7 @@ internal interface IRequiredConfigure
     bool IsRequiredArgs { get; }
 
     /// <summary>
-    /// Checks if is required type of <see cref="IOnDataCollectedConfigure{TQuest, TData}"/>
+    /// Checks if is required type of <see cref="IDataCollectedConfigure{TQuest, TData}"/>
     /// </summary>
     /// <remarks>
     ///     <para>True : Is necessary to the execution, false: don't is</para>
@@ -77,7 +77,7 @@ internal interface IRequiredConfigure
     bool IsRequiredDataFinished { get; }
 
     /// <summary>
-    /// Checks if is required type of <see cref="IOnQuestCreatedConfigure{TQuest, TData}"/>
+    /// Checks if is required type of <see cref="IQuestCreatedConfigure{TQuest, TData}"/>
     /// </summary>
     /// <remarks>
     ///     <para>True : Is necessary to the execution, false: don't is</para>
