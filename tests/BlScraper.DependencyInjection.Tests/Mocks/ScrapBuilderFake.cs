@@ -5,12 +5,12 @@ namespace BlScraper.DependencyInjection.Tests.Mocks;
 
 public class ScrapBuilderFake : IScrapBuilder
 {
-    public IModelScraper CreateModelByQuest(string name)
+    public IModelScraper CreateModelByQuestName(string name)
     {
         throw new NotImplementedException();
     }
 
-    public IModelScraper? CreateModelByQuestOrDefault(string name)
+    public IModelScraper? CreateModelByQuestNameOrDefault(string name)
     {
         throw new NotImplementedException();
     }

@@ -34,11 +34,18 @@ internal class ScrapBuilder : IScrapBuilder
         }
     }
 
-    public IModelScraper? CreateModelByQuestOrDefault(string name)
+    public IModelScraper CreateModelByQuestName(string name)
+    {
+        var questFound = MapUniqueQuestByName(_assemblies.ToArray(), name);
+
+        return Create(questFound);
+    }
+
+    public IModelScraper? CreateModelByQuestNameOrDefault(string name)
     {
         try
         {
-            return CreateModelByQuest(name);
+            return CreateModelByQuestName(name);
         }
         catch
         {
@@ -46,40 +53,51 @@ internal class ScrapBuilder : IScrapBuilder
         }
     }
 
-    public IModelScraper CreateModelByQuest(string name)
+    public IModelScraper CreateModelByQuestType(Type type)
     {
-        if (string.IsNullOrEmpty(name))
-            throw new ArgumentNullException(nameof(name));
-
-        Type? questTypeFinded = null;
-
-        foreach (var assembly in _assemblies)
-        {
-            var localValuePair = 
-                MapClassByQuestNameAssemblie(assembly)
-                    .Where(pair => pair.Name == name.ToUpper());
-
-            if (!localValuePair.Any())
-                continue;
-
-            if (localValuePair.Count() != 1)
-                throw new ArgumentException($"Duplicate names with value {localValuePair.First().Name} in: {string.Join('\n', localValuePair.Select(pair => pair.Type.FullName))}.");
-
-            var localQuestTypeFinded = localValuePair.First().Type;
-
-            if (questTypeFinded is not null &&
-                localQuestTypeFinded is not null)
-                throw new ArgumentException($"Duplicate QuestTypes with name {name} was found in {localQuestTypeFinded.FullName} and {questTypeFinded.FullName}.", nameof(name));
-
-            questTypeFinded = localQuestTypeFinded;
-        }
-
-        if (questTypeFinded is null)
-            throw new ArgumentException($"QuestTypes with name {name} wasn't found. Check if the possible class target is public, non-obsolete and concrete.", nameof(name));
-
-        return Create(questTypeFinded);
+        return Create(type);
     }
 
+    public IModelScraper? CreateModelByQuestTypeOrDefault(Type type)
+    {
+        try
+        {
+            return Create(type);
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    public IModelScraper CreateModelByQuestType<TQuest>()
+    {
+        return Create(typeof(TQuest));
+    }
+
+    public IModelScraper? CreateModelByQuestTypeOrDefault<TQuest>()
+    {
+        try
+        {
+            return Create(typeof(TQuest));
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Create model by <paramref name="questType"/>
+    /// </summary>
+    /// <remarks>
+    ///     <para>Makes a validation in type</para>
+    /// </remarks>
+    /// <param name="questType">Concrete and public class of assignable to <see cref="Quest{TData}"/></param>
+    /// <returns>Model scraper</returns>
+    /// <exception cref="ArgumentNullException"></exception>
+    /// <exception cref="InvalidOperationException"></exception>
+    /// <inheritdoc cref="SetParametersOnModel(ScrapModelsInternal)" path="exception"/>
     private IModelScraper Create(Type questType)
     {
         var model = new ScrapModelsInternal(questType);
@@ -106,6 +124,11 @@ internal class ScrapBuilder : IScrapBuilder
             ) ?? throw new ArgumentNullException(nameof(IModelScraper));
     }
 
+    /// <summary>
+    /// Set parameters in model
+    /// </summary>
+    /// <param name="model">Model to set parameters</param>
+    /// <exception cref="ArgumentNullException"></exception>
     private void SetParametersOnModel(ScrapModelsInternal model)
     {
         #region RequiredConfigure
@@ -222,5 +245,45 @@ internal class ScrapBuilder : IScrapBuilder
     {
         return new ArgumentException($"Is necessary a {typeNotFound.FullName} of quest {model.QuestType.FullName}."+
             " Check if the possible class target is public, non-obsolete and concrete.", $"{typeNotFound.Name}");
+    }
+
+    /// <summary>
+    /// Find and return quest by name
+    /// </summary>
+    /// <param name="name">Name to find.</param>
+    /// <returns>Type assignable to <see cref="Quest{TData}"/> found.</returns>
+    /// <exception cref="ArgumentException"/>
+    private static Type MapUniqueQuestByName(System.Reflection.Assembly[] assemblies, string name)
+    {
+         if (string.IsNullOrEmpty(name))
+            throw new ArgumentNullException(nameof(name));
+
+        Type? questTypefound = null;
+
+        foreach (var assembly in assemblies)
+        {
+            var localValuePair = 
+                MapClassByQuestNameAssemblie(assembly)
+                    .Where(pair => pair.Name == name.ToUpper());
+
+            if (!localValuePair.Any())
+                continue;
+
+            if (localValuePair.Count() != 1)
+                throw new ArgumentException($"Duplicate names with value {localValuePair.First().Name} in: {string.Join('\n', localValuePair.Select(pair => pair.Type.FullName))}.");
+
+            var localQuestTypefound = localValuePair.First().Type;
+
+            if (questTypefound is not null &&
+                localQuestTypefound is not null)
+                throw new ArgumentException($"Duplicate QuestTypes with name {name} was found in {localQuestTypefound.FullName} and {questTypefound.FullName}.", nameof(name));
+
+            questTypefound = localQuestTypefound;
+        }
+
+        if (questTypefound is null)
+            throw new ArgumentException($"QuestTypes with name {name} wasn't found. Check if the possible class target is public, non-obsolete and concrete.", nameof(name));
+
+        return questTypefound;
     }
 }

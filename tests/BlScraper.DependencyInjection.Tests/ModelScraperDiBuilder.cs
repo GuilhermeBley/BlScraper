@@ -72,7 +72,7 @@ public class ModelScraperDiBuilder
         
         var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
 
-        Assert.ThrowsAny<ArgumentException>(() => service.CreateModelByQuest(nameof(SimpleExecution)));
+        Assert.ThrowsAny<ArgumentException>(() => service.CreateModelByQuestName(nameof(SimpleExecution)));
     }
 
     [Fact]
@@ -87,7 +87,7 @@ public class ModelScraperDiBuilder
         
         var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
 
-        Assert.NotNull(service.CreateModelByQuest(nameof(PublicQuest)));
+        Assert.NotNull(service.CreateModelByQuestName(nameof(PublicQuest)));
     }
 
     [Fact]
@@ -102,7 +102,7 @@ public class ModelScraperDiBuilder
         
         var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
 
-        Assert.IsType<Model.ModelScraperService<PublicQuest, PublicSimpleData>>(service.CreateModelByQuest(nameof(PublicQuest)));
+        Assert.IsType<Model.ModelScraperService<PublicQuest, PublicSimpleData>>(service.CreateModelByQuestName(nameof(PublicQuest)));
     }
 
     [Fact]
@@ -117,7 +117,7 @@ public class ModelScraperDiBuilder
         
         var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
 
-        Assert.ThrowsAny<InvalidOperationException>(()=>service.CreateModelByQuest(nameof(SimpleQuest)));
+        Assert.ThrowsAny<InvalidOperationException>(()=>service.CreateModelByQuestName(nameof(SimpleQuest)));
     }
 
     [Fact]
@@ -135,7 +135,7 @@ public class ModelScraperDiBuilder
         var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
         var countService = servicesBase.ServiceProvider.GetRequiredService<ICounterService>();
 
-        var model = service.CreateModelByQuest(nameof(SimpleQuest));
+        var model = service.CreateModelByQuestName(nameof(SimpleQuest));
         Assert.NotNull(model);
 
         if (model is null)
@@ -159,7 +159,7 @@ public class ModelScraperDiBuilder
         
         var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
 
-        var model = service.CreateModelByQuestOrDefault("ObsoleteQuest");
+        var model = service.CreateModelByQuestNameOrDefault("ObsoleteQuest");
         Assert.Null(model);
     }
 
@@ -175,7 +175,7 @@ public class ModelScraperDiBuilder
         
         var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
 
-        var model = service.CreateModelByQuestOrDefault(nameof(SimpleQuestDuplicated));
+        var model = service.CreateModelByQuestNameOrDefault(nameof(SimpleQuestDuplicated));
         Assert.Null(model);
     }
     
@@ -191,7 +191,7 @@ public class ModelScraperDiBuilder
         
         var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
 
-        var model = service.CreateModelByQuestOrDefault(nameof(SimpleQuestDuplicatedObsolete));
+        var model = service.CreateModelByQuestNameOrDefault(nameof(SimpleQuestDuplicatedObsolete));
         Assert.IsType<Model.ModelScraperService<SimpleQuestDuplicatedObsolete, PublicSimpleData>>(model);
     }
 
@@ -209,7 +209,7 @@ public class ModelScraperDiBuilder
         
         Assert.Throws<ArgumentException>(
             typeof(IAllWorksEndConfigure<,>).Name, ()=>{ 
-                service.CreateModelByQuest(nameof(WithoutAllWorksEndQuest));        
+                service.CreateModelByQuestName(nameof(WithoutAllWorksEndQuest));        
             });
     }
     
@@ -227,7 +227,7 @@ public class ModelScraperDiBuilder
         
         Assert.Throws<ArgumentException>(
             typeof(IGetArgsConfigure<,>).Name, ()=>{ 
-                service.CreateModelByQuest(nameof(WithoutGetArgsQuest));        
+                service.CreateModelByQuestName(nameof(WithoutGetArgsQuest));        
             });
     }
 
@@ -246,7 +246,7 @@ public class ModelScraperDiBuilder
         
         Assert.Throws<ArgumentException>(
             typeof(IDataCollectedConfigure<,>).Name, ()=>{ 
-                service.CreateModelByQuest(nameof(WithoutDataCollectedQuest));        
+                service.CreateModelByQuestName(nameof(WithoutDataCollectedQuest));        
             });
     }
 
@@ -264,7 +264,7 @@ public class ModelScraperDiBuilder
         
         Assert.Throws<ArgumentException>(
             typeof(IDataFinishedConfigure<,>).Name, ()=>{ 
-                service.CreateModelByQuest(nameof(WithoutDataFinishedQuest));        
+                service.CreateModelByQuestName(nameof(WithoutDataFinishedQuest));        
             });
     }
     
@@ -282,7 +282,7 @@ public class ModelScraperDiBuilder
         
         Assert.Throws<ArgumentException>(
             typeof(IQuestCreatedConfigure<,>).Name, ()=>{ 
-                service.CreateModelByQuest(nameof(WithoutQuestCreatedQuest));        
+                service.CreateModelByQuestName(nameof(WithoutQuestCreatedQuest));        
             });
     }
 
@@ -300,7 +300,7 @@ public class ModelScraperDiBuilder
         
         Assert.Throws<ArgumentException>(
             typeof(IQuestExceptionConfigure<,>).Name, ()=>{ 
-                service.CreateModelByQuest(nameof(WithoutQuestExceptionQuest));        
+                service.CreateModelByQuestName(nameof(WithoutQuestExceptionQuest));        
             });
     }
     
@@ -319,7 +319,7 @@ public class ModelScraperDiBuilder
         var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
         var serviceRoute = servicesBase.ServiceProvider.GetRequiredService<IRouteService>();
         
-        var model = service.CreateModelByQuest(nameof(DataCollectedQuest));
+        var model = service.CreateModelByQuestName(nameof(DataCollectedQuest));
         await model.Run();
 
         Assert.True(await model.WaitModelDispose(new CancellationTokenSource(3000).Token));
@@ -343,7 +343,7 @@ public class ModelScraperDiBuilder
         var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
         var serviceRoute = servicesBase.ServiceProvider.GetRequiredService<IRouteService>();
         
-        var model = service.CreateModelByQuest(nameof(AllWorksEndQuest));
+        var model = service.CreateModelByQuestName(nameof(AllWorksEndQuest));
         await model.Run();
 
         Assert.True(await model.WaitModelDispose(new CancellationTokenSource(3000).Token));
@@ -367,7 +367,7 @@ public class ModelScraperDiBuilder
         var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
         var serviceRoute = servicesBase.ServiceProvider.GetRequiredService<IRouteService>();
         
-        var model = service.CreateModelByQuest(nameof(DataFinishedQuest));
+        var model = service.CreateModelByQuestName(nameof(DataFinishedQuest));
         await model.Run();
 
         Assert.True(await model.WaitModelDispose(new CancellationTokenSource(3000).Token));
@@ -391,7 +391,7 @@ public class ModelScraperDiBuilder
         var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
         var serviceRoute = servicesBase.ServiceProvider.GetRequiredService<IRouteService>();
         
-        var model = service.CreateModelByQuest(nameof(GetArgsQuest));
+        var model = service.CreateModelByQuestName(nameof(GetArgsQuest));
         await model.Run();
 
         Assert.True(await model.WaitModelDispose(new CancellationTokenSource(3000).Token));
@@ -415,7 +415,7 @@ public class ModelScraperDiBuilder
         var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
         var serviceRoute = servicesBase.ServiceProvider.GetRequiredService<IRouteService>();
         
-        var model = service.CreateModelByQuest(nameof(QuestCreatedQuest));
+        var model = service.CreateModelByQuestName(nameof(QuestCreatedQuest));
         await model.Run();
 
         Assert.True(await model.WaitModelDispose(new CancellationTokenSource(3000).Token));
@@ -439,7 +439,7 @@ public class ModelScraperDiBuilder
         var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
         var serviceRoute = servicesBase.ServiceProvider.GetRequiredService<IRouteService>();
         
-        var model = service.CreateModelByQuest(nameof(QuestExceptionQuest));
+        var model = service.CreateModelByQuestName(nameof(QuestExceptionQuest));
         await model.Run();
 
         Assert.True(await model.WaitModelDispose(new CancellationTokenSource(3000).Token));
@@ -463,7 +463,7 @@ public class ModelScraperDiBuilder
         var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
         var serviceRoute = servicesBase.ServiceProvider.GetRequiredService<IRouteService>();
         
-        var model = service.CreateModelByQuest(nameof(AllConfigureQuests));
+        var model = service.CreateModelByQuestName(nameof(AllConfigureQuests));
         await model.Run();
 
         Assert.True(await model.WaitModelDispose(new CancellationTokenSource(3000).Token));
@@ -505,7 +505,7 @@ public class ModelScraperDiBuilder
         var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
         var serviceRoute = servicesBase.ServiceProvider.GetRequiredService<IRouteService>();
         
-        var model = service.CreateModelByQuest(nameof(AllWithOutRequiredConfigureQuests));
+        var model = service.CreateModelByQuestName(nameof(AllWithOutRequiredConfigureQuests));
         await model.Run();
 
         Assert.True(await model.WaitModelDispose(new CancellationTokenSource(3000).Token));
@@ -548,7 +548,7 @@ public class ModelScraperDiBuilder
         var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
         var countService = servicesBase.ServiceProvider.GetRequiredService<ICounterService>();
         
-        var model = service.CreateModelByQuest(nameof(InheritFromSimpleQuest));
+        var model = service.CreateModelByQuestName(nameof(InheritFromSimpleQuest));
         await model.Run();
 
         Assert.True(await model.WaitModelDispose(new CancellationTokenSource(3000).Token));
@@ -575,7 +575,7 @@ public class ModelScraperDiBuilder
 
         Assert.Throws<ArgumentException>(
             typeof(RequiredConfigure<,>).Name,
-            () => service.CreateModelByQuest(nameof(InheritFromSimpleQuestTwoConfig)));
+            () => service.CreateModelByQuestName(nameof(InheritFromSimpleQuestTwoConfig)));
     }
 
     [Fact]
@@ -594,7 +594,7 @@ public class ModelScraperDiBuilder
         var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
         var countService = servicesBase.ServiceProvider.GetRequiredService<ICounterService>();
         
-        var model = service.CreateModelByQuest(nameof(InheritFromSimpleQuestAbstractConfig));
+        var model = service.CreateModelByQuestName(nameof(InheritFromSimpleQuestAbstractConfig));
         await model.Run();
 
         Assert.True(await model.WaitModelDispose(new CancellationTokenSource(3000).Token));
