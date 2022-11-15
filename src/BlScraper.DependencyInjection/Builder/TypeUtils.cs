@@ -105,7 +105,7 @@ internal static class TypeUtils
                     continue;
 
                 if (finded != null)
-                    throw new ArgumentException($"Duplicate type of same assign in {finded.FullName} and {type.FullName}.");
+                    throw new ArgumentException($"Duplicate type of same assign in {finded.FullName} and {type.FullName}.", typeTo.Name);
 
                 finded = type;
             }

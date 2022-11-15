@@ -128,10 +128,12 @@ public class ModelScraperDiBuilder
             = new ServicesTestBase(services => {
                 services
                     .AddScraperBuilder(config=>config.AddAssembly(this.GetType().Assembly))
-                    .AddScoped<IServiceMocPublicSimpleData>((serviceProvider)=> new ServiceMocPublicSimpleData(countData));
+                    .AddScoped<IServiceMocPublicSimpleData>((serviceProvider)=> new ServiceMocPublicSimpleData(countData))
+                    .AddSingleton<ICounterService, CounterService>();
             });
         
         var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
+        var countService = servicesBase.ServiceProvider.GetRequiredService<ICounterService>();
 
         var model = service.CreateModelByQuest(nameof(SimpleQuest));
         Assert.NotNull(model);
@@ -142,7 +144,7 @@ public class ModelScraperDiBuilder
         await model.Run();
         
         Assert.True(await model.WaitModelDispose(new CancellationTokenSource(5000).Token));
-        Assert.Equal(countData, SimpleQuest.Counter);
+        Assert.Equal(countData, countService.Count);
     }
 
     [Fact]
@@ -528,5 +530,75 @@ public class ModelScraperDiBuilder
 
         Assert.Contains(typeof(QuestExceptionWithoutRequiredConfigureAll).GetMethod(nameof(QuestExceptionWithoutRequiredConfigureAll.OnOccursException)),
             serviceRoute.Routes);
+    }
+
+    [Fact]
+    public async Task Inherit_TryInstanceWithRequiredConfig_SuccessQuest()
+    {
+        const int countData = 10;
+        var servicesBase
+            = new ServicesTestBase(services => {
+                services
+                    .AddScraperBuilder(config => config.AddAssembly(this.GetType().Assembly))
+                    .AddSingleton<IRouteService, RouteService>()
+                    .AddScoped<IServiceMocPublicSimpleData>((serviceProvider)=> new ServiceMocPublicSimpleData(countData))
+                    .AddSingleton<ICounterService, CounterService>();
+            });
+        
+        var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
+        var countService = servicesBase.ServiceProvider.GetRequiredService<ICounterService>();
+        
+        var model = service.CreateModelByQuest(nameof(InheritFromSimpleQuest));
+        await model.Run();
+
+        Assert.True(await model.WaitModelDispose(new CancellationTokenSource(3000).Token));
+
+        Assert.Equal(countData, countService.Count);
+    }
+
+    [Fact]
+    public async Task Inherit_TryInstanceWithInheritRequiredConfig_FailedConfigure()
+    {
+        await Task.CompletedTask;
+        const int countData = 10;
+        var servicesBase
+            = new ServicesTestBase(services => {
+                services
+                    .AddScraperBuilder(config => config.AddAssembly(this.GetType().Assembly))
+                    .AddSingleton<IRouteService, RouteService>()
+                    .AddScoped<IServiceMocPublicSimpleData>((serviceProvider)=> new ServiceMocPublicSimpleData(countData))
+                    .AddSingleton<ICounterService, CounterService>();
+            });
+        
+        var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
+        var countService = servicesBase.ServiceProvider.GetRequiredService<ICounterService>();
+
+        Assert.Throws<ArgumentException>(
+            typeof(RequiredConfigure<,>).Name,
+            () => service.CreateModelByQuest(nameof(InheritFromSimpleQuestTwoConfig)));
+    }
+
+    [Fact]
+    public async Task Inherit_TryInstanceWithAbstractRequiredConfig_SuccessQuest()
+    {
+        const int countData = 10;
+        var servicesBase
+            = new ServicesTestBase(services => {
+                services
+                    .AddScraperBuilder(config => config.AddAssembly(this.GetType().Assembly))
+                    .AddSingleton<IRouteService, RouteService>()
+                    .AddScoped<IServiceMocPublicSimpleData>((serviceProvider)=> new ServiceMocPublicSimpleData(countData))
+                    .AddSingleton<ICounterService, CounterService>();
+            });
+        
+        var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
+        var countService = servicesBase.ServiceProvider.GetRequiredService<ICounterService>();
+        
+        var model = service.CreateModelByQuest(nameof(InheritFromSimpleQuestAbstractConfig));
+        await model.Run();
+
+        Assert.True(await model.WaitModelDispose(new CancellationTokenSource(3000).Token));
+
+        Assert.Equal(countData, countService.Count);
     }
 }

@@ -3,12 +3,11 @@ using BlScraper.Model;
 
 namespace BlScraper.DependencyInjection.Tests.QuestsBuilder;
 
-public class SimpleQuest : Quest<PublicSimpleData>
+public class InheritFromSimpleQuest : SimpleQuest
 {
-    protected readonly ICounterService _counterService;
-
-    public SimpleQuest(ICounterService counterService)
-        => _counterService = counterService;
+    public InheritFromSimpleQuest(ICounterService counterService) : base(counterService)
+    {
+    }
 
     public override QuestResult Execute(PublicSimpleData data, CancellationToken cancellationToken = default)
     {
@@ -20,13 +19,13 @@ public class SimpleQuest : Quest<PublicSimpleData>
     }
 }
 
-public class QuestWithDataRequiredConfigure : RequiredConfigure<SimpleQuest, PublicSimpleData>
+public class InheritFromSimpleQuestConfigure : RequiredConfigure<InheritFromSimpleQuest, PublicSimpleData>
 {
     private readonly IServiceMocPublicSimpleData _serviceData;
 
     public override int initialQuantity => 1;
 
-    public QuestWithDataRequiredConfigure(IServiceMocPublicSimpleData serviceData)
+    public InheritFromSimpleQuestConfigure(IServiceMocPublicSimpleData serviceData)
     {
         _serviceData = serviceData;
     }
