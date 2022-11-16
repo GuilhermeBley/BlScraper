@@ -172,17 +172,17 @@ internal class ScrapModelsInternal
             || questType.IsAbstract
             || !questType.IsClass
             || !questType.IsPublic)
-            throw new ArgumentException($"{nameof(questType)} is a invalid type.");
+            throw new ArgumentException($"{nameof(questType)} is a invalid type.", typeof(Quest<>).Name);
 
         var genericTypes = assignableToGenericFound.GetGenericArguments();
         if (genericTypes.Length != 1)
-            throw new ArgumentException($"The data of quest can't be found.");
+            throw new ArgumentException($"The data of quest can't be found.", typeof(Quest<>).Name);
 
         var dataType = genericTypes[0];
         if (dataType.IsAbstract ||
             !dataType.IsClass ||
             dataType.GetGenericArguments().Any())
-            throw new ArgumentException($"{dataType.FullName} is a invalid type.");
+            throw new ArgumentException($"{dataType.FullName} is a invalid type.", typeof(Quest<>).Name);
 
         _dataType = dataType;
         _questType = questType;

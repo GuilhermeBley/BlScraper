@@ -14,4 +14,24 @@ public class ScrapBuilderFake : IScrapBuilder
     {
         throw new NotImplementedException();
     }
+
+    public IModelScraper CreateModelByQuestType(Type type)
+    {
+        throw new NotImplementedException();
+    }
+
+    public IModelScraper CreateModelByQuestType<TQuest>()
+    {
+        throw new NotImplementedException();
+    }
+
+    public IModelScraper? CreateModelByQuestTypeOrDefault(Type type)
+    {
+        throw new NotImplementedException();
+    }
+
+    public IModelScraper? CreateModelByQuestTypeOrDefault<TQuest>()
+    {
+        throw new NotImplementedException();
+    }
 }

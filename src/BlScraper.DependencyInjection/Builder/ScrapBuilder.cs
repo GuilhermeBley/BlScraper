@@ -34,6 +34,7 @@ internal class ScrapBuilder : IScrapBuilder
         }
     }
 
+    /// <inheritdoc cref="IScrapBuilder.CreateModelByQuestName(string)" path="*"/>
     public IModelScraper CreateModelByQuestName(string name)
     {
         var questFound = MapUniqueQuestByName(_assemblies.ToArray(), name);
@@ -41,6 +42,7 @@ internal class ScrapBuilder : IScrapBuilder
         return Create(questFound);
     }
 
+    /// <inheritdoc cref="IScrapBuilder.CreateModelByQuestNameOrDefault(string)" path="*"/>
     public IModelScraper? CreateModelByQuestNameOrDefault(string name)
     {
         try
@@ -53,11 +55,13 @@ internal class ScrapBuilder : IScrapBuilder
         }
     }
 
+    /// <inheritdoc cref="IScrapBuilder.CreateModelByQuestType(Type)" path="*"/>
     public IModelScraper CreateModelByQuestType(Type type)
     {
         return Create(type);
     }
 
+    /// <inheritdoc cref="IScrapBuilder.CreateModelByQuestTypeOrDefault(Type)" path="*"/>
     public IModelScraper? CreateModelByQuestTypeOrDefault(Type type)
     {
         try
@@ -70,11 +74,13 @@ internal class ScrapBuilder : IScrapBuilder
         }
     }
 
+    /// <inheritdoc cref="IScrapBuilder.CreateModelByQuestType{TQuest}" path="*"/>
     public IModelScraper CreateModelByQuestType<TQuest>()
     {
         return Create(typeof(TQuest));
     }
 
+    /// <inheritdoc cref="IScrapBuilder.CreateModelByQuestTypeOrDefault{TQuest}" path="*"/>
     public IModelScraper? CreateModelByQuestTypeOrDefault<TQuest>()
     {
         try

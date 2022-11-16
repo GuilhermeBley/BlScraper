@@ -601,4 +601,271 @@ public class ModelScraperDiBuilder
 
         Assert.Equal(countData, countService.Count);
     }
+
+    [Fact]
+    public async Task CreateModelByQuestName_TryInstance_SuccessInstance()
+    {
+        await Task.CompletedTask;
+        var servicesBase
+            = new ServicesTestBase(services =>
+            {
+                services
+                    .AddScraperBuilder(config => config.AddAssembly(this.GetType().Assembly));
+            });
+
+        var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
+
+        Assert.NotNull(service.CreateModelByQuestName(nameof(SimpleQuestWithOutServices)));
+    }
+
+    [Fact]
+    public async Task CreateModelByQuestName_TryInstance_FailedInstanceBecauseWithoutRequiredConfig()
+    {
+        await Task.CompletedTask;
+        var servicesBase
+            = new ServicesTestBase(services =>
+            {
+                services
+                    .AddScraperBuilder(config => config.AddAssembly(this.GetType().Assembly));
+            });
+
+        var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
+
+        Assert.ThrowsAny<Exception>(()=>service.CreateModelByQuestName(nameof(WithoutConfigQuest)));
+    }
+    
+    [Fact]
+    public async Task CreateModelByQuestNameOrDefault_TryInstance_SuccessInstance()
+    {
+        await Task.CompletedTask;
+        var servicesBase
+            = new ServicesTestBase(services =>
+            {
+                services
+                    .AddScraperBuilder(config => config.AddAssembly(this.GetType().Assembly));
+            });
+
+        var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
+
+        Assert.NotNull(service.CreateModelByQuestNameOrDefault(nameof(SimpleQuestWithOutServices)));
+    }
+
+    [Fact]
+    public async Task CreateModelByQuestNameOrDefault_TryInstance_FailedInstanceBecauseWithoutRequiredConfig()
+    {
+        await Task.CompletedTask;
+        var servicesBase
+            = new ServicesTestBase(services =>
+            {
+                services
+                    .AddScraperBuilder(config => config.AddAssembly(this.GetType().Assembly));
+            });
+
+        var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
+
+        Assert.Null(service.CreateModelByQuestNameOrDefault(nameof(WithoutConfigQuest)));
+    }
+    
+    [Fact]
+    public async Task CreateModelByQuestType_TryInstance_SuccessInstance()
+    {
+        await Task.CompletedTask;
+        var servicesBase
+            = new ServicesTestBase(services =>
+            {
+                services
+                    .AddScraperBuilder(config => config.AddAssembly(this.GetType().Assembly));
+            });
+
+        var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
+
+        Assert.NotNull(service.CreateModelByQuestType(typeof(SimpleQuestWithOutServices)));
+    }
+
+    [Fact]
+    public async Task CreateModelByQuestType_TryInstance_FailedInstanceBecauseWithoutRequiredConfig()
+    {
+        await Task.CompletedTask;
+        var servicesBase
+            = new ServicesTestBase(services =>
+            {
+                services
+                    .AddScraperBuilder(config => config.AddAssembly(this.GetType().Assembly));
+            });
+
+        var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
+
+        Assert.ThrowsAny<Exception>(()=>service.CreateModelByQuestType(typeof(WithoutConfigQuest)));
+    }
+
+    [Fact]
+    public async Task CreateModelByQuestType_TryInstance_FailedInstanceBecauseTypeIsInvalid()
+    {
+        await Task.CompletedTask;
+        var servicesBase
+            = new ServicesTestBase(services =>
+            {
+                services
+                    .AddScraperBuilder(config => config.AddAssembly(this.GetType().Assembly));
+            });
+
+        var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
+
+        Assert.Throws<ArgumentException>(typeof(BlScraper.Model.Quest<>).Name, 
+            ()=>service.CreateModelByQuestType(typeof(object)));
+        Assert.Throws<ArgumentException>(typeof(BlScraper.Model.Quest<>).Name, 
+            ()=>service.CreateModelByQuestType(typeof(BlScraper.Model.Quest<>)));
+        Assert.Throws<ArgumentException>(typeof(BlScraper.Model.Quest<>).Name, 
+            ()=>service.CreateModelByQuestType(typeof(BlScraper.Model.Quest<PublicSimpleData>)));
+    }
+        
+    [Fact]
+    public async Task CreateModelByQuestTypeOrDefault_TryInstance_SuccessInstance()
+    {
+        await Task.CompletedTask;
+        var servicesBase
+            = new ServicesTestBase(services =>
+            {
+                services
+                    .AddScraperBuilder(config => config.AddAssembly(this.GetType().Assembly));
+            });
+
+        var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
+
+        Assert.NotNull(service.CreateModelByQuestTypeOrDefault(typeof(SimpleQuestWithOutServices)));
+    }
+
+    [Fact]
+    public async Task CreateModelByQuestTypeOrDefault_TryInstance_FailedInstanceBecauseWithoutRequiredConfig()
+    {
+        await Task.CompletedTask;
+        var servicesBase
+            = new ServicesTestBase(services =>
+            {
+                services
+                    .AddScraperBuilder(config => config.AddAssembly(this.GetType().Assembly));
+            });
+
+        var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
+
+        Assert.Null(service.CreateModelByQuestTypeOrDefault(typeof(WithoutConfigQuest)));
+    }
+
+    [Fact]
+    public async Task CreateModelByQuestTypeOrDefault_TryInstance_FailedInstanceBecauseTypeIsInvalid()
+    {
+        await Task.CompletedTask;
+        var servicesBase
+            = new ServicesTestBase(services =>
+            {
+                services
+                    .AddScraperBuilder(config => config.AddAssembly(this.GetType().Assembly));
+            });
+
+        var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
+
+        Assert.Null(service.CreateModelByQuestTypeOrDefault(typeof(object)));
+        Assert.Null(service.CreateModelByQuestTypeOrDefault(typeof(BlScraper.Model.Quest<>)));
+        Assert.Null(service.CreateModelByQuestTypeOrDefault(typeof(BlScraper.Model.Quest<PublicSimpleData>)));
+    }
+    
+    [Fact]
+    public async Task CreateModelByQuestTypeGeneric_TryInstance_SuccessInstance()
+    {
+        await Task.CompletedTask;
+        var servicesBase
+            = new ServicesTestBase(services =>
+            {
+                services
+                    .AddScraperBuilder(config => config.AddAssembly(this.GetType().Assembly));
+            });
+
+        var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
+
+        Assert.NotNull(service.CreateModelByQuestType<SimpleQuestWithOutServices>());
+    }
+
+    [Fact]
+    public async Task CreateModelByQuestTypeGeneric_TryInstance_FailedInstanceBecauseWithoutRequiredConfig()
+    {
+        await Task.CompletedTask;
+        var servicesBase
+            = new ServicesTestBase(services =>
+            {
+                services
+                    .AddScraperBuilder(config => config.AddAssembly(this.GetType().Assembly));
+            });
+
+        var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
+
+        Assert.ThrowsAny<Exception>(()=>service.CreateModelByQuestType<WithoutConfigQuest>());
+    }
+
+    [Fact]
+    public async Task CreateModelByQuestTypeGeneric_TryInstance_FailedInstanceBecauseTypeIsInvalid()
+    {
+        await Task.CompletedTask;
+        var servicesBase
+            = new ServicesTestBase(services =>
+            {
+                services
+                    .AddScraperBuilder(config => config.AddAssembly(this.GetType().Assembly));
+            });
+
+        var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
+
+        Assert.Throws<ArgumentException>(typeof(BlScraper.Model.Quest<>).Name, 
+            ()=>service.CreateModelByQuestType<object>());
+        Assert.Throws<ArgumentException>(typeof(BlScraper.Model.Quest<>).Name, 
+            ()=>service.CreateModelByQuestType<BlScraper.Model.Quest<PublicSimpleData>>());
+    }
+        
+    [Fact]
+    public async Task CreateModelByQuestTypeOrDefaultGeneric_TryInstance_SuccessInstance()
+    {
+        await Task.CompletedTask;
+        var servicesBase
+            = new ServicesTestBase(services =>
+            {
+                services
+                    .AddScraperBuilder(config => config.AddAssembly(this.GetType().Assembly));
+            });
+
+        var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
+
+        Assert.NotNull(service.CreateModelByQuestTypeOrDefault<SimpleQuestWithOutServices>());
+    }
+
+    [Fact]
+    public async Task CreateModelByQuestTypeOrDefaultGeneric_TryInstance_FailedInstanceBecauseWithoutRequiredConfig()
+    {
+        await Task.CompletedTask;
+        var servicesBase
+            = new ServicesTestBase(services =>
+            {
+                services
+                    .AddScraperBuilder(config => config.AddAssembly(this.GetType().Assembly));
+            });
+
+        var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
+
+        Assert.Null(service.CreateModelByQuestTypeOrDefault<WithoutConfigQuest>());
+    }
+
+    [Fact]
+    public async Task CreateModelByQuestTypeOrDefaultGeneric_TryInstance_FailedInstanceBecauseTypeIsInvalid()
+    {
+        await Task.CompletedTask;
+        var servicesBase
+            = new ServicesTestBase(services =>
+            {
+                services
+                    .AddScraperBuilder(config => config.AddAssembly(this.GetType().Assembly));
+            });
+
+        var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
+
+        Assert.Null(service.CreateModelByQuestTypeOrDefault<object>());
+        Assert.Null(service.CreateModelByQuestTypeOrDefault<BlScraper.Model.Quest<PublicSimpleData>>());
+    }
 }
