@@ -27,6 +27,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\BlScraper.DependencyInjection\BlScraper.DependencyInjection.csproj" />
+    <ProjectReference Include="..\BlScraper.DependencyInjection.Tests.FakeProject\BlScraper.DependencyInjection.Tests.FakeProject.csproj" />
   </ItemGroup>
 
   <ItemGroup>

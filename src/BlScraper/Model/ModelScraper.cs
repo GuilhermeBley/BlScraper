@@ -338,7 +338,7 @@ public class ModelScraper<TQuest, TData> : IModelScraper
             {
                 int threadId = indexScraper;
                 var thread =
-                    new Thread(() =>
+                    new Thread(new ThreadStart(delegate 
                     {
                         Thread.CurrentThread.Name = $"{typeof(TQuest).Name} : {threadId}";
                         _mreWaitProcessing.WaitOne();
@@ -367,7 +367,7 @@ public class ModelScraper<TQuest, TData> : IModelScraper
                             }
                         }
 
-                    });
+                    }));
 
                 thread.Start();
             };

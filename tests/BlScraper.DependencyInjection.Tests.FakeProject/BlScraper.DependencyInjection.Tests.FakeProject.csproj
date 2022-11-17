@@ -6,8 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <PropertyGroup>
-    <Version>6.0.6</Version>
-  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\BlScraper.DependencyInjection\BlScraper.DependencyInjection.csproj" />
+  </ItemGroup>
 
 </Project>
