@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlScraper.DependencyInjecti
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlScraper.Tests", "tests\BlScraper.Tests\BlScraper.Tests.csproj", "{8D18D900-157C-4A7B-8789-A375DF6A95B1}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlScraper.DependencyInjection.Tests.FakeProject", "tests\BlScraper.DependencyInjection.Tests.FakeProject\BlScraper.DependencyInjection.Tests.FakeProject.csproj", "{3159466D-51EB-45E9-9D51-8746EE3BCDA7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -40,11 +42,16 @@ Global
 		{8D18D900-157C-4A7B-8789-A375DF6A95B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8D18D900-157C-4A7B-8789-A375DF6A95B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8D18D900-157C-4A7B-8789-A375DF6A95B1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3159466D-51EB-45E9-9D51-8746EE3BCDA7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3159466D-51EB-45E9-9D51-8746EE3BCDA7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3159466D-51EB-45E9-9D51-8746EE3BCDA7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3159466D-51EB-45E9-9D51-8746EE3BCDA7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{3F0AFD68-5F8E-46E9-A7C4-86A78149148B} = {B020C173-79BB-4BB7-8BFC-29E48047A25B}
 		{7E085B4F-8B91-473C-9899-04793467B2DD} = {B020C173-79BB-4BB7-8BFC-29E48047A25B}
 		{59A36AAD-6BC5-4434-9239-3224AB23E33B} = {DDEB57FF-4E5C-40AB-9E55-615F3F286C25}
 		{8D18D900-157C-4A7B-8789-A375DF6A95B1} = {DDEB57FF-4E5C-40AB-9E55-615F3F286C25}
+		{3159466D-51EB-45E9-9D51-8746EE3BCDA7} = {DDEB57FF-4E5C-40AB-9E55-615F3F286C25}
 	EndGlobalSection
 EndGlobal

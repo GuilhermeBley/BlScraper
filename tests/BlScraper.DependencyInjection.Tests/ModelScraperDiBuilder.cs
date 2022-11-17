@@ -4,6 +4,7 @@ using BlScraper.DependencyInjection.Tests.QuestsBuilder;
 using Microsoft.Extensions.DependencyInjection;
 using BlScraper.DependencyInjection.Tests.Extension;
 using BlScraper.DependencyInjection.ConfigureModel;
+using BlScraper.DependencyInjection.Tests.FakeProject;
 
 namespace BlScraper.DependencyInjection.Tests;
 
@@ -867,5 +868,69 @@ public class ModelScraperDiBuilder
 
         Assert.Null(service.CreateModelByQuestTypeOrDefault<object>());
         Assert.Null(service.CreateModelByQuestTypeOrDefault<BlScraper.Model.Quest<PublicSimpleData>>());
+    }
+
+    [Fact]
+    public async Task CreateModelInOtherProject_InstaceQuestOfOtherProject_SuccessAssemblyAdded()
+    {
+        await Task.CompletedTask;
+        var servicesBase
+            = new ServicesTestBase(services =>
+            {
+                services
+                    .AddScraperBuilder(config => config.AddAssembly(this.GetType().Assembly).AddAssembly(typeof(QuestInOtherProject).Assembly));
+            });
+
+        var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
+
+        Assert.NotNull(service.CreateModelByQuestTypeOrDefault<QuestInOtherProject>());
+    }
+
+    [Fact]
+    public async Task CreateModelInOtherProject_InstaceQuestOfOtherProject_FailedBecauseAssemblyDontAdded()
+    {
+        await Task.CompletedTask;
+        var servicesBase
+            = new ServicesTestBase(services =>
+            {
+                services
+                    .AddScraperBuilder(config => config.AddAssembly(this.GetType().Assembly));
+            });
+
+        var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
+
+        Assert.Null(service.CreateModelByQuestTypeOrDefault<QuestInOtherProject>());
+    }
+
+    [Fact]
+    public async Task CreateModelInOtherProject_InstaceQuestWithotherConfigure_SuccessQuestInstanced()
+    {
+        await Task.CompletedTask;
+        var servicesBase
+            = new ServicesTestBase(services =>
+            {
+                services
+                    .AddScraperBuilder(config => config.AddAssembly(this.GetType().Assembly));
+            });
+
+        var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
+
+        Assert.NotNull(service.CreateModelByQuestTypeOrDefault<QuestWithoutConfig>());
+    }
+
+    [Fact]
+    public async Task CreateModelInOtherProject_InstaceQuestWithoutConfigure_FailedQuestInstanced()
+    {
+        await Task.CompletedTask;
+        var servicesBase
+            = new ServicesTestBase(services =>
+            {
+                services
+                    .AddScraperBuilder(config => config.AddAssembly(this.GetType().Assembly));
+            });
+
+        var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
+
+        Assert.Null(service.CreateModelByQuestTypeOrDefault<QuestWithoutConfig2>());
     }
 }
