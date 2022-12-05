@@ -105,9 +105,14 @@ public class ModelScraper<TQuest, TData> : IModelScraper
     private readonly object _stateLock = new();
 
     /// <summary>
-    /// Lock count progress
+    /// Lock count searcheds
     /// </summary>
     private readonly object _countSearchedLock = new();
+
+    /// <summary>
+    /// Lock count progress
+    /// </summary>
+    private readonly object _countProgressLock = new();
 
     /// <summary>
     /// Scraping to execute
@@ -115,6 +120,9 @@ public class ModelScraper<TQuest, TData> : IModelScraper
     private int _countScraper { get; }
 
     /// <inheritdoc cref="IModelScraper.CountSearched" path="*"/>
+    private int _countSearched = 0;
+
+    /// <inheritdoc cref="IModelScraper.CountProgress" path="*"/>
     private int _countProgress = 0;
     
     /// <summary>
@@ -139,7 +147,10 @@ public class ModelScraper<TQuest, TData> : IModelScraper
     public DateTime? DtRun => _dtRun;
 
     /// <inheritdoc cref="IModelScraper.CountSearched" path="*"/>
-    public int CountSearched => _countProgress;
+    public int CountSearched => _countSearched;
+
+    /// <inheritdoc cref="IModelScraper.CountProgress" path="*"/>
+    public int CountProgress => _countProgress;
 
     /// <summary>
     /// Instance of type <see cref="ModelScraper"/>
@@ -355,6 +366,9 @@ public class ModelScraper<TQuest, TData> : IModelScraper
                         _mreWaitProcessing.WaitOne();
                         try
                         {
+                            lock(_countProgressLock)
+                                _countProgress++;
+
                             _endExec.Add(
                                 RunExecute()
                             );
@@ -376,6 +390,9 @@ public class ModelScraper<TQuest, TData> : IModelScraper
                                     _cts.Cancel();
                                 _cts.Dispose();
                             }
+
+                            lock(_countProgressLock)
+                                _countProgress--;
                         }
 
                     }));
@@ -603,7 +620,7 @@ public class ModelScraper<TQuest, TData> : IModelScraper
         {
             _whenDataFinished?.Invoke(ResultBase<TData>.GetSuccess(dataToSearch));
             lock(_countSearchedLock)
-                _countProgress++;
+                _countSearched++;
             RunLoopSearch(executionContext, null);
             return;
         }

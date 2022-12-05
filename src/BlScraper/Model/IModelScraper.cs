@@ -29,6 +29,11 @@ public interface IModelScraper : IDisposable, IAsyncDisposable
     int CountSearched { get; }
 
     /// <summary>
+    /// Count scrapers in progress
+    /// </summary>
+    int CountProgress { get; }
+
+    /// <summary>
     /// Get current state
     /// </summary>
     ModelStateEnum State { get; }

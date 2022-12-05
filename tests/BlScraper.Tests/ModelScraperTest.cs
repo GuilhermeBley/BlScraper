@@ -964,7 +964,7 @@ public class ModelScraperTest
 
         await WaitFinishModel(model);
 
-        Assert.Equal(ModelStateEnum.Disposed, ModelStateEnum.Disposed);
+        Assert.Equal(ModelStateEnum.Disposed, model.State);
 
         await model.DisposeAsync();
     }
@@ -987,7 +987,7 @@ public class ModelScraperTest
 
         await WaitFinishModel(model);
 
-        Assert.Equal(ModelStateEnum.Disposed, ModelStateEnum.Disposed);
+        Assert.Equal(ModelStateEnum.Disposed, model.State);
 
         Assert.Empty(dataToCheck);
 
@@ -1012,7 +1012,7 @@ public class ModelScraperTest
 
         await WaitFinishModel(model);
 
-        Assert.Equal(ModelStateEnum.Disposed, ModelStateEnum.Disposed);
+        Assert.Equal(ModelStateEnum.Disposed, model.State);
 
         Assert.NotNull(resultList);
 
@@ -1041,7 +1041,7 @@ public class ModelScraperTest
 
         await WaitFinishModel(model);
 
-        Assert.Equal(ModelStateEnum.Disposed, ModelStateEnum.Disposed);
+        Assert.Equal(ModelStateEnum.Disposed, model.State);
 
         Assert.NotEmpty(dataToCheck);
 
@@ -1049,7 +1049,7 @@ public class ModelScraperTest
     }
     
     [Fact(Timeout = 1000)]
-    public async void CountProgress_RunAndCheckCount_SuccessTotalSearchsEquals1000()
+    public async void CountSearched_RunAndCheckCount_SuccessTotalSearchsEquals1000()
     {
         _output.WriteLine(nameof(DisposeAllQuest_DisposeAllWithoutSearchs_SuccessInExecuteAny));
         const int total = 1000;
@@ -1065,14 +1065,13 @@ public class ModelScraperTest
 
         await WaitFinishModel(model);
 
-        Assert.Equal(ModelStateEnum.Disposed, ModelStateEnum.Disposed);
+        Assert.Equal(ModelStateEnum.Disposed, model.State);
 
         Assert.Equal(total, model.CountSearched);
     }
-
     
     [Fact(Timeout = 1000)]
-    public async void CountProgress_RunAndCheckCountWith100Threads_SuccessTotalSearchsEquals1000()
+    public async void CountSearched_RunAndCheckCountWith100Threads_SuccessTotalSearchsEquals1000()
     {
         _output.WriteLine(nameof(DisposeAllQuest_DisposeAllWithoutSearchs_SuccessInExecuteAny));
         const int total = 1000;
@@ -1089,9 +1088,60 @@ public class ModelScraperTest
 
         await WaitFinishModel(model);
 
-        Assert.Equal(ModelStateEnum.Disposed, ModelStateEnum.Disposed);
+        Assert.Equal(ModelStateEnum.Disposed, model.State);
 
         Assert.Equal(total, model.CountSearched);
+    }
+    
+    [Fact(Timeout = 1000)]
+    public async void CountProgress_RunAndCheckCountWith100Threads_SuccessTotalDisposedZero()
+    {
+        _output.WriteLine(nameof(CountProgress_RunAndCheckCountWith100Threads_SuccessTotalDisposedZero));
+        const int threads = 100;
+        IModelScraper model =
+            new ModelScraper<SimpleExecution, SimpleData>
+            (
+                threads,
+                () => new SimpleExecution(),
+                async () => { await Task.CompletedTask; return SimpleDataFactory.GetData(100); }
+            );
+
+        Assert.True((await model.Run()).IsSuccess);
+
+        await WaitFinishModel(model);
+
+        Assert.Equal(ModelStateEnum.Disposed, model.State);
+
+        Assert.Equal(0, model.CountProgress);
+    }
+
+    [Fact(Timeout = 1000)]
+    public async void CountProgress_RunAndCheckCountWith100Threads_SuccessTotalInProgress100()
+    {
+        _output.WriteLine(nameof(CountProgress_RunAndCheckCountWith100Threads_SuccessTotalDisposedZero));
+        const int threads = 100;
+        const int total = 100;
+        IModelScraper model =
+            new ModelScraper<EndlessWhileExecution, SimpleData>
+            (
+                threads,
+                () => new EndlessWhileExecution(default),
+                async () => { await Task.CompletedTask; return SimpleDataFactory.GetData(total); }
+            );
+
+        Assert.True((await model.Run()).IsSuccess);
+
+        try
+        {
+            await WaitFinishModel(model, new CancellationTokenSource(total).Token);
+        }
+        catch (OperationCanceledException) { }
+        
+        Assert.Equal(ModelStateEnum.Running, model.State);
+
+        Assert.Equal(total, model.CountProgress);
+
+        await model.DisposeAsync();
     }
 
     /// <summary>
