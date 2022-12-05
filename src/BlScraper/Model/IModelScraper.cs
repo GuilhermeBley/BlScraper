@@ -19,9 +19,24 @@ public interface IModelScraper : IDisposable, IAsyncDisposable
     public DateTime? DtRun { get; }
 
     /// <summary>
+    /// Date when all threads end and end event was executed
+    /// </summary>
+    public DateTime? DtEnd { get; }
+
+    /// <summary>
     /// Number of scraper to execute your context
     /// </summary>
     int CountScraper { get; }
+
+    /// <summary>
+    /// Count searchs ended
+    /// </summary>
+    int CountSearched { get; }
+
+    /// <summary>
+    /// Count scrapers in progress
+    /// </summary>
+    int CountProgress { get; }
 
     /// <summary>
     /// Get current state

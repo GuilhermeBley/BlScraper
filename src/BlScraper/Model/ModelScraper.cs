@@ -105,14 +105,33 @@ public class ModelScraper<TQuest, TData> : IModelScraper
     private readonly object _stateLock = new();
 
     /// <summary>
+    /// Lock count searcheds
+    /// </summary>
+    private readonly object _countSearchedLock = new();
+
+    /// <summary>
+    /// Lock count progress
+    /// </summary>
+    private readonly object _countProgressLock = new();
+
+    /// <summary>
     /// Scraping to execute
     /// </summary>
     private int _countScraper { get; }
+
+    /// <inheritdoc cref="IModelScraper.CountSearched" path="*"/>
+    private int _countSearched = 0;
+
+    /// <inheritdoc cref="IModelScraper.CountProgress" path="*"/>
+    private int _countProgress = 0;
     
     /// <summary>
     /// Run at
     /// </summary>
     private DateTime? _dtRun = null;
+
+    /// <inheritdoc cref="IModelScraper.DtEnd" path="*"/>
+    private DateTime? _dtEnd = null;
 
     /// <inheritdoc cref="_countScraper" path="*"/>
     public int CountScraper => _countScraper;
@@ -129,6 +148,15 @@ public class ModelScraper<TQuest, TData> : IModelScraper
     /// Run at
     /// </summary>
     public DateTime? DtRun => _dtRun;
+
+    /// <inheritdoc cref="IModelScraper.CountSearched" path="*"/>
+    public int CountSearched => _countSearched;
+
+    /// <inheritdoc cref="IModelScraper.CountProgress" path="*"/>
+    public int CountProgress => _countProgress;
+
+    /// <inheritdoc cref="IModelScraper.DtEnd" path="*"/>
+    public DateTime? DtEnd => _dtEnd;
 
     /// <summary>
     /// Instance of type <see cref="ModelScraper"/>
@@ -294,6 +322,9 @@ public class ModelScraper<TQuest, TData> : IModelScraper
     }
 
     /// <inheritdoc path="*"/>
+    /// <remarks>
+    ///     <para>If ResultBase failed, <see cref="RunModel.Searches"/> is empty</para>
+    /// </remarks>
     public async Task<ResultBase<RunModel>> Run()
     {
         _mreWaitProcessing.WaitOne();
@@ -302,21 +333,22 @@ public class ModelScraper<TQuest, TData> : IModelScraper
         {
             if (_status.IsDisposedOrDisposing())
             {
-                return ResultBase<RunModel>.GetWithError(new RunModel(RunModelEnum.Disposed, _countScraper, "Already disposed."));
+                return ResultBase<RunModel>.GetWithError(new RunModel(RunModelEnum.Disposed, _countScraper, messages: "Already disposed."));
             }
 
             if (_status.State != ModelStateEnum.NotRunning)
             {
-                return ResultBase<RunModel>.GetWithError(new RunModel(RunModelEnum.AlreadyExecuted, _countScraper, "Already started."));
+                return ResultBase<RunModel>.GetWithError(new RunModel(RunModelEnum.AlreadyExecuted, _countScraper, messages: "Already started."));
             }
 
             lock (_stateLock)
                 _status.SetState(ModelStateEnum.WaitingRunning);
         }
 
+        IEnumerable<TData>? data;
         try
         {
-            var data = await _getData.Invoke();
+            data = await _getData.Invoke();
 
             _searchData = new ConcurrentQueue<TData>(data);
 
@@ -344,6 +376,9 @@ public class ModelScraper<TQuest, TData> : IModelScraper
                         _mreWaitProcessing.WaitOne();
                         try
                         {
+                            lock(_countProgressLock)
+                                _countProgress++;
+
                             _endExec.Add(
                                 RunExecute()
                             );
@@ -355,6 +390,8 @@ public class ModelScraper<TQuest, TData> : IModelScraper
                                 lock (_stateLock)
                                     _status.SetState(ModelStateEnum.Disposed);
 
+                                _dtEnd = DateTime.Now;
+
                                 try
                                 {
                                     _whenAllWorksEnd?.Invoke(_endExec);
@@ -365,6 +402,9 @@ public class ModelScraper<TQuest, TData> : IModelScraper
                                     _cts.Cancel();
                                 _cts.Dispose();
                             }
+
+                            lock(_countProgressLock)
+                                _countProgress--;
                         }
 
                     }));
@@ -375,7 +415,7 @@ public class ModelScraper<TQuest, TData> : IModelScraper
             lock (_stateLock)
                 _status.SetState(ModelStateEnum.Running);
 
-            return ResultBase<RunModel>.GetSuccess(new RunModel(RunModelEnum.OkRequest, _countScraper));
+            return ResultBase<RunModel>.GetSuccess(new RunModel(RunModelEnum.OkRequest, _countScraper, data));
         }
         finally
         {
@@ -591,6 +631,8 @@ public class ModelScraper<TQuest, TData> : IModelScraper
         if (executionResult.ActionToNextData == ExecutionResultEnum.Next)
         {
             _whenDataFinished?.Invoke(ResultBase<TData>.GetSuccess(dataToSearch));
+            lock(_countSearchedLock)
+                _countSearched++;
             RunLoopSearch(executionContext, null);
             return;
         }

@@ -13,17 +13,17 @@ public class RunModel
     public RunModelEnum Status { get; }
     public int CountRunWorkers { get; }
     public IEnumerable<string> Messages { get; }
+    public IEnumerable<object> Searches { get; }
 
-    public RunModel(RunModelEnum status, int countRunWorkers, params string[] messages)
+    public RunModel(RunModelEnum status, int countRunWorkers, IEnumerable<object>? searches = null, params string[] messages)
     {
         Status = status;
         Messages = messages;
         CountRunWorkers = countRunWorkers;
+        Searches = searches ?? Enumerable.Empty<object>();
     }
 
-    public RunModel(RunModelEnum status, int countRunWorkers, IEnumerable<string> messages)
-    {
-        Status = status;
-        Messages = messages;
-    }
+    public RunModel(RunModelEnum status, int countRunWorkers, IEnumerable<string> messages, IEnumerable<object>? searches = null)
+        : this (status, countRunWorkers, searches, messages.ToArray())
+    { }
 }

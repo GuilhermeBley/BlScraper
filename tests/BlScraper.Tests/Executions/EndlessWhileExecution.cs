@@ -7,11 +7,11 @@ internal class EndlessWhileExecution : Quest<SimpleData>
 {
     public bool InRepeat = true;
     public int _maxTimeSleepExecute { get; }
-    private CancellationToken CancellationToken = default;
+    private CancellationToken _cancellationToken = default;
 
     public EndlessWhileExecution(CancellationToken cancellationToken, int maxTimeSleepExecute = 50)
     {
-        CancellationToken = cancellationToken;
+        _cancellationToken = cancellationToken;
         _maxTimeSleepExecute = maxTimeSleepExecute;
     }
 
@@ -23,12 +23,12 @@ internal class EndlessWhileExecution : Quest<SimpleData>
     public override QuestResult Execute(SimpleData data, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        CancellationToken.ThrowIfCancellationRequested();
+        _cancellationToken.ThrowIfCancellationRequested();
 
         while (InRepeat)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            CancellationToken.ThrowIfCancellationRequested();
+            _cancellationToken.ThrowIfCancellationRequested();
             Thread.Sleep(_maxTimeSleepExecute);
         }
 

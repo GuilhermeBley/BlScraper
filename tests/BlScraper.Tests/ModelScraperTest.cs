@@ -964,7 +964,7 @@ public class ModelScraperTest
 
         await WaitFinishModel(model);
 
-        Assert.Equal(ModelStateEnum.Disposed, ModelStateEnum.Disposed);
+        Assert.Equal(ModelStateEnum.Disposed, model.State);
 
         await model.DisposeAsync();
     }
@@ -987,7 +987,7 @@ public class ModelScraperTest
 
         await WaitFinishModel(model);
 
-        Assert.Equal(ModelStateEnum.Disposed, ModelStateEnum.Disposed);
+        Assert.Equal(ModelStateEnum.Disposed, model.State);
 
         Assert.Empty(dataToCheck);
 
@@ -1012,7 +1012,7 @@ public class ModelScraperTest
 
         await WaitFinishModel(model);
 
-        Assert.Equal(ModelStateEnum.Disposed, ModelStateEnum.Disposed);
+        Assert.Equal(ModelStateEnum.Disposed, model.State);
 
         Assert.NotNull(resultList);
 
@@ -1041,18 +1041,211 @@ public class ModelScraperTest
 
         await WaitFinishModel(model);
 
-        Assert.Equal(ModelStateEnum.Disposed, ModelStateEnum.Disposed);
+        Assert.Equal(ModelStateEnum.Disposed, model.State);
 
         Assert.NotEmpty(dataToCheck);
 
         await model.DisposeAsync();
     }
+    
+    [Fact(Timeout = 1000)]
+    public async void CountSearched_RunAndCheckCount_SuccessTotalSearchsEquals1000()
+    {
+        _output.WriteLine(nameof(DisposeAllQuest_DisposeAllWithoutSearchs_SuccessInExecuteAny));
+        const int total = 1000;
+        IModelScraper model =
+            new ModelScraper<SimpleExecution, SimpleData>
+            (
+                1,
+                () => new SimpleExecution(),
+                async () => { await Task.CompletedTask; return SimpleDataFactory.GetData(total); }
+            );
+
+        Assert.True((await model.Run()).IsSuccess);
+
+        await WaitFinishModel(model);
+
+        Assert.Equal(ModelStateEnum.Disposed, model.State);
+
+        Assert.Equal(total, model.CountSearched);
+    }
+    
+    [Fact(Timeout = 1000)]
+    public async void CountSearched_RunAndCheckCountWith100Threads_SuccessTotalSearchsEquals1000()
+    {
+        _output.WriteLine(nameof(DisposeAllQuest_DisposeAllWithoutSearchs_SuccessInExecuteAny));
+        const int total = 1000;
+        const int threads = 100;
+        IModelScraper model =
+            new ModelScraper<SimpleExecution, SimpleData>
+            (
+                threads,
+                () => new SimpleExecution(),
+                async () => { await Task.CompletedTask; return SimpleDataFactory.GetData(total); }
+            );
+
+        Assert.True((await model.Run()).IsSuccess);
+
+        await WaitFinishModel(model);
+
+        Assert.Equal(ModelStateEnum.Disposed, model.State);
+
+        Assert.Equal(total, model.CountSearched);
+    }
+    
+    [Fact(Timeout = 1000)]
+    public async void CountProgress_RunAndCheckCountWith100Threads_SuccessTotalDisposedZero()
+    {
+        _output.WriteLine(nameof(CountProgress_RunAndCheckCountWith100Threads_SuccessTotalDisposedZero));
+        const int threads = 100;
+        IModelScraper model =
+            new ModelScraper<SimpleExecution, SimpleData>
+            (
+                threads,
+                () => new SimpleExecution(),
+                async () => { await Task.CompletedTask; return SimpleDataFactory.GetData(100); }
+            );
+
+        Assert.True((await model.Run()).IsSuccess);
+
+        await WaitFinishModel(model);
+
+        Assert.Equal(ModelStateEnum.Disposed, model.State);
+
+        Assert.Equal(0, model.CountProgress);
+    }
+
+    [Fact(Timeout = 1000)]
+    public async void CountProgress_RunAndCheckCountWith100Threads_SuccessTotalInProgress100()
+    {
+        _output.WriteLine(nameof(CountProgress_RunAndCheckCountWith100Threads_SuccessTotalDisposedZero));
+        const int threads = 100;
+        const int total = 100;
+        IModelScraper model =
+            new ModelScraper<EndlessWhileExecution, SimpleData>
+            (
+                threads,
+                () => new EndlessWhileExecution(default),
+                async () => { await Task.CompletedTask; return SimpleDataFactory.GetData(total); }
+            );
+
+        Assert.True((await model.Run()).IsSuccess);
+
+        try
+        {
+            await WaitFinishModel(model, new CancellationTokenSource(total).Token);
+        }
+        catch (OperationCanceledException) { }
+        
+        Assert.Equal(ModelStateEnum.Running, model.State);
+
+        Assert.Equal(total, model.CountProgress);
+
+        await model.DisposeAsync();
+    }
+
+    [Fact(Timeout = 1000)]
+    public async void EndDate_RunAndCheckEndDate_SuccessEndDateLargerThanStart()
+    {
+        _output.WriteLine(nameof(CountProgress_RunAndCheckCountWith100Threads_SuccessTotalDisposedZero));
+        const int threads = 100;
+        const int total = 100;
+        IModelScraper model =
+            new ModelScraper<SimpleExecution, SimpleData>
+            (
+                threads,
+                () => new SimpleExecution(),
+                async () => { await Task.CompletedTask; return SimpleDataFactory.GetData(total); }
+            );
+
+        Assert.True((await model.Run()).IsSuccess);
+
+        await WaitFinishModel(model);
+        
+        Assert.Equal(ModelStateEnum.Disposed, model.State);
+
+        Assert.True(model.DtEnd > model.DtRun);
+    }
+
+    [Fact(Timeout = 1000)]
+    public async void SearchesCollected_RunAndCheckReturn_Success100DataCollected()
+    {
+        _output.WriteLine(nameof(CountProgress_RunAndCheckCountWith100Threads_SuccessTotalDisposedZero));
+        const int threads = 1;
+        const int total = 100;
+        IModelScraper model =
+            new ModelScraper<SimpleExecution, SimpleData>
+            (
+                threads,
+                () => new SimpleExecution(),
+                async () => { await Task.CompletedTask; return SimpleDataFactory.GetData(total); }
+            );
+
+        var result = await model.Run();
+
+        Assert.True(result.IsSuccess);
+
+        Assert.Equal(result.Result.Searches.Count(), total);
+
+        await WaitFinishModel(model);
+    }
+
+    [Fact(Timeout = 1000)]
+    public async void SearchesCollected_RunAndTryRunAgainCheckReturn_FailedZeroData()
+    {
+        _output.WriteLine(nameof(CountProgress_RunAndCheckCountWith100Threads_SuccessTotalDisposedZero));
+        const int threads = 1;
+        const int total = 100;
+        IModelScraper model =
+            new ModelScraper<SimpleExecution, SimpleData>
+            (
+                threads,
+                () => new SimpleExecution(),
+                async () => { await Task.CompletedTask; return SimpleDataFactory.GetData(total); }
+            );
+
+        var result = await model.Run();
+
+        result = await model.Run();
+
+        Assert.Equal(Results.Models.RunModelEnum.AlreadyExecuted, result.Result.Status);
+
+        Assert.NotEqual(result.Result.Searches.Count(), total);
+
+        await WaitFinishModel(model);
+    }
+
+    [Fact(Timeout = 1000)]
+    public async void SearchesCollected_RunAndCheckReturnAfterDispose_FailedZeroData()
+    {
+        _output.WriteLine(nameof(CountProgress_RunAndCheckCountWith100Threads_SuccessTotalDisposedZero));
+        const int threads = 1;
+        const int total = 100;
+        IModelScraper model =
+            new ModelScraper<SimpleExecution, SimpleData>
+            (
+                threads,
+                () => new SimpleExecution(),
+                async () => { await Task.CompletedTask; return SimpleDataFactory.GetData(total); }
+            );
+
+        var result = await model.Run();
+
+        await WaitFinishModel(model);
+
+        result = await model.Run();
+
+        Assert.Equal(Results.Models.RunModelEnum.Disposed, result.Result.Status);
+
+        Assert.NotEqual(result.Result.Searches.Count(), total);
+    }
+
     /// <summary>
     /// Wait to finish the model
     /// </summary>
     /// <returns>async</returns>
     /// <exception cref="OperationCanceledException"/>
-    public async Task WaitFinishModel(IModelScraper model, CancellationToken cancellationToken = default)
+    private async Task WaitFinishModel(IModelScraper model, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
