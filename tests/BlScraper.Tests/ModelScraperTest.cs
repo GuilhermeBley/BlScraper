@@ -1047,12 +1047,59 @@ public class ModelScraperTest
 
         await model.DisposeAsync();
     }
+    
+    [Fact(Timeout = 1000)]
+    public async void CountProgress_RunAndCheckCount_SuccessTotalSearchsEquals1000()
+    {
+        _output.WriteLine(nameof(DisposeAllQuest_DisposeAllWithoutSearchs_SuccessInExecuteAny));
+        const int total = 1000;
+        IModelScraper model =
+            new ModelScraper<SimpleExecution, SimpleData>
+            (
+                1,
+                () => new SimpleExecution(),
+                async () => { await Task.CompletedTask; return SimpleDataFactory.GetData(total); }
+            );
+
+        Assert.True((await model.Run()).IsSuccess);
+
+        await WaitFinishModel(model);
+
+        Assert.Equal(ModelStateEnum.Disposed, ModelStateEnum.Disposed);
+
+        Assert.Equal(total, model.CountProgress);
+    }
+
+    
+    [Fact(Timeout = 1000)]
+    public async void CountProgress_RunAndCheckCountWith100Threads_SuccessTotalSearchsEquals1000()
+    {
+        _output.WriteLine(nameof(DisposeAllQuest_DisposeAllWithoutSearchs_SuccessInExecuteAny));
+        const int total = 1000;
+        const int threads = 100;
+        IModelScraper model =
+            new ModelScraper<SimpleExecution, SimpleData>
+            (
+                threads,
+                () => new SimpleExecution(),
+                async () => { await Task.CompletedTask; return SimpleDataFactory.GetData(total); }
+            );
+
+        Assert.True((await model.Run()).IsSuccess);
+
+        await WaitFinishModel(model);
+
+        Assert.Equal(ModelStateEnum.Disposed, ModelStateEnum.Disposed);
+
+        Assert.Equal(total, model.CountProgress);
+    }
+
     /// <summary>
     /// Wait to finish the model
     /// </summary>
     /// <returns>async</returns>
     /// <exception cref="OperationCanceledException"/>
-    public async Task WaitFinishModel(IModelScraper model, CancellationToken cancellationToken = default)
+    private async Task WaitFinishModel(IModelScraper model, CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
