@@ -114,7 +114,7 @@ public class ModelScraper<TQuest, TData> : IModelScraper
     /// </summary>
     private int _countScraper { get; }
 
-    /// <inheritdoc cref="IModelScraper.CountProgress" path="*"/>
+    /// <inheritdoc cref="IModelScraper.CountSearched" path="*"/>
     private int _countProgress = 0;
     
     /// <summary>
@@ -138,8 +138,8 @@ public class ModelScraper<TQuest, TData> : IModelScraper
     /// </summary>
     public DateTime? DtRun => _dtRun;
 
-    /// <inheritdoc cref="IModelScraper.CountProgress" path="*"/>
-    public int CountProgress => _countProgress;
+    /// <inheritdoc cref="IModelScraper.CountSearched" path="*"/>
+    public int CountSearched => _countProgress;
 
     /// <summary>
     /// Instance of type <see cref="ModelScraper"/>

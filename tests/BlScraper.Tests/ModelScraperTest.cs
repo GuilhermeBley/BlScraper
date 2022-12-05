@@ -1067,7 +1067,7 @@ public class ModelScraperTest
 
         Assert.Equal(ModelStateEnum.Disposed, ModelStateEnum.Disposed);
 
-        Assert.Equal(total, model.CountProgress);
+        Assert.Equal(total, model.CountSearched);
     }
 
     
@@ -1091,7 +1091,7 @@ public class ModelScraperTest
 
         Assert.Equal(ModelStateEnum.Disposed, ModelStateEnum.Disposed);
 
-        Assert.Equal(total, model.CountProgress);
+        Assert.Equal(total, model.CountSearched);
     }
 
     /// <summary>
