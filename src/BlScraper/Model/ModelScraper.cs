@@ -107,7 +107,7 @@ public class ModelScraper<TQuest, TData> : IModelScraper
     /// <summary>
     /// Lock count progress
     /// </summary>
-    private readonly object _countProgressLock = new();
+    private readonly object _countSearchedLock = new();
 
     /// <summary>
     /// Scraping to execute
@@ -602,7 +602,7 @@ public class ModelScraper<TQuest, TData> : IModelScraper
         if (executionResult.ActionToNextData == ExecutionResultEnum.Next)
         {
             _whenDataFinished?.Invoke(ResultBase<TData>.GetSuccess(dataToSearch));
-            lock(_countProgressLock)
+            lock(_countSearchedLock)
                 _countProgress++;
             RunLoopSearch(executionContext, null);
             return;
