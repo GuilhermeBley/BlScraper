@@ -1144,6 +1144,29 @@ public class ModelScraperTest
         await model.DisposeAsync();
     }
 
+    [Fact(Timeout = 1000)]
+    public async void EndDate_RunAndCheckEndDate_SuccessEndDateLargerThanStart()
+    {
+        _output.WriteLine(nameof(CountProgress_RunAndCheckCountWith100Threads_SuccessTotalDisposedZero));
+        const int threads = 100;
+        const int total = 100;
+        IModelScraper model =
+            new ModelScraper<SimpleExecution, SimpleData>
+            (
+                threads,
+                () => new SimpleExecution(),
+                async () => { await Task.CompletedTask; return SimpleDataFactory.GetData(total); }
+            );
+
+        Assert.True((await model.Run()).IsSuccess);
+
+        await WaitFinishModel(model);
+        
+        Assert.Equal(ModelStateEnum.Disposed, model.State);
+
+        Assert.True(model.DtEnd > model.DtRun);
+    }
+
     /// <summary>
     /// Wait to finish the model
     /// </summary>

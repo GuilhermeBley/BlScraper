@@ -130,6 +130,9 @@ public class ModelScraper<TQuest, TData> : IModelScraper
     /// </summary>
     private DateTime? _dtRun = null;
 
+    /// <inheritdoc cref="IModelScraper.DtEnd" path="*"/>
+    private DateTime? _dtEnd = null;
+
     /// <inheritdoc cref="_countScraper" path="*"/>
     public int CountScraper => _countScraper;
 
@@ -151,6 +154,9 @@ public class ModelScraper<TQuest, TData> : IModelScraper
 
     /// <inheritdoc cref="IModelScraper.CountProgress" path="*"/>
     public int CountProgress => _countProgress;
+
+    /// <inheritdoc cref="IModelScraper.DtEnd" path="*"/>
+    public DateTime? DtEnd => _dtEnd;
 
     /// <summary>
     /// Instance of type <see cref="ModelScraper"/>
@@ -379,6 +385,8 @@ public class ModelScraper<TQuest, TData> : IModelScraper
                             {
                                 lock (_stateLock)
                                     _status.SetState(ModelStateEnum.Disposed);
+
+                                _dtEnd = DateTime.Now;
 
                                 try
                                 {
