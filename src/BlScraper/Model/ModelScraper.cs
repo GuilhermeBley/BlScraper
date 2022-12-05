@@ -322,6 +322,9 @@ public class ModelScraper<TQuest, TData> : IModelScraper
     }
 
     /// <inheritdoc path="*"/>
+    /// <remarks>
+    ///     <para>If ResultBase failed, <see cref="RunModel.Searches"/> is empty</para>
+    /// </remarks>
     public async Task<ResultBase<RunModel>> Run()
     {
         _mreWaitProcessing.WaitOne();
@@ -330,21 +333,22 @@ public class ModelScraper<TQuest, TData> : IModelScraper
         {
             if (_status.IsDisposedOrDisposing())
             {
-                return ResultBase<RunModel>.GetWithError(new RunModel(RunModelEnum.Disposed, _countScraper, "Already disposed."));
+                return ResultBase<RunModel>.GetWithError(new RunModel(RunModelEnum.Disposed, _countScraper, messages: "Already disposed."));
             }
 
             if (_status.State != ModelStateEnum.NotRunning)
             {
-                return ResultBase<RunModel>.GetWithError(new RunModel(RunModelEnum.AlreadyExecuted, _countScraper, "Already started."));
+                return ResultBase<RunModel>.GetWithError(new RunModel(RunModelEnum.AlreadyExecuted, _countScraper, messages: "Already started."));
             }
 
             lock (_stateLock)
                 _status.SetState(ModelStateEnum.WaitingRunning);
         }
 
+        IEnumerable<TData>? data;
         try
         {
-            var data = await _getData.Invoke();
+            data = await _getData.Invoke();
 
             _searchData = new ConcurrentQueue<TData>(data);
 
@@ -411,7 +415,7 @@ public class ModelScraper<TQuest, TData> : IModelScraper
             lock (_stateLock)
                 _status.SetState(ModelStateEnum.Running);
 
-            return ResultBase<RunModel>.GetSuccess(new RunModel(RunModelEnum.OkRequest, _countScraper));
+            return ResultBase<RunModel>.GetSuccess(new RunModel(RunModelEnum.OkRequest, _countScraper, data));
         }
         finally
         {

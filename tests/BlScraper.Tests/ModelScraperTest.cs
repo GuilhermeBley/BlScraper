@@ -1167,6 +1167,79 @@ public class ModelScraperTest
         Assert.True(model.DtEnd > model.DtRun);
     }
 
+    [Fact(Timeout = 1000)]
+    public async void SearchesCollected_RunAndCheckReturn_Success100DataCollected()
+    {
+        _output.WriteLine(nameof(CountProgress_RunAndCheckCountWith100Threads_SuccessTotalDisposedZero));
+        const int threads = 1;
+        const int total = 100;
+        IModelScraper model =
+            new ModelScraper<SimpleExecution, SimpleData>
+            (
+                threads,
+                () => new SimpleExecution(),
+                async () => { await Task.CompletedTask; return SimpleDataFactory.GetData(total); }
+            );
+
+        var result = await model.Run();
+
+        Assert.True(result.IsSuccess);
+
+        Assert.Equal(result.Result.Searches.Count(), total);
+
+        await WaitFinishModel(model);
+    }
+
+    [Fact(Timeout = 1000)]
+    public async void SearchesCollected_RunAndTryRunAgainCheckReturn_FailedZeroData()
+    {
+        _output.WriteLine(nameof(CountProgress_RunAndCheckCountWith100Threads_SuccessTotalDisposedZero));
+        const int threads = 1;
+        const int total = 100;
+        IModelScraper model =
+            new ModelScraper<SimpleExecution, SimpleData>
+            (
+                threads,
+                () => new SimpleExecution(),
+                async () => { await Task.CompletedTask; return SimpleDataFactory.GetData(total); }
+            );
+
+        var result = await model.Run();
+
+        result = await model.Run();
+
+        Assert.Equal(Results.Models.RunModelEnum.AlreadyExecuted, result.Result.Status);
+
+        Assert.NotEqual(result.Result.Searches.Count(), total);
+
+        await WaitFinishModel(model);
+    }
+
+    [Fact(Timeout = 1000)]
+    public async void SearchesCollected_RunAndCheckReturnAfterDispose_FailedZeroData()
+    {
+        _output.WriteLine(nameof(CountProgress_RunAndCheckCountWith100Threads_SuccessTotalDisposedZero));
+        const int threads = 1;
+        const int total = 100;
+        IModelScraper model =
+            new ModelScraper<SimpleExecution, SimpleData>
+            (
+                threads,
+                () => new SimpleExecution(),
+                async () => { await Task.CompletedTask; return SimpleDataFactory.GetData(total); }
+            );
+
+        var result = await model.Run();
+
+        await WaitFinishModel(model);
+
+        result = await model.Run();
+
+        Assert.Equal(Results.Models.RunModelEnum.Disposed, result.Result.Status);
+
+        Assert.NotEqual(result.Result.Searches.Count(), total);
+    }
+
     /// <summary>
     /// Wait to finish the model
     /// </summary>
