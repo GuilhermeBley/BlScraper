@@ -279,11 +279,12 @@ public class ModelScraperTest
 
         cancellationTokenSource.Cancel();
 
-        var resultStop = await model.StopAsync(cancellationTokenSource.Token);
+        await Assert.ThrowsAsync<OperationCanceledException>(() => model.StopAsync(cancellationTokenSource.Token));
 
         await Task.Delay(100);
 
-        Assert.True(resultStop.IsSuccess);
+        await WaitFinishModel(model);
+        
         Assert.True(isFinished);
         Assert.True(model.State == ModelStateEnum.Disposed);
     }
@@ -1259,8 +1260,9 @@ public class ModelScraperTest
         var result = await model.Run();
 
         await WaitFinishModel(model);
+
         
-        Assert.Equal(1, threadsIdsFinisheds.Count);
+        Assert.Single(threadsIdsFinisheds);
     }
 
     /// <summary>

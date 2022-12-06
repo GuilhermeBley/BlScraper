@@ -47,6 +47,8 @@ public class ModelScraper<TQuest, TData> : IModelScraper
     /// </summary>
     private readonly BlockingCollection<TQuest> _contexts = new();
 
+    private readonly BlScraper.Internal.ConcurrentCounter _counterFinished = new();
+
     /// <summary>
     /// It is invoked when all workers finished
     /// </summary>
@@ -376,6 +378,8 @@ public class ModelScraper<TQuest, TData> : IModelScraper
                         _mreWaitProcessing.WaitOne();
                         try
                         {
+                            _counterFinished.Add();
+
                             lock(_countProgressLock)
                                 _countProgress++;
 
@@ -385,14 +389,16 @@ public class ModelScraper<TQuest, TData> : IModelScraper
                         }
                         finally
                         {
-                            if (IsFinished())
+                            _counterFinished.Remove(out bool isLast);
+
+                            if (isLast)
                             {
                                 try
                                 {
                                     _whenAllWorksEnd?.Invoke(_endExec);
                                 }
                                 catch { }
-                                
+
                                 lock (_stateLock)
                                     _status.SetState(ModelStateEnum.Disposed);
 
@@ -438,8 +444,7 @@ public class ModelScraper<TQuest, TData> : IModelScraper
 
         TryRequestStop();
 
-        if (_status.State == ModelStateEnum.WaitingDispose)
-            await WaitStateAllContexts(ModelStateEnum.Disposed, cancellationToken);
+        await WaitStateAllContexts(ModelStateEnum.Disposed, cancellationToken);
 
         return ResultBase<StopModel>.GetSuccess(new StopModel(StopModelEnum.Stoped));
     }
@@ -675,6 +680,7 @@ public class ModelScraper<TQuest, TData> : IModelScraper
     /// Checks if all of the executions are ended.
     /// </summary>
     /// <returns>true : all finished, false : in progress or isn't running</returns>
+    [Obsolete($"To know the final thread to end, use {nameof(BlScraper.Internal.ConcurrentCounter)}.")]
     private bool IsFinished()
     {
         if (_countScraper != _endExec.Count)
