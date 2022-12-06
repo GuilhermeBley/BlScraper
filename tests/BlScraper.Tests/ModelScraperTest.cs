@@ -1240,6 +1240,29 @@ public class ModelScraperTest
         Assert.NotEqual(result.Result.Searches.Count(), total);
     }
 
+    [Fact(Timeout = 1000)]
+    public async void AllWorksEnd_RunAndCheckCountOfFinishedEventWith100Threads_SuccessOneExecuted()
+    {
+        _output.WriteLine(nameof(AllWorksEnd_RunAndCheckCountOfFinishedEventWith100Threads_SuccessOneExecuted));
+        const int threads = 100;
+        const int total = 1000;
+        BlockingCollection<int> threadsIdsFinisheds = new();
+        IModelScraper model =
+            new ModelScraper<SimpleExecution, SimpleData>
+            (
+                threads,
+                () => new SimpleExecution(),
+                async () => { await Task.CompletedTask; return SimpleDataFactory.GetData(total); },
+                whenAllWorksEnd: (result) => { threadsIdsFinisheds.Add(Thread.CurrentThread.ManagedThreadId); }
+            );
+
+        var result = await model.Run();
+
+        await WaitFinishModel(model);
+        
+        Assert.Equal(1, threadsIdsFinisheds.Count);
+    }
+
     /// <summary>
     /// Wait to finish the model
     /// </summary>

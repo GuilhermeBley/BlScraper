@@ -387,16 +387,16 @@ public class ModelScraper<TQuest, TData> : IModelScraper
                         {
                             if (IsFinished())
                             {
-                                lock (_stateLock)
-                                    _status.SetState(ModelStateEnum.Disposed);
-
-                                _dtEnd = DateTime.Now;
-
                                 try
                                 {
                                     _whenAllWorksEnd?.Invoke(_endExec);
                                 }
                                 catch { }
+                                
+                                lock (_stateLock)
+                                    _status.SetState(ModelStateEnum.Disposed);
+
+                                _dtEnd = DateTime.Now;
 
                                 if (!_cts.IsCancellationRequested)
                                     _cts.Cancel();
