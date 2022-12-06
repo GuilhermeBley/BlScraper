@@ -1261,8 +1261,86 @@ public class ModelScraperTest
 
         await WaitFinishModel(model);
 
-        
         Assert.Single(threadsIdsFinisheds);
+    }
+
+    [Fact(Timeout = 1000)]
+    public async void AllWorksEnd_RunAndCheckIfAllDataIsSearched_FailedAllDataDoesntCollected()
+    {
+        _output.WriteLine(nameof(AllWorksEnd_RunAndCheckIfAllDataIsSearched_FailedAllDataDoesntCollected));
+        const int threads = 2;
+        const int total = 10;
+        Results.Models.EndEnumerableModel? endResult = null;
+        IModelScraper model =
+            new ModelScraper<EndlessExecution, SimpleData>
+            (
+                threads,
+                () => new EndlessExecution(),
+                async () => { await Task.CompletedTask; return SimpleDataFactory.GetData(total); },
+                whenAllWorksEnd: (result) => { endResult = result; }
+            );
+
+        var result = await model.Run();
+
+        await model.DisposeAsync();
+
+        await WaitFinishModel(model);
+
+        Assert.NotNull(endResult);
+
+        Assert.False(endResult!.AllSearched);
+    }
+    
+    [Fact(Timeout = 1000)]
+    public async void AllWorksEnd_RunAndCheckIfAllDataIsSearched_SuccessAllDataCollected()
+    {
+        _output.WriteLine(nameof(AllWorksEnd_RunAndCheckIfAllDataIsSearched_SuccessAllDataCollected));
+        const int threads = 2;
+        const int total = 10;
+        Results.Models.EndEnumerableModel? endResult = null;
+        IModelScraper model =
+            new ModelScraper<SimpleExecution, SimpleData>
+            (
+                threads,
+                () => new SimpleExecution(),
+                async () => { await Task.CompletedTask; return SimpleDataFactory.GetData(total); },
+                whenAllWorksEnd: (result) => { endResult = result; }
+            );
+
+        var result = await model.Run();
+
+        await WaitFinishModel(model);
+
+        Assert.NotNull(endResult);
+
+        Assert.True(endResult!.AllSearched);
+    }
+    
+    [Fact(Timeout = 1000)]
+    public async void AllWorksEnd_RunAndCheckIfAllDataIsSearchedAndExceptions_FailedAllDataDoesntCollected()
+    {
+        _output.WriteLine(nameof(AllWorksEnd_RunAndCheckIfAllDataIsSearchedAndExceptions_FailedAllDataDoesntCollected));
+        const int threads = 2;
+        const int total = 10;
+        Results.Models.EndEnumerableModel? endResult = null;
+        IModelScraper model =
+            new ModelScraper<ThrowExcIntegerExecution, IntegerData>
+            (
+                threads,
+                () => new ThrowExcIntegerExecution(total/2),
+                async () => { await Task.CompletedTask; return IntegerDataFactory.GetData(total); },
+                whenAllWorksEnd: (result) => { endResult = result; }
+            );
+
+        var result = await model.Run();
+
+        await WaitFinishModel(model);
+
+        Assert.NotNull(endResult);
+
+        Assert.False(endResult!.AllSearched);
+
+        Assert.True(endResult!.ContainsError);
     }
 
     /// <summary>
