@@ -361,7 +361,7 @@ public class ModelScraper<TQuest, TData> : IModelScraper
                 _status.SetState(ModelStateEnum.NotRunning);
             throw;
         }
-
+        
         try
         {
             _mreWaitProcessing.Reset();

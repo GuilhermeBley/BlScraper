@@ -212,4 +212,33 @@ public class ModelDisposeTest
             Assert.Equal(1, dispExc.Value);
         });
     }
+
+    [Fact]
+    public async void DisposeQuest_RunCheckIfAllWorksEndCompleteBefereDispose_SuccessDisposeAfterEvent()
+    {
+        bool allWorksEnd = false;
+        bool modelFinished = false;
+        ConcurrentDictionary<OnDisposeExecution, int> countDiposedExc = new();
+        IModelScraper? model = null;
+            model =
+            new ModelScraper<SimpleExecution, SimpleData>
+            (
+                5,
+                () => new SimpleExecution(),
+                async () => { await Task.CompletedTask; return SimpleDataFactory.GetData(1000); },
+                whenAllWorksEnd: (result) => {
+                    allWorksEnd = true;
+                    modelFinished = model?.State != ModelStateEnum.Disposed;
+                    Thread.Sleep(50);
+                }
+            );
+
+        using (model)
+        {
+            Assert.True((await model.Run()).IsSuccess);
+            await WaitFinishModel(model);
+            Assert.True(allWorksEnd);
+            Assert.True(modelFinished);
+        }
+    }
 }
