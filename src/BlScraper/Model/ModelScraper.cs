@@ -55,7 +55,7 @@ public class ModelScraper<TQuest, TData> : IModelScraper
     /// <remarks>
     ///     <para>Last thread execute this method when all of search is disposed</para>
     /// </remarks>
-    private readonly Action<IEnumerable<ResultBase<Exception?>>>? _whenAllWorksEnd;
+    private readonly Action<EndEnumerableModel>? _whenAllWorksEnd;
 
     /// <summary>
     /// It is invoked when the data have searched with success or no.
@@ -197,7 +197,7 @@ public class ModelScraper<TQuest, TData> : IModelScraper
         Func<Task<IEnumerable<TData>>> getData,
         Func<Exception, TData, QuestResult>? whenOccursException = null,
         Action<ResultBase<TData>>? whenDataFinished = null,
-        Action<IEnumerable<ResultBase<Exception?>>>? whenAllWorksEnd = null,
+        Action<EndEnumerableModel>? whenAllWorksEnd = null,
         Action<IEnumerable<TData>>? whenDataWasCollected = null)
         : this(countScraper, getContext, getData)
     {
@@ -395,7 +395,7 @@ public class ModelScraper<TQuest, TData> : IModelScraper
                             {
                                 try
                                 {
-                                    _whenAllWorksEnd?.Invoke(_endExec);
+                                    _whenAllWorksEnd?.Invoke(new EndEnumerableModel(_endExec, !_searchData.Any()));
                                 }
                                 catch { }
 
