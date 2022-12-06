@@ -437,7 +437,8 @@ public class ModelScraperTest
 
         var resultStop = await model.StopAsync();
 
-        Assert.True(resultStop.IsSuccess && model.State == ModelStateEnum.Disposed);
+        Assert.Equal(ModelStateEnum.Disposed, model.State);
+        Assert.True(resultStop.IsSuccess);
     }
 
     [Fact]
@@ -1277,7 +1278,8 @@ public class ModelScraperTest
                 threads,
                 () => new EndlessExecution(),
                 async () => { await Task.CompletedTask; return SimpleDataFactory.GetData(total); },
-                whenAllWorksEnd: (result) => { endResult = result; }
+                whenAllWorksEnd: (result) => { 
+                    endResult = result; }
             );
 
         var result = await model.Run();
@@ -1285,8 +1287,6 @@ public class ModelScraperTest
         await model.DisposeAsync();
 
         await WaitFinishModel(model);
-
-        Assert.NotNull(endResult);
 
         Assert.False(endResult!.AllSearched);
     }

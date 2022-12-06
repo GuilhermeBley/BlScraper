@@ -1,3 +1,5 @@
+using System.Collections.Concurrent;
+
 namespace BlScraper.Internal;
 
 /// <summary>
@@ -5,7 +7,7 @@ namespace BlScraper.Internal;
 /// </summary>
 internal sealed class ConcurrentCounter
 {
-    private int _count = 0;
+    private BlockingCollection<byte?> _collection = new();
     private readonly object _stateLock = new();
     public int Count => GetCountConcurrent();
 
@@ -15,7 +17,7 @@ internal sealed class ConcurrentCounter
     public void Add()
     {
         lock (_stateLock)
-            _count++;
+            _collection.Add(byte.MinValue);
     }
 
     /// <summary>
@@ -27,13 +29,16 @@ internal sealed class ConcurrentCounter
         isLast = false;
         lock(_stateLock)
         {
-            if (_count == 0)
+            if (!_collection.TryTake(out byte? taked) &&
+                taked is null)
                 return false;
 
-            _count--;
-
-            if (_count == 0)
+            if (!_collection.TryTake(out byte? lastTaked) &&
+                lastTaked is null)
                 isLast = true;
+
+            if (!isLast)
+                _collection.Add(lastTaked);
 
             return true;
         }
@@ -45,6 +50,6 @@ internal sealed class ConcurrentCounter
     private int GetCountConcurrent()
     {
         lock(_stateLock)
-            return _count;
+            return _collection.Count;
     }
 }

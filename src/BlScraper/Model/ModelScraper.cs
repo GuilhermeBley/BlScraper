@@ -467,7 +467,7 @@ public class ModelScraper<TQuest, TData> : IModelScraper
                 return;
             }
 
-            if (!_contexts.Any())
+            if (!_contexts.Any() && _status.State == ModelStateEnum.NotRunning)
             {
                 if (!_cts.IsCancellationRequested)
                     _cts.Cancel();
@@ -520,19 +520,16 @@ public class ModelScraper<TQuest, TData> : IModelScraper
                 );
         }
 
-        if (executionContext.Id != Thread.CurrentThread.ManagedThreadId)
-            throw new ArgumentException($"Context doesn't executing in correct process. Check if ");
-
         try
         {
             _contexts.Add(executionContext);
             using (executionContext)
                 RunLoopSearch(executionContext);
 
-            executionContext.Context.SetCurrentStatusFinished();
-
             if (executionContext.Context.CurrentStatus == ContextRunEnum.DisposedWithError)
-                return ResultBase<Exception?>.GetWithError(exceptionEnd);
+                return ResultBase<Exception?>.GetWithError(executionContext.Context.Exception);
+
+            executionContext.Context.SetCurrentStatusFinished();
 
             return ResultBase<Exception?>.GetSuccess(exceptionEnd);
         }
