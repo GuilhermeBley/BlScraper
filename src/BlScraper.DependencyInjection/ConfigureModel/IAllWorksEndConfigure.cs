@@ -1,5 +1,6 @@
 using BlScraper.Model;
 using BlScraper.Results;
+using BlScraper.Results.Models;
 
 namespace BlScraper.DependencyInjection.ConfigureModel;
 
@@ -18,5 +19,5 @@ public interface IAllWorksEndConfigure<TQuest, TData>
     /// </summary>
     /// <param name="results">results of quests completed</param>
     /// <returns>async</returns>
-    void OnFinished(IEnumerable<ResultBase<Exception?>> results);
+    void OnFinished(EndEnumerableModel results);
 }
