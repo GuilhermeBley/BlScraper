@@ -47,7 +47,10 @@ public class ModelScraper<TQuest, TData> : IModelScraper
     /// </summary>
     private readonly BlockingCollection<TQuest> _contexts = new();
 
-    private readonly BlScraper.Internal.ConcurrentCounter _counterFinished = new();
+    /// <summary>
+    /// All threads ended must be entry here
+    /// </summary>
+    private readonly Internal.MaxBlockingList<int> _endCount;
 
     /// <summary>
     /// It is invoked when all workers finished
@@ -179,6 +182,7 @@ public class ModelScraper<TQuest, TData> : IModelScraper
         _countScraper = countScraper;
         _getContext = getContext;
         _getData = getData;
+        _endCount = new(countScraper-1);
     }
 
     /// <summary>
@@ -382,8 +386,6 @@ public class ModelScraper<TQuest, TData> : IModelScraper
                         _mreWaitProcessing.WaitOne();
                         try
                         {
-                            _counterFinished.Add();
-
                             lock(_countProgressLock)
                                 _countProgress++;
 
@@ -393,9 +395,7 @@ public class ModelScraper<TQuest, TData> : IModelScraper
                         }
                         finally
                         {
-                            _counterFinished.Remove(out bool isLast);
-
-                            if (isLast)
+                            if (!_endCount.TryAdd(Thread.CurrentThread.ManagedThreadId))
                             {
                                 try
                                 {
@@ -681,7 +681,7 @@ public class ModelScraper<TQuest, TData> : IModelScraper
     /// Checks if all of the executions are ended.
     /// </summary>
     /// <returns>true : all finished, false : in progress or isn't running</returns>
-    [Obsolete($"To know the final thread to end, use {nameof(BlScraper.Internal.ConcurrentCounter)}.")]
+    [Obsolete($"To know the final thread to end, use BlScraper.Internal.MaxBlockingList.")]
     private bool IsFinished()
     {
         if (_countScraper != _endExec.Count)
@@ -701,7 +701,7 @@ public class ModelScraper<TQuest, TData> : IModelScraper
         while (!_contexts.All(context => _status.State == state || _status.IsDisposed()))
         {
             token.ThrowIfCancellationRequested();
-            await Task.Delay(300);
+            await Task.Delay(30);
         }
     }
 

@@ -1200,13 +1200,13 @@ public class ModelScraperTest
     {
         _output.WriteLine(nameof(CountProgress_RunAndCheckCountWith100Threads_SuccessTotalDisposedZero));
         const int threads = 1;
-        const int total = 100;
+        const int total = 10;
         IModelScraper model =
-            new ModelScraper<SimpleExecution, SimpleData>
+            new ModelScraper<WaitingExecution, IntegerData>
             (
                 threads,
-                () => new SimpleExecution(),
-                async () => { await Task.CompletedTask; return SimpleDataFactory.GetData(total); }
+                () => new WaitingExecution(50),
+                async () => { await Task.CompletedTask; return IntegerDataFactory.GetData(total); }
             );
 
         var result = await model.Run();
