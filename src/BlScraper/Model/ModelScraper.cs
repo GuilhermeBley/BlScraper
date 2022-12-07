@@ -354,7 +354,11 @@ public class ModelScraper<TQuest, TData> : IModelScraper
 
             _searchData = new ConcurrentQueue<TData>(data);
 
-            _whenDataWasCollected?.Invoke(data);
+            try
+            {
+                _whenDataWasCollected?.Invoke(data);
+            }
+            catch { }
         }
         catch
         {
