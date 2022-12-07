@@ -48,12 +48,17 @@ public class ModelScraper<TQuest, TData> : IModelScraper
     private readonly BlockingCollection<TQuest> _contexts = new();
 
     /// <summary>
+    /// All threads ended must be entry here
+    /// </summary>
+    private readonly Internal.MaxBlockingList<int> _endCount;
+
+    /// <summary>
     /// It is invoked when all workers finished
     /// </summary>
     /// <remarks>
     ///     <para>Last thread execute this method when all of search is disposed</para>
     /// </remarks>
-    private readonly Action<IEnumerable<ResultBase<Exception?>>>? _whenAllWorksEnd;
+    private readonly Action<EndEnumerableModel>? _whenAllWorksEnd;
 
     /// <summary>
     /// It is invoked when the data have searched with success or no.
@@ -177,6 +182,7 @@ public class ModelScraper<TQuest, TData> : IModelScraper
         _countScraper = countScraper;
         _getContext = getContext;
         _getData = getData;
+        _endCount = new(countScraper-1);
     }
 
     /// <summary>
@@ -195,7 +201,7 @@ public class ModelScraper<TQuest, TData> : IModelScraper
         Func<Task<IEnumerable<TData>>> getData,
         Func<Exception, TData, QuestResult>? whenOccursException = null,
         Action<ResultBase<TData>>? whenDataFinished = null,
-        Action<IEnumerable<ResultBase<Exception?>>>? whenAllWorksEnd = null,
+        Action<EndEnumerableModel>? whenAllWorksEnd = null,
         Action<IEnumerable<TData>>? whenDataWasCollected = null)
         : this(countScraper, getContext, getData)
     {
@@ -352,7 +358,11 @@ public class ModelScraper<TQuest, TData> : IModelScraper
 
             _searchData = new ConcurrentQueue<TData>(data);
 
-            _whenDataWasCollected?.Invoke(data);
+            try
+            {
+                _whenDataWasCollected?.Invoke(data);
+            }
+            catch { }
         }
         catch
         {
@@ -361,7 +371,7 @@ public class ModelScraper<TQuest, TData> : IModelScraper
                 _status.SetState(ModelStateEnum.NotRunning);
             throw;
         }
-
+        
         try
         {
             _mreWaitProcessing.Reset();
@@ -385,18 +395,18 @@ public class ModelScraper<TQuest, TData> : IModelScraper
                         }
                         finally
                         {
-                            if (IsFinished())
+                            if (!_endCount.TryAdd(Thread.CurrentThread.ManagedThreadId))
                             {
+                                try
+                                {
+                                    _whenAllWorksEnd?.Invoke(new EndEnumerableModel(_endExec, !_searchData.Any()));
+                                }
+                                catch { }
+
                                 lock (_stateLock)
                                     _status.SetState(ModelStateEnum.Disposed);
 
                                 _dtEnd = DateTime.Now;
-
-                                try
-                                {
-                                    _whenAllWorksEnd?.Invoke(_endExec);
-                                }
-                                catch { }
 
                                 if (!_cts.IsCancellationRequested)
                                     _cts.Cancel();
@@ -438,8 +448,7 @@ public class ModelScraper<TQuest, TData> : IModelScraper
 
         TryRequestStop();
 
-        if (_status.State == ModelStateEnum.WaitingDispose)
-            await WaitStateAllContexts(ModelStateEnum.Disposed, cancellationToken);
+        await WaitStateAllContexts(ModelStateEnum.Disposed, cancellationToken);
 
         return ResultBase<StopModel>.GetSuccess(new StopModel(StopModelEnum.Stoped));
     }
@@ -462,7 +471,7 @@ public class ModelScraper<TQuest, TData> : IModelScraper
                 return;
             }
 
-            if (!_contexts.Any())
+            if (!_contexts.Any() && _status.State == ModelStateEnum.NotRunning)
             {
                 if (!_cts.IsCancellationRequested)
                     _cts.Cancel();
@@ -515,19 +524,16 @@ public class ModelScraper<TQuest, TData> : IModelScraper
                 );
         }
 
-        if (executionContext.Id != Thread.CurrentThread.ManagedThreadId)
-            throw new ArgumentException($"Context doesn't executing in correct process. Check if ");
-
         try
         {
             _contexts.Add(executionContext);
             using (executionContext)
                 RunLoopSearch(executionContext);
 
-            executionContext.Context.SetCurrentStatusFinished();
-
             if (executionContext.Context.CurrentStatus == ContextRunEnum.DisposedWithError)
-                return ResultBase<Exception?>.GetWithError(exceptionEnd);
+                return ResultBase<Exception?>.GetWithError(executionContext.Context.Exception);
+
+            executionContext.Context.SetCurrentStatusFinished();
 
             return ResultBase<Exception?>.GetSuccess(exceptionEnd);
         }
@@ -675,6 +681,7 @@ public class ModelScraper<TQuest, TData> : IModelScraper
     /// Checks if all of the executions are ended.
     /// </summary>
     /// <returns>true : all finished, false : in progress or isn't running</returns>
+    [Obsolete($"To know the final thread to end, use BlScraper.Internal.MaxBlockingList.")]
     private bool IsFinished()
     {
         if (_countScraper != _endExec.Count)
@@ -694,7 +701,7 @@ public class ModelScraper<TQuest, TData> : IModelScraper
         while (!_contexts.All(context => _status.State == state || _status.IsDisposed()))
         {
             token.ThrowIfCancellationRequested();
-            await Task.Delay(300);
+            await Task.Delay(30);
         }
     }
 
