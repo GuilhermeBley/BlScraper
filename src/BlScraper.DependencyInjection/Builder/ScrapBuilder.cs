@@ -2,6 +2,7 @@ using BlScraper.DependencyInjection.ConfigureBuilder;
 using BlScraper.DependencyInjection.ConfigureModel;
 using BlScraper.DependencyInjection.Model;
 using BlScraper.Model;
+using BlScraper.Results.Models;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BlScraper.DependencyInjection.Builder;
@@ -122,7 +123,7 @@ internal class ScrapBuilder : IScrapBuilder
                     TypeUtils.CreateDelegateWithTarget(model.InstaceRequired.GetType().GetMethod("GetData"), model.InstaceRequired) ?? throw new ArgumentNullException("GetData"),
                     TypeUtils.CreateDelegateWithTarget(model.InstanceQuestException?.GetType().GetMethod("OnOccursException", new Type[] { typeof(Exception), model.DataType }), model.InstanceQuestException) ?? null!,
                     TypeUtils.CreateDelegateWithTarget(model.InstanceDataFinished?.GetType().GetMethod("OnDataFinished", new Type[] { typeof(Results.ResultBase<>).MakeGenericType(model.DataType) }), model.InstanceDataFinished) ?? null!,
-                    TypeUtils.CreateDelegateWithTarget(model.InstanceAllWorksEnd?.GetType().GetMethod("OnFinished", new Type[] { typeof(IEnumerable<Results.ResultBase<Exception?>>) }), model.InstanceAllWorksEnd) ?? null!,
+                    TypeUtils.CreateDelegateWithTarget(model.InstanceAllWorksEnd?.GetType().GetMethod("OnFinished", new Type[] { typeof(EndEnumerableModel) }), model.InstanceAllWorksEnd) ?? null!,
                     TypeUtils.CreateDelegateWithTarget(model.InstanceDataCollected?.GetType().GetMethod("OnCollected", new Type[] { typeof(IEnumerable<>).MakeGenericType(model.DataType) }), model.InstanceDataCollected) ?? null!,
                     TypeUtils.CreateDelegateWithTarget(model.InstanceQuestCreated?.GetType().GetMethod("OnCreated", new Type[] { model.QuestType }), model.InstanceQuestCreated) ?? null!,
                     (object[]?) model.InstanceArgs?.GetType().GetMethod("GetArgs")?.Invoke(model.InstanceArgs, null) ?? new object[0]

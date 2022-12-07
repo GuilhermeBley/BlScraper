@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using BlScraper.Model;
 using BlScraper.Results;
 using BlScraper.DependencyInjection.Attributes;
+using BlScraper.Results.Models;
 
 namespace BlScraper.DependencyInjection.Model;
 
@@ -42,7 +43,7 @@ public class ModelScraperService<TQuest, TData> : ModelScraper<TQuest, TData>
         Func<Task<IEnumerable<TData>>> getData,
         Func<Exception, TData, QuestResult>? whenOccursException = null,
         Action<ResultBase<TData>>? whenDataFinished = null,
-        Action<IEnumerable<ResultBase<Exception?>>>? whenAllWorksEnd = null,
+        Action<EndEnumerableModel>? whenAllWorksEnd = null,
         Action<IEnumerable<TData>>? whenDataWasCollected = null,
         Action<TQuest>? whenExecutionCreated = null,
         params object[] args

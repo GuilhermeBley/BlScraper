@@ -1,6 +1,7 @@
 using BlScraper.DependencyInjection.ConfigureModel;
 using BlScraper.Model;
 using BlScraper.Results;
+using BlScraper.Results.Models;
 
 namespace BlScraper.DependencyInjection.Tests.QuestsBuilder;
 
@@ -40,7 +41,7 @@ public class AllWorksEndConfigure : IAllWorksEndConfigure<AllWorksEndQuest, Publ
         _routeService = routeService;
     }
 
-    public void OnFinished(IEnumerable<ResultBase<Exception?>> results)
+    public void OnFinished(EndEnumerableModel results)
     {
         _routeService.Add(this.GetType().GetMethod(nameof(OnFinished)));
     }
