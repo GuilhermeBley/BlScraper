@@ -983,7 +983,7 @@ public class ModelScraperDiBuilder
         Assert.NotEmpty(tuples);
         Assert.All(tuples, (tuple) =>
         {
-            //Assert.Equal(typeof(BlScraper.Model.));
+            Assert.True(typeof(BlScraper.Model.IQuest).IsAssignableFrom(tuple.Quest));
         });
     }
 
@@ -1004,7 +1004,7 @@ public class ModelScraperDiBuilder
         Assert.NotEmpty(quests);
         Assert.All(quests, (quest) =>
         {
-            //Assert.Equal(typeof(BlScraper.Model.));
+            Assert.True(typeof(BlScraper.Model.IQuest).IsAssignableFrom(quest));
         });
     }
 }
