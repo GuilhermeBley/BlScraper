@@ -130,6 +130,9 @@ public class ModelScraper<TQuest, TData> : IModelScraper
     /// <inheritdoc cref="IModelScraper.CountProgress" path="*"/>
     private int _countProgress = 0;
     
+    /// <inheritdoc cref="IModelScraper.TotalSearch" path="*"/>
+    private int _totalSearch = 0;
+    
     /// <summary>
     /// Run at
     /// </summary>
@@ -162,6 +165,12 @@ public class ModelScraper<TQuest, TData> : IModelScraper
 
     /// <inheritdoc cref="IModelScraper.DtEnd" path="*"/>
     public DateTime? DtEnd => _dtEnd;
+
+    /// <inheritdoc cref="IModelScraper.TypeScrap" path="*"/>
+    public Type TypeScrap => typeof(TQuest);
+
+    /// <inheritdoc cref="IModelScraper.TotalSearch" path="*"/>
+    public int TotalSearch => _totalSearch;
 
     /// <summary>
     /// Instance of type <see cref="ModelScraper"/>
@@ -357,6 +366,8 @@ public class ModelScraper<TQuest, TData> : IModelScraper
             data = await _getData.Invoke();
 
             _searchData = new ConcurrentQueue<TData>(data);
+
+            _totalSearch = _searchData.Count();
 
             try
             {

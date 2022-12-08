@@ -14,14 +14,19 @@ public interface IModelScraper : IDisposable, IAsyncDisposable
     Guid IdScraper { get; }
 
     /// <summary>
+    /// Type of scrap to execute in model
+    /// </summary>
+    Type TypeScrap { get; }
+
+    /// <summary>
     /// Date of initializes run
     /// </summary>
-    public DateTime? DtRun { get; }
+    DateTime? DtRun { get; }
 
     /// <summary>
     /// Date when all threads end and end event was executed
     /// </summary>
-    public DateTime? DtEnd { get; }
+    DateTime? DtEnd { get; }
 
     /// <summary>
     /// Number of scraper to execute your context
@@ -37,6 +42,11 @@ public interface IModelScraper : IDisposable, IAsyncDisposable
     /// Count scrapers in progress
     /// </summary>
     int CountProgress { get; }
+
+    /// <summary>
+    /// Total of data to search
+    /// </summary>
+    int TotalSearch { get; }
 
     /// <summary>
     /// Get current state
