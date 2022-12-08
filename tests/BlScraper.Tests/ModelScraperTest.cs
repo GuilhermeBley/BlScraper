@@ -1516,6 +1516,46 @@ public class ModelScraperTest
         Assert.True(endResult!.ContainsError);
     }
 
+    [Fact(Timeout = 1000)]
+    public async void CountData_RunAndCount_SuccessTotal()
+    {
+        _output.WriteLine(nameof(CountData_RunAndCount_SuccessTotal));
+        const int threads = 1;
+        const int total = 10;
+        IModelScraper model =
+            new ModelScraper<SimpleExecution, SimpleData>
+            (
+                threads,
+                () => new SimpleExecution(),
+                async () => { await Task.CompletedTask; return SimpleDataFactory.GetData(total); }
+            );
+
+        var result = await model.Run();
+
+        await WaitFinishModel(model);
+
+        Assert.Equal(total, result.Result.Searches.Count());
+        Assert.Equal(total, model.TotalSearch);
+    }
+
+    [Fact(Timeout = 1000)]
+    public async void TypeQuest_RunAndTest()
+    {
+        _output.WriteLine(nameof(CountData_RunAndCount_SuccessTotal));
+        const int threads = 1;
+        const int total = 10;
+        IModelScraper model =
+            new ModelScraper<SimpleExecution, SimpleData>
+            (
+                threads,
+                () => new SimpleExecution(),
+                async () => { await Task.CompletedTask; return SimpleDataFactory.GetData(total); }
+            );
+
+        await Task.CompletedTask;
+        Assert.Equal(typeof(SimpleExecution), model.TypeScrap);
+    }
+
     /// <summary>
     /// Wait to finish the model
     /// </summary>
