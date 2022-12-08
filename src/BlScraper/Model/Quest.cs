@@ -6,7 +6,7 @@ namespace BlScraper.Model;
 /// Context to execute quest
 /// </summary>
 /// <typeparam name="TData">Works with a type of data.</typeparam>
-public abstract class Quest<TData> : IDisposable
+public abstract class Quest<TData> : IQuest
     where TData : class
 {
     /// <summary>
