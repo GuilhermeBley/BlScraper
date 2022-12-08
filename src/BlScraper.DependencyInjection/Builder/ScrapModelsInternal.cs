@@ -6,7 +6,7 @@ namespace BlScraper.DependencyInjection.Builder;
 /// <summary>
 /// Valdation models
 /// </summary>
-internal class ScrapModelsInternal
+internal class ScrapModelInternal
 {
     /// <summary>
     /// Quest type
@@ -165,13 +165,11 @@ internal class ScrapModelsInternal
     /// </remarks>
     /// <param name="questType">Type assingnable from <see cref="Quest{TData}"/></param>
     /// <exception cref="ArgumentException"></exception>
-    public ScrapModelsInternal(Type questType)
+    public ScrapModelInternal(Type questType)
     {
         if (!TypeUtils.IsSubclassOfRawGeneric(typeof(Quest<>), questType, out Type? assignableToGenericFound) 
-            || assignableToGenericFound is null
-            || questType.IsAbstract
-            || !questType.IsClass
-            || !questType.IsPublic)
+            || !TypeUtils.IsTypeValidQuest(questType)
+            || assignableToGenericFound is null)
             throw new ArgumentException($"{nameof(questType)} is a invalid type.", typeof(Quest<>).Name);
 
         var genericTypes = assignableToGenericFound.GetGenericArguments();

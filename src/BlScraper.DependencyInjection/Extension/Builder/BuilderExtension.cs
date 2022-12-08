@@ -8,11 +8,12 @@ public static class BuilderExtension
 {
     public static IServiceCollection AddScraperBuilder(this IServiceCollection serviceCollection, Action<AssemblyBuilderAdd> onAddAssemblies)
     {
-        var AssemblyBuilderAdd = new AssemblyBuilderAdd();
-        onAddAssemblies?.Invoke(AssemblyBuilderAdd);
+        var assemblyBuilderAdd = new AssemblyBuilderAdd();
+        onAddAssemblies?.Invoke(assemblyBuilderAdd);
         return
             serviceCollection
+                .AddSingleton(typeof(IMapQuest), () => new MapQuest(assemblyBuilderAdd))
                 .AddSingleton(typeof(IScrapBuilder), 
-                    (serviceProvider) => new ScrapBuilder(serviceProvider.CreateScope().ServiceProvider, AssemblyBuilderAdd));
+                    (serviceProvider) => new ScrapBuilder(serviceProvider.CreateScope().ServiceProvider, assemblyBuilderAdd));
     }  
 }

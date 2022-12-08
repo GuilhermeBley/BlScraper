@@ -104,10 +104,10 @@ internal class ScrapBuilder : IScrapBuilder
     /// <returns>Model scraper</returns>
     /// <exception cref="ArgumentNullException"></exception>
     /// <exception cref="InvalidOperationException"></exception>
-    /// <inheritdoc cref="SetParametersOnModel(ScrapModelsInternal)" path="exception"/>
+    /// <inheritdoc cref="SetParametersOnModel(ScrapModelInternal)" path="exception"/>
     private IModelScraper Create(Type questType)
     {
-        var model = new ScrapModelsInternal(questType);
+        var model = new ScrapModelInternal(questType);
 
         SetParametersOnModel(model);
 
@@ -136,7 +136,7 @@ internal class ScrapBuilder : IScrapBuilder
     /// </summary>
     /// <param name="model">Model to set parameters</param>
     /// <exception cref="ArgumentNullException"></exception>
-    private void SetParametersOnModel(ScrapModelsInternal model)
+    private void SetParametersOnModel(ScrapModelInternal model)
     {
         #region RequiredConfigure
         Type typeInstaceRequired = 
@@ -248,7 +248,7 @@ internal class ScrapBuilder : IScrapBuilder
     /// <summary>
     /// Return a exception
     /// </summary>
-    private static ArgumentException ThrowRequiredTypeNotFound(ScrapModelsInternal model, Type typeNotFound)
+    private static ArgumentException ThrowRequiredTypeNotFound(ScrapModelInternal model, Type typeNotFound)
     {
         return new ArgumentException($"Is necessary a {typeNotFound.FullName} of quest {model.QuestType.FullName}."+
             " Check if the possible class target is public, non-obsolete and concrete.", $"{typeNotFound.Name}");

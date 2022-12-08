@@ -17,6 +17,8 @@ public class AssemblyBuilderAdd
     /// </summary>
     private object _lock = new();
 
+    internal AssemblyBuilderAdd() { }
+
     /// <summary>
     /// Try add new assemblies to map
     /// </summary>

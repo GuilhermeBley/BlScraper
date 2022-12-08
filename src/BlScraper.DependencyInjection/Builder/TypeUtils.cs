@@ -61,10 +61,7 @@ internal static class TypeUtils
 
         foreach (Type type in assembly.GetTypes())
         {
-            if (type.IsClass &&
-                !type.IsAbstract &&
-                type.IsPublic &&
-                TypeUtils.IsSubclassOfRawGeneric(typeGenericToMap, type))
+            if (IsTypeValidQuest(type))
             {
                 var normalizedName = type.Name.ToUpper();
                 listTypes.Add(type);
@@ -180,5 +177,20 @@ internal static class TypeUtils
         } while (checkBase && methodInfo is not null);
 
         return false;
+    }
+
+    /// <summary>
+    /// Check if <paramref name="type"/> is a valid quest to map
+    /// </summary>
+    /// <param name="type">type to check</param>
+    /// <returns>true : is valid, false : isn't valid</returns>
+    public static bool IsTypeValidQuest(Type questType)
+    {
+        if (!TypeUtils.IsSubclassOfRawGeneric(typeof(BlScraper.Model.Quest<>), questType)
+            || questType.IsAbstract
+            || !questType.IsClass
+            || !questType.IsPublic)
+            return false;
+        return true;
     }
 }
