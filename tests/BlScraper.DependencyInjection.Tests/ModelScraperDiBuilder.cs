@@ -933,4 +933,78 @@ public class ModelScraperDiBuilder
 
         Assert.Null(service.CreateModelByQuestTypeOrDefault<QuestWithoutConfig2>());
     }
+
+    [Fact]
+    public async Task GetAvailableQuestsAndData_GetTypes_SuccessNotEmpty()
+    {
+        await Task.CompletedTask;
+        var servicesBase
+            = new ServicesTestBase(services =>
+            {
+                services
+                    .AddScraperBuilder(config => config.AddAssembly(this.GetType().Assembly));
+            });
+
+        var mapQuest = servicesBase.ServiceProvider.GetRequiredService<ConfigureBuilder.IMapQuest>();
+
+        Assert.NotEmpty(mapQuest.GetAvailableQuestsAndData());
+    }
+
+    [Fact]
+    public async Task GetAvailableQuests_GetTypes_SuccessNotEmpty()
+    {
+        await Task.CompletedTask;
+        var servicesBase
+            = new ServicesTestBase(services =>
+            {
+                services
+                    .AddScraperBuilder(config => config.AddAssembly(this.GetType().Assembly));
+            });
+
+        var mapQuest = servicesBase.ServiceProvider.GetRequiredService<ConfigureBuilder.IMapQuest>();
+
+        Assert.NotEmpty(mapQuest.GetAvailableQuests());
+    }
+
+    [Fact]
+    public async Task GetAvailableQuestsAndData_CheckAllTypes_SuccessNotAllAreQuest()
+    {
+        await Task.CompletedTask;
+        var servicesBase
+            = new ServicesTestBase(services =>
+            {
+                services
+                    .AddScraperBuilder(config => config.AddAssembly(this.GetType().Assembly));
+            });
+
+        var mapQuest = servicesBase.ServiceProvider.GetRequiredService<ConfigureBuilder.IMapQuest>();
+
+        var tuples = mapQuest.GetAvailableQuestsAndData();
+        Assert.NotEmpty(tuples);
+        Assert.All(tuples, (tuple) =>
+        {
+            //Assert.Equal(typeof(BlScraper.Model.));
+        });
+    }
+
+    [Fact]
+    public async Task GetAvailableQuests_CheckAllTypes_SuccessNotAllAreQuest()
+    {
+        await Task.CompletedTask;
+        var servicesBase
+            = new ServicesTestBase(services =>
+            {
+                services
+                    .AddScraperBuilder(config => config.AddAssembly(this.GetType().Assembly));
+            });
+
+        var mapQuest = servicesBase.ServiceProvider.GetRequiredService<ConfigureBuilder.IMapQuest>();
+
+        var quests = mapQuest.GetAvailableQuests();
+        Assert.NotEmpty(quests);
+        Assert.All(quests, (quest) =>
+        {
+            //Assert.Equal(typeof(BlScraper.Model.));
+        });
+    }
 }
