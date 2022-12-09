@@ -11,8 +11,8 @@ public static class BuilderExtension
     public static IServiceCollection AddScraperBuilder(this IServiceCollection serviceCollection, Type modelScrapServiceType, Action<AssemblyBuilderAdd> onAddAssemblies)
     {
         lock (_stateLock)
-            if (serviceCollection.Any(serviceDescriptor => serviceDescriptor?.ImplementationType?.Equals(typeof(IMapQuest)) ?? false))
-                throw new ArgumentException($"'{nameof(AddScraperBuilder)}' already executed in this collection.");
+            if (serviceCollection.Any(serviceDescriptor => serviceDescriptor?.ServiceType?.Equals(typeof(IMapQuest)) ?? false))
+                throw new InvalidOperationException($"'{nameof(AddScraperBuilder)}' already executed in this collection.");
 
         var assemblyBuilderAdd = new AssemblyBuilderAdd(modelScrapServiceType);
         onAddAssemblies?.Invoke(assemblyBuilderAdd);
