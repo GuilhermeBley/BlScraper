@@ -194,6 +194,12 @@ internal static class TypeUtils
         return true;
     }
 
+    /// <summary>
+    /// Check all parameters of constructor and remove unused
+    /// </summary>
+    /// <param name="constructorInfo">Constructor to check</param>
+    /// <param name="args">parameters of constructor to check</param>
+    /// <returns>Parsed parameters, with all unused removed.</returns>
     public static object?[]? TryParseConstructorParameters(ConstructorInfo constructorInfo, params object[] args)
     {
         List<object?> newArgs = new();

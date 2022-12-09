@@ -23,6 +23,11 @@ internal class ScrapBuilder : IScrapBuilder
     private HashSet<System.Reflection.Assembly> _assemblies = new();
 
     /// <summary>
+    /// Type of <see cref="ModelScraperService{TQuest, TData}" to instance./>
+    /// </summary>
+    private readonly Type _modelType;
+
+    /// <summary>
     /// Instance with service provider
     /// </summary>
     /// <param name="serviceProvider"></param>
@@ -33,6 +38,7 @@ internal class ScrapBuilder : IScrapBuilder
         {
             _assemblies.Add(assembly);
         }
+        _modelType = assemblyBuilderAdd.ModelScraperServiceType;
     }
 
     /// <inheritdoc cref="IScrapBuilder.CreateModelByQuestName(string)" path="*"/>
@@ -111,7 +117,7 @@ internal class ScrapBuilder : IScrapBuilder
 
         SetParametersOnModel(model);
 
-        var modelScraperType = TypeUtils.SetGenericParameters(typeof(ModelScraperService<,>), model.QuestType, model.DataType);
+        var modelScraperType = TypeUtils.SetGenericParameters(_modelType, model.QuestType, model.DataType);
 
         return
             CreateModel(
