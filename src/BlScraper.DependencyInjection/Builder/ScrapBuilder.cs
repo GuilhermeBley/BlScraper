@@ -111,23 +111,20 @@ internal class ScrapBuilder : IScrapBuilder
 
         SetParametersOnModel(model);
 
-        var modelScraperType = typeof(ModelScraperService<,>).MakeGenericType(model.QuestType, model.DataType);
+        var modelScraperType = TypeUtils.SetGenericParameters(typeof(ModelScraperService<,>), model.QuestType, model.DataType);
 
         return
-            (IModelScraper?)Activator.CreateInstance(
+            CreateModel(
                 modelScraperType,
-                new object[]
-                {
-                    ((IRequiredConfigure)model.InstaceRequired!).initialQuantity,
-                    _serviceProvider,
-                    TypeUtils.CreateDelegateWithTarget(model.InstaceRequired.GetType().GetMethod("GetData"), model.InstaceRequired) ?? throw new ArgumentNullException("GetData"),
-                    TypeUtils.CreateDelegateWithTarget(model.InstanceQuestException?.GetType().GetMethod("OnOccursException", new Type[] { typeof(Exception), model.DataType }), model.InstanceQuestException) ?? null!,
-                    TypeUtils.CreateDelegateWithTarget(model.InstanceDataFinished?.GetType().GetMethod("OnDataFinished", new Type[] { typeof(Results.ResultBase<>).MakeGenericType(model.DataType) }), model.InstanceDataFinished) ?? null!,
-                    TypeUtils.CreateDelegateWithTarget(model.InstanceAllWorksEnd?.GetType().GetMethod("OnFinished", new Type[] { typeof(EndEnumerableModel) }), model.InstanceAllWorksEnd) ?? null!,
-                    TypeUtils.CreateDelegateWithTarget(model.InstanceDataCollected?.GetType().GetMethod("OnCollected", new Type[] { typeof(IEnumerable<>).MakeGenericType(model.DataType) }), model.InstanceDataCollected) ?? null!,
-                    TypeUtils.CreateDelegateWithTarget(model.InstanceQuestCreated?.GetType().GetMethod("OnCreated", new Type[] { model.QuestType }), model.InstanceQuestCreated) ?? null!,
-                    (object[]?) model.InstanceArgs?.GetType().GetMethod("GetArgs")?.Invoke(model.InstanceArgs, null) ?? new object[0]
-                }
+                ((IRequiredConfigure)model.InstaceRequired!).initialQuantity,
+                (IServiceProvider)_serviceProvider,
+                TypeUtils.CreateDelegateWithTarget(model.InstaceRequired.GetType().GetMethod("GetData"), model.InstaceRequired) ?? throw new ArgumentNullException("GetData"),
+                TypeUtils.CreateDelegateWithTarget(model.InstanceQuestException?.GetType().GetMethod("OnOccursException", new Type[] { typeof(Exception), model.DataType }), model.InstanceQuestException) ?? null!,
+                TypeUtils.CreateDelegateWithTarget(model.InstanceDataFinished?.GetType().GetMethod("OnDataFinished", new Type[] { typeof(Results.ResultBase<>).MakeGenericType(model.DataType) }), model.InstanceDataFinished) ?? null!,
+                TypeUtils.CreateDelegateWithTarget(model.InstanceAllWorksEnd?.GetType().GetMethod("OnFinished", new Type[] { typeof(EndEnumerableModel) }), model.InstanceAllWorksEnd) ?? null!,
+                TypeUtils.CreateDelegateWithTarget(model.InstanceDataCollected?.GetType().GetMethod("OnCollected", new Type[] { typeof(IEnumerable<>).MakeGenericType(model.DataType) }), model.InstanceDataCollected) ?? null!,
+                TypeUtils.CreateDelegateWithTarget(model.InstanceQuestCreated?.GetType().GetMethod("OnCreated", new Type[] { model.QuestType }), model.InstanceQuestCreated) ?? null!,
+                (object[]?) model.InstanceArgs?.GetType().GetMethod("GetArgs")?.Invoke(model.InstanceArgs, null) ?? new object[0]
             ) ?? throw new ArgumentNullException(nameof(IModelScraper));
     }
 
@@ -292,5 +289,55 @@ internal class ScrapBuilder : IScrapBuilder
             throw new ArgumentException($"QuestTypes with name {name} wasn't found. Check if the possible class target is public, non-obsolete and concrete.", nameof(name));
 
         return questTypefound;
+    }
+
+    /// <summary>
+    /// Create instance of type <typeparamref name="T"/> with constructor parameters <paramref name="args"/>
+    /// </summary>
+    /// <typeparam name="T">type of model</typeparam>
+    /// <param name="args">constructor arguments</param>
+    /// <returns>instanced <see cref="IModelScraper"/></returns>
+    /// <inheritdoc cref="CreateModel(Type, object[])" path="/exception"/>
+    private static IModelScraper? CreateModel<T>(params object[] args)
+        where T : IModelScraper
+    {
+        return CreateModel(typeof(T), args);
+    }
+
+    /// <summary>
+    /// Create instance of type <paramref name="model"/> with constructor parameters <paramref name="args"/>
+    /// </summary>
+    /// <param name="model">type of model</param>
+    /// <param name="args">constructor arguments</param>
+    /// <returns>instanced <see cref="IModelScraper"/></returns>
+    /// <exception cref="ArgumentException"></exception>
+    /// <exception cref="ArgumentNullException"></exception>
+    private static IModelScraper? CreateModel(Type model, params object[] args)
+    {
+        if (!typeof(IModelScraper).IsAssignableFrom(model))
+            throw new ArgumentException($"'{model.FullName}' isn't assignable to '{typeof(IModelScraper).FullName}'.");
+
+        if (model.ContainsGenericParameters)
+            throw new ArgumentException($"'{model.FullName}' cannot be create. The class contains not setted generic parameters.");
+
+        if (!model.IsClass ||
+            model.IsAbstract ||
+            !model.IsPublic || 
+            !model.GetConstructors().Where(c => c.IsPublic || !c.IsStatic).Any())
+            throw new ArgumentException($"'{model.FullName}' cannot be create. Check if the class is public, contains a public constructor and non-abstract.");
+
+        foreach (var constructor in model.GetConstructors().Where(c => c.IsPublic || !c.IsStatic).OrderByDescending(o => o.GetParameters().Count()))
+        {
+            var parsedArgs = TypeUtils.TryParseConstructorParameters(constructor, args);
+            if (parsedArgs is null)
+                continue;
+
+            return (IModelScraper?)Activator.CreateInstance(
+                model,
+                parsedArgs
+            ) ?? throw new ArgumentNullException(nameof(IModelScraper));
+        }
+
+        return null;
     }
 }

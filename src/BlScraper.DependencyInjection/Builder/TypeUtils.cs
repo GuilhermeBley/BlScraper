@@ -193,4 +193,56 @@ internal static class TypeUtils
             return false;
         return true;
     }
+
+    public static object?[]? TryParseConstructorParameters(ConstructorInfo constructorInfo, params object[] args)
+    {
+        List<object?> newArgs = new();
+        List<object?> oldArgs = new(args);
+
+        foreach (var parameter in constructorInfo.GetParameters())
+        {
+            bool found = false;
+            foreach (var arg in oldArgs)
+            {
+                if (arg is null)
+                    continue;
+                
+                if (parameter.ParameterType.Equals(arg.GetType()) || 
+                    parameter.ParameterType.IsAssignableFrom(arg.GetType()))
+                {
+                    found = true;
+                    newArgs.Add(arg);
+                    oldArgs.Remove(arg);
+                    break;
+                }
+            }
+
+            if (!found && parameter.IsOptional)
+            {
+                found = true;
+                newArgs.Add(parameter.DefaultValue);
+            }
+
+            if (!found)
+                return null;
+        }
+
+        return newArgs.ToArray();
+    }
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="genericType"></param>
+    /// <param name="parameters"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException"></exception>
+    /// <inheritdoc cref="System.Type.MakeGenericType(Type[])" path="/exception"/>
+    public static Type SetGenericParameters(Type genericType, params Type[] parameters)
+    {
+        if (!genericType.ContainsGenericParameters)
+            throw new ArgumentException($"'{genericType.FullName}' don't have generic types.");
+
+        return genericType.MakeGenericType(parameters);
+    }
 }
