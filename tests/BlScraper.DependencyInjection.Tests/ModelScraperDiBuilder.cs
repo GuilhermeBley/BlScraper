@@ -5,7 +5,6 @@ using Microsoft.Extensions.DependencyInjection;
 using BlScraper.DependencyInjection.Tests.Extension;
 using BlScraper.DependencyInjection.ConfigureModel;
 using BlScraper.DependencyInjection.Tests.FakeProject;
-using BlScraper.DependencyInjection.Model;
 
 namespace BlScraper.DependencyInjection.Tests;
 
@@ -1007,20 +1006,5 @@ public class ModelScraperDiBuilder
         {
             Assert.True(typeof(BlScraper.Model.IQuest).IsAssignableFrom(quest));
         });
-    }
-
-    [Fact]
-    public async Task AddScraperBuilderTyped_TryAddMoreThanOneTime_FailedAdd()
-    {
-        await Task.CompletedTask;
-        var servicesBase
-            = new ServicesTestBase(services =>
-            {
-                Assert.Throws<InvalidOperationException>(()=>{
-                    services
-                        .AddScraperBuilder(config => config.AddAssembly(this.GetType().Assembly))
-                        .AddScraperBuilder(typeof(ModelScraperService<,>), (builder) => { });
-                });
-            });
     }
 }

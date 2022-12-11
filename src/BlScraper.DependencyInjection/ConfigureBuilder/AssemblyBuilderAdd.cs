@@ -8,11 +8,6 @@ namespace BlScraper.DependencyInjection.ConfigureBuilder;
 public class AssemblyBuilderAdd
 {
     /// <summary>
-    /// Type of Model to instance
-    /// </summary>
-    private readonly Type _modelScraperServiceType;
-
-    /// <summary>
     /// Assemblies to map models
     /// </summary>
     private HashSet<System.Reflection.Assembly> _assemblies = new();
@@ -27,24 +22,12 @@ public class AssemblyBuilderAdd
     /// </summary>
     private object _lock = new();
 
-    /// <inheritdoc cref="_modelScraperServiceType" path="*"/>
-    public Type ModelScraperServiceType => _modelScraperServiceType;
-
     /// <summary>
     /// Instance of assembly builder
     /// </summary>
     /// <param name="modelScraperServiceType">Type parameter, it must have assignable from <see cref="ModelScraperService"/></param>
-    internal AssemblyBuilderAdd(Type? modelScraperServiceType = null) 
+    internal AssemblyBuilderAdd() 
     {
-        if (modelScraperServiceType is not null &&
-            (!Builder.TypeUtils.IsSubclassOfRawGeneric(typeof(ModelScraperService<,>), modelScraperServiceType) ||
-            !typeof(ModelScraperService<,>).Equals(modelScraperServiceType)))
-            throw new ArgumentException($"parameter '{nameof(modelScraperServiceType)}' must have assignable or equals from '{typeof(ModelScraperService<,>).FullName}'");
-        
-        if (modelScraperServiceType is null)
-            modelScraperServiceType = typeof(ModelScraperService<,>);
-
-        _modelScraperServiceType = modelScraperServiceType;
     }
 
     /// <summary>

@@ -38,7 +38,7 @@ internal class ScrapBuilder : IScrapBuilder
         {
             _assemblies.Add(assembly);
         }
-        _modelType = assemblyBuilderAdd.ModelScraperServiceType;
+        _modelType = typeof(ModelScraperService<,>);
     }
 
     /// <inheritdoc cref="IScrapBuilder.CreateModelByQuestName(string)" path="*"/>
