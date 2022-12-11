@@ -1,13 +1,13 @@
 using BlScraper.Model;
 
-namespace BlScraper.DependencyInjection.ConfigureModel;
+namespace BlScraper.DependencyInjection.ConfigureModel.Async;
 
 /// <summary>
 /// Implementation for classes which want manage exceptions on quests
 /// </summary>
 /// <typeparam name="TQuest">Identifier quest</typeparam>
 /// <typeparam name="TData">Data type</typeparam>
-public interface IQuestExceptionConfigure<TQuest, TData> : IEventScrap
+public interface IQuestExceptionConfigureAsync<TQuest, TData> : IAsyncEventScrap
     where TQuest : Quest<TData>
     where TData : class
 {
@@ -18,5 +18,5 @@ public interface IQuestExceptionConfigure<TQuest, TData> : IEventScrap
     /// <param name="ex">Exception generated for the quest</param>
     /// <param name="data">Data that occurred exception</param>
     /// <returns>QuestResult for next step</returns>
-    QuestResult OnOccursException(Exception ex, TData data);
+    Task OnOccursException(Exception ex, TData data);
 }

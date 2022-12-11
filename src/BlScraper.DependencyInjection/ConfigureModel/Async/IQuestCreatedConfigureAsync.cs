@@ -1,13 +1,13 @@
 using BlScraper.Model;
 
-namespace BlScraper.DependencyInjection.ConfigureModel;
+namespace BlScraper.DependencyInjection.ConfigureModel.Async;
 
 /// <summary>
 /// Implementation for classes which want manage event on create quests
 /// </summary>
 /// <typeparam name="TQuest">Identifier quest</typeparam>
 /// <typeparam name="TData">Data type</typeparam>
-public interface IQuestCreatedConfigure<TQuest, TData> : IEventScrap
+public interface IQuestCreatedConfigureAsync<TQuest, TData> : IAsyncEventScrap
     where TQuest : Quest<TData>
     where TData : class
 {
@@ -15,5 +15,5 @@ public interface IQuestCreatedConfigure<TQuest, TData> : IEventScrap
     /// Called when quest created
     /// </summary>
     /// <param name="questCreated">quest created</param>
-    void OnCreated(TQuest questCreated);
+    Task OnCreated(TQuest questCreated);
 }

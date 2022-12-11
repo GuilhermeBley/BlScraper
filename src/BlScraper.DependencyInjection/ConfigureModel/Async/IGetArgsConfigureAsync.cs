@@ -1,13 +1,13 @@
 using BlScraper.Model;
 
-namespace BlScraper.DependencyInjection.ConfigureModel;
+namespace BlScraper.DependencyInjection.ConfigureModel.Async;
 
 /// <summary>
 /// Implementation for classes which want args to quests
 /// </summary>
 /// <typeparam name="TQuest">Identifier quest</typeparam>
 /// <typeparam name="TData">Data type</typeparam>
-public interface IGetArgsConfigure<TQuest, TData> : IEventScrap
+public interface IGetArgsConfigureAsync<TQuest, TData> : IAsyncEventScrap
     where TQuest : Quest<TData>
     where TData : class
 {
@@ -16,5 +16,5 @@ public interface IGetArgsConfigure<TQuest, TData> : IEventScrap
     /// Args to quest
     /// </summary>
     /// <returns>object array</returns>
-    object[] GetArgs();
+    Task GetArgs(object[] args);
 }

@@ -1,14 +1,14 @@
 using BlScraper.Model;
 using BlScraper.Results;
 
-namespace BlScraper.DependencyInjection.ConfigureModel;
+namespace BlScraper.DependencyInjection.ConfigureModel.Async;
 
 /// <summary>
 /// Implementation for classes which want manage events on data finished
 /// </summary>
 /// <typeparam name="TQuest">Identifier quest</typeparam>
 /// <typeparam name="TData">Data type</typeparam>
-public interface IDataFinishedConfigure<TQuest, TData> : IEventScrap
+public interface IDataFinishedConfigureAsync<TQuest, TData> : IAsyncEventScrap
     where TQuest : Quest<TData>
     where TData : class
 {
@@ -16,5 +16,5 @@ public interface IDataFinishedConfigure<TQuest, TData> : IEventScrap
     /// On data finished
     /// </summary>
     /// <param name="resultFinished">Result after search</param>
-    void OnDataFinished(ResultBase<TData> resultFinished);
+    Task OnDataFinished(ResultBase<TData> resultFinished);
 }
