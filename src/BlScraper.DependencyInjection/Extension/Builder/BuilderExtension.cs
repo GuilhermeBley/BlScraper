@@ -8,9 +8,9 @@ public static class BuilderExtension
 {
     private static readonly object _stateLock = new();
 
-    public static IServiceCollection AddScraperBuilder(this IServiceCollection serviceCollection, Action<AssemblyBuilderAdd> onAddAssemblies)
+    public static IServiceCollection AddScraperBuilder(this IServiceCollection serviceCollection, Action<ScrapBuilderConfig> onAddAssemblies)
     {
-        var assemblyBuilderAdd = new AssemblyBuilderAdd();
+        var assemblyBuilderAdd = new ScrapBuilderConfig();
         onAddAssemblies?.Invoke(assemblyBuilderAdd);
         return
             serviceCollection

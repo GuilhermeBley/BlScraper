@@ -31,7 +31,7 @@ internal class ScrapBuilder : IScrapBuilder
     /// Instance with service provider
     /// </summary>
     /// <param name="serviceProvider"></param>
-    public ScrapBuilder(IServiceProvider serviceProvider, AssemblyBuilderAdd assemblyBuilderAdd)
+    public ScrapBuilder(IServiceProvider serviceProvider, ScrapBuilderConfig assemblyBuilderAdd)
     {
         _serviceProvider = serviceProvider;
         foreach (var assembly in assemblyBuilderAdd.Assemblies)

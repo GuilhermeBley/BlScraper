@@ -5,7 +5,7 @@ namespace BlScraper.DependencyInjection.ConfigureBuilder;
 /// <summary>
 /// Configuration builder
 /// </summary>
-public class AssemblyBuilderAdd
+public class ScrapBuilderConfig
 {
     /// <summary>
     /// Assemblies to map models
@@ -26,7 +26,7 @@ public class AssemblyBuilderAdd
     /// Instance of assembly builder
     /// </summary>
     /// <param name="modelScraperServiceType">Type parameter, it must have assignable from <see cref="ModelScraperService"/></param>
-    internal AssemblyBuilderAdd() 
+    internal ScrapBuilderConfig() 
     {
     }
 
@@ -34,7 +34,7 @@ public class AssemblyBuilderAdd
     /// Try add new assemblies to map
     /// </summary>
     /// <param name="assembly">Assemblie to add</param>
-    public AssemblyBuilderAdd AddAssembly(System.Reflection.Assembly assembly)
+    public ScrapBuilderConfig AddAssembly(System.Reflection.Assembly assembly)
     {
         lock(_lock)
         {

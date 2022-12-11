@@ -22,7 +22,7 @@ internal class MapQuest : IMapQuest
 {
     private IEnumerable<(Type Quest, Type Data)> _availableQuests;
 
-    public MapQuest(AssemblyBuilderAdd assemblyBuilderAdd)
+    public MapQuest(ScrapBuilderConfig assemblyBuilderAdd)
     {
         _availableQuests = assemblyBuilderAdd.Assemblies.SelectMany((assembly) =>
         {

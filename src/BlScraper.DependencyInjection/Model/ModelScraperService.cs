@@ -13,7 +13,7 @@ namespace BlScraper.DependencyInjection.Model;
 ///     <para>Class creates a new scope of service providier for each execution.</para>
 /// </remarks>
 /// <inheritdoc path="*"/>
-public class ModelScraperService<TQuest, TData> : ModelScraper<TQuest, TData>
+public sealed class ModelScraperService<TQuest, TData> : ModelScraper<TQuest, TData>
     where TData : class
     where TQuest : Quest<TData>
 {
@@ -50,38 +50,7 @@ public class ModelScraperService<TQuest, TData> : ModelScraper<TQuest, TData>
         ) : base(countScraper, GetContextWithServices(serviceProvider, whenExecutionCreated, args), getData, whenOccursException, whenDataFinished, whenAllWorksEnd, whenDataWasCollected)
     {
     }
-
-    /// <summary>
-    /// Executed async  when occurs exception in search of item
-    /// </summary>
-    /// <param name="ex">Exception generated</param>
-    /// <param name="data">data of current search</param>
-    protected virtual async Task WhenOccursExceptionAsync(Exception ex, TData data) { await Task.CompletedTask; }
-
-    /// <summary>
-    /// Executed async  when data is finished in quest
-    /// </summary>
-    /// <param name="resultData">Result of data</param>
-    protected virtual async Task WhenDataFinishedAsync(ResultBase<TData> resultData) { await Task.CompletedTask; }
-
-    /// <summary>
-    /// Executed async  when all works end
-    /// </summary>
-    /// <param name="endEnumerableModel">End enumerable</param>
-    protected virtual async Task WhenAllWorksEndAsync(EndEnumerableModel endEnumerableModel) { await Task.CompletedTask; }
     
-    /// <summary>
-    /// Executed async  when data is collected in start's search
-    /// </summary>
-    /// <param name="dataCollected">Enumerable of data collected</param>
-    protected virtual async Task WhenDataWasCollectedAsync(IEnumerable<TData> dataCollected) { await Task.CompletedTask; }
-
-    /// <summary>
-    /// Executed async  when execution is created
-    /// </summary>
-    /// <param name="questCreated">quest creted</param>
-    protected virtual async Task WhenExecutionCreatedAsync(TQuest questCreated) { await Task.CompletedTask; }
-
     /// <summary>
     /// Method make a function that returns a new instance of exection with our services
     /// </summary>
