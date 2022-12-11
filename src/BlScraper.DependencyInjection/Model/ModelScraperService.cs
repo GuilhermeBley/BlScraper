@@ -51,6 +51,12 @@ public class ModelScraperService<TQuest, TData> : ModelScraper<TQuest, TData>
     {
     }
 
+    protected virtual async Task WhenOccursExceptionAsync(Exception ex, TData data) { await Task.CompletedTask; }
+    protected virtual async Task WhenDataFinishedAsync(ResultBase<TData> resultData) { await Task.CompletedTask; }
+    protected virtual async Task WhenAllWorksEndAsync(EndEnumerableModel endEnumerableModel) { await Task.CompletedTask; }
+    protected virtual async Task WhenDataWasCollectedAsync(IEnumerable<TData> dataCollected) { await Task.CompletedTask; }
+    protected virtual async Task WhenExecutionCreatedAsync(TQuest questCreated) { await Task.CompletedTask; }
+
     /// <summary>
     /// Method make a function that returns a new instance of exection with our services
     /// </summary>
