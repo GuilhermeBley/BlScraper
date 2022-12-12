@@ -76,11 +76,12 @@ public class ScrapBuilderConfig
     /// Try add new assemblies to map
     /// </summary>
     /// <param name="assembly">Assemblie to add</param>
-    public ScrapBuilderConfig AddAssembly(System.Reflection.Assembly assembly)
+    public ScrapBuilderConfig AddAssembly(params System.Reflection.Assembly[] assemblies)
     {
         lock(_lock)
         {
-            _assemblies.Add(assembly);
+            foreach (var assembly in Assemblies)
+                _assemblies.Add(assembly);
         }
 
         return this;
