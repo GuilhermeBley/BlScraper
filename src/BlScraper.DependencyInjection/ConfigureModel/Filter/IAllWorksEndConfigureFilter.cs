@@ -2,16 +2,12 @@ using BlScraper.Model;
 using BlScraper.Results;
 using BlScraper.Results.Models;
 
-namespace BlScraper.DependencyInjection.ConfigureModel.Async;
+namespace BlScraper.DependencyInjection.ConfigureModel.Filter;
 
 /// <summary>
 /// Implementation for classes which want manage finished searchs
 /// </summary>
-/// <typeparam name="TQuest">Identifier quest</typeparam>
-/// <typeparam name="TData">Data type</typeparam>
-public interface IAllWorksEndConfigureAsync<TQuest, TData> : IAsyncEventScrap
-    where TQuest : Quest<TData>
-    where TData : class
+public interface IAllWorksEndConfigureFilter
 {
 
     /// <summary>
