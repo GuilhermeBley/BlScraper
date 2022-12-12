@@ -1,5 +1,3 @@
-using BlScraper.Model;
-using BlScraper.Results;
 using BlScraper.Results.Models;
 
 namespace BlScraper.DependencyInjection.ConfigureModel.Filter;
