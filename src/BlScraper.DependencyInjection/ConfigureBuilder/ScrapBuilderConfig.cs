@@ -11,7 +11,7 @@ public class ScrapBuilderConfig
     /// <summary>
     /// Type filters pool
     /// </summary>
-    private PoolFilter _poolFilters = new();
+    private readonly PoolFilter _poolFilters = new();
 
     /// <summary>
     /// Assemblies to map models
@@ -80,7 +80,7 @@ public class ScrapBuilderConfig
     {
         lock(_lock)
         {
-            foreach (var assembly in Assemblies)
+            foreach (var assembly in assemblies)
                 _assemblies.Add(assembly);
         }
 
@@ -223,7 +223,7 @@ public class ScrapBuilderConfig
     {
         CheckAndThrowFilter(filter, filterInterface);
 
-        _poolFilters.Add(typeof(IAllWorksEndConfigureFilter), filter);
+        _poolFilters.Add(filterInterface, filter);
 
         return this;
     }
@@ -247,16 +247,16 @@ public class ScrapBuilderConfig
             throw new ArgumentException($"Filter: '{filter.FullName}' isn't assignable to '{assignable.FullName}'.", $"{filter.FullName}");
 
         if (!filter.IsClass)
-            throw new ArgumentException($"Filter: '{filter.FullName}' must be a class.");
+            throw new ArgumentException($"Filter: '{filter.FullName}' must be a class.", $"{filter.FullName}");
 
         if (filter.IsAbstract)
-            throw new ArgumentException($"Filter: '{filter.FullName}' must not be abstract.");
+            throw new ArgumentException($"Filter: '{filter.FullName}' must not be abstract.", $"{filter.FullName}");
 
         if (!filter.IsPublic)
-            throw new ArgumentException($"Filter: '{filter.FullName}' must be public.");
+            throw new ArgumentException($"Filter: '{filter.FullName}' must be public.", $"{filter.FullName}");
 
         if (filter.ContainsGenericParameters)
-            throw new ArgumentException($"Filter: '{filter.FullName}' must not have generic parameters.");
+            throw new ArgumentException($"Filter: '{filter.FullName}' must not have generic parameters.", $"{filter.FullName}");
     }
     
     /// <summary>
@@ -294,7 +294,7 @@ public class ScrapBuilderConfig
         public void Add(Type filterInterface, Type filter)
         {
             if (!TryAdd(filterInterface, filter))
-                throw new ArgumentException($"List already contains '{filter.FullName}' to '{filterInterface.FullName}'.");
+                throw new ArgumentException($"List already contains '{filter.FullName}' to '{filterInterface.FullName}'.", filter.FullName);
         }
 
         public IEnumerator<(Type FilterInterface, Type Filter)> GetEnumerator()
