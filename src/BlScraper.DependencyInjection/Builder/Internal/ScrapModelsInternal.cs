@@ -1,12 +1,12 @@
 using BlScraper.DependencyInjection.ConfigureModel;
 using BlScraper.Model;
 
-namespace BlScraper.DependencyInjection.Builder;
+namespace BlScraper.DependencyInjection.Builder.Internal;
 
 /// <summary>
 /// Valdation models
 /// </summary>
-internal class ScrapModelInternal
+internal sealed class ScrapModelInternal
 {
     /// <summary>
     /// Quest type

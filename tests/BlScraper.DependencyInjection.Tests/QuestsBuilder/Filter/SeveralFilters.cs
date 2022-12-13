@@ -50,7 +50,7 @@ public class SeveralFilters : IAllWorksEndConfigureFilter, IDataCollectedConfigu
         _routeService.Add(this.GetType().GetMethod(nameof(OnFinished)));
     }
 
-    public async Task OnOccursException(Exception ex, object data)
+    public async Task OnOccursException(Exception ex, object data, QuestResult result)
     {
         await Task.CompletedTask;
 

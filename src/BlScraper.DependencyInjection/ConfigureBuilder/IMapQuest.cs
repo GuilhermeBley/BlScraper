@@ -1,4 +1,5 @@
 using BlScraper.DependencyInjection.Builder;
+using BlScraper.DependencyInjection.Builder.Internal;
 
 namespace BlScraper.DependencyInjection.ConfigureBuilder;
 

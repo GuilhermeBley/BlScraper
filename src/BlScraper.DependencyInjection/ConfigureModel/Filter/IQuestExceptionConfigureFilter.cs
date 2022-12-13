@@ -1,3 +1,5 @@
+using BlScraper.Model;
+
 namespace BlScraper.DependencyInjection.ConfigureModel.Filter;
 
 /// <summary>
@@ -12,5 +14,5 @@ public interface IQuestExceptionConfigureFilter
     /// <param name="ex">Exception generated for the quest</param>
     /// <param name="data">Data that occurred exception</param>
     /// <returns>QuestResult for next step</returns>
-    Task OnOccursException(Exception ex, object data);
+    Task OnOccursException(Exception ex, object data, QuestResult result);
 }

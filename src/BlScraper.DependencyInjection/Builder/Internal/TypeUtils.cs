@@ -1,7 +1,7 @@
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace BlScraper.DependencyInjection.Builder;
+namespace BlScraper.DependencyInjection.Builder.Internal;
 
 /// <summary>
 /// Useful 

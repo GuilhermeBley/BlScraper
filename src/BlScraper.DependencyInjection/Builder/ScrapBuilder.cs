@@ -1,6 +1,8 @@
 using BlScraper.DependencyInjection.ConfigureBuilder;
 using BlScraper.DependencyInjection.ConfigureModel;
+using BlScraper.DependencyInjection.ConfigureModel.Filter;
 using BlScraper.DependencyInjection.Model;
+using BlScraper.DependencyInjection.Builder.Internal;
 using BlScraper.Model;
 using BlScraper.Results.Models;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,33 +14,36 @@ namespace BlScraper.DependencyInjection.Builder;
 /// </summary>
 internal class ScrapBuilder : IScrapBuilder
 {
+
+    /// <summary>
+    /// Type of <see cref="ModelScraperService{TQuest, TData}" to instance./>
+    /// </summary>
+    private static readonly Type _modelType = typeof(ModelScraperService<,>);
+
     /// <summary>
     /// Service Providier
     /// </summary>
     private readonly IServiceProvider _serviceProvider;
 
     /// <summary>
-    /// Assemblies to map models
+    /// Builder config
     /// </summary>
-    private HashSet<System.Reflection.Assembly> _assemblies = new();
+    private readonly ScrapBuilderConfig _builderConfig;
 
     /// <summary>
-    /// Type of <see cref="ModelScraperService{TQuest, TData}" to instance./>
+    /// Assemblies to map models
     /// </summary>
-    private readonly Type _modelType;
+    private readonly HashSet<System.Reflection.Assembly> _assemblies;
 
     /// <summary>
     /// Instance with service provider
     /// </summary>
     /// <param name="serviceProvider"></param>
-    public ScrapBuilder(IServiceProvider serviceProvider, ScrapBuilderConfig assemblyBuilderAdd)
+    public ScrapBuilder(IServiceProvider serviceProvider, ScrapBuilderConfig builderConfig)
     {
         _serviceProvider = serviceProvider;
-        foreach (var assembly in assemblyBuilderAdd.Assemblies)
-        {
-            _assemblies.Add(assembly);
-        }
-        _modelType = typeof(ModelScraperService<,>);
+        _assemblies = builderConfig.Assemblies.ToHashSet();
+        _builderConfig = builderConfig;
     }
 
     /// <inheritdoc cref="IScrapBuilder.CreateModelByQuestName(string)" path="*"/>
@@ -119,18 +124,20 @@ internal class ScrapBuilder : IScrapBuilder
 
         var modelScraperType = TypeUtils.SetGenericParameters(_modelType, model.QuestType, model.DataType);
 
+        var filterEvents = ActivatorUtilities.CreateInstance<CreateFilters>(_serviceProvider, model, _builderConfig);
+
         return
             CreateModel(
                 modelScraperType,
                 ((IRequiredConfigure)model.InstaceRequired!).initialQuantity,
                 (IServiceProvider)_serviceProvider,
                 TypeUtils.CreateDelegateWithTarget(model.InstaceRequired.GetType().GetMethod("GetData"), model.InstaceRequired) ?? throw new ArgumentNullException("GetData"),
-                TypeUtils.CreateDelegateWithTarget(model.InstanceQuestException?.GetType().GetMethod("OnOccursException", new Type[] { typeof(Exception), model.DataType }), model.InstanceQuestException) ?? null!,
-                TypeUtils.CreateDelegateWithTarget(model.InstanceDataFinished?.GetType().GetMethod("OnDataFinished", new Type[] { typeof(Results.ResultBase<>).MakeGenericType(model.DataType) }), model.InstanceDataFinished) ?? null!,
-                TypeUtils.CreateDelegateWithTarget(model.InstanceAllWorksEnd?.GetType().GetMethod("OnFinished", new Type[] { typeof(EndEnumerableModel) }), model.InstanceAllWorksEnd) ?? null!,
-                TypeUtils.CreateDelegateWithTarget(model.InstanceDataCollected?.GetType().GetMethod("OnCollected", new Type[] { typeof(IEnumerable<>).MakeGenericType(model.DataType) }), model.InstanceDataCollected) ?? null!,
-                TypeUtils.CreateDelegateWithTarget(model.InstanceQuestCreated?.GetType().GetMethod("OnCreated", new Type[] { model.QuestType }), model.InstanceQuestCreated) ?? null!,
-                (object[]?) model.InstanceArgs?.GetType().GetMethod("GetArgs")?.Invoke(model.InstanceArgs, null) ?? new object[0]
+                filterEvents.CreateOnOccursException(),
+                filterEvents.CreateOnDataFinished(),
+                filterEvents.CreateOnAllWorksEnd(),
+                filterEvents.CreateOnCollected(),
+                filterEvents.CreateOnCreated(),
+                filterEvents.CreateArgs()
             ) ?? throw new ArgumentNullException(nameof(IModelScraper));
     }
 

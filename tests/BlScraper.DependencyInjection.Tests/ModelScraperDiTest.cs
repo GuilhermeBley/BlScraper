@@ -2,6 +2,7 @@ using BlScraper.DependencyInjection.Model;
 using BlScraper.Model;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Concurrent;
+using BlScraper.DependencyInjection.Tests.Extension;
 
 namespace BlScraper.DependencyInjection.Tests;
 
@@ -29,7 +30,7 @@ public class ModelScraperDiTest
 
         await model.Run();
 
-        await WaitModelFinish(model);
+        await model.WaitModelFinish(new CancellationTokenSource(5000).Token);
 
         Assert.Equal(ModelStateEnum.Disposed, model.State);
     }
@@ -52,7 +53,7 @@ public class ModelScraperDiTest
 
         await model.Run();
 
-        await WaitModelFinish(model);
+        await model.WaitModelFinish(new CancellationTokenSource(5000).Token);
 
         Assert.Equal(ModelStateEnum.Disposed, model.State);
 
@@ -83,7 +84,7 @@ public class ModelScraperDiTest
 
         await model.Run();
 
-        await WaitModelFinish(model);
+        await model.WaitModelFinish(new CancellationTokenSource(5000).Token);
 
         Assert.False(hasErrorInExecution);
         Assert.Equal(ModelStateEnum.Disposed, model.State);
@@ -129,7 +130,7 @@ public class ModelScraperDiTest
             = new ModelScraperService<SimpleExecutionServiceAndObj, SimpleData>(
                 1,
                 serviceProvider,
-                async () => { await Task.CompletedTask; return SimpleDataFactory.GetData(100); },
+                async () => { await Task.CompletedTask; return SimpleDataFactory.GetData(10); },
                 whenOccursException: (ex, data) => { return QuestResult.ThrowException(); },
                 args: new Obj1()
             );
@@ -563,16 +564,6 @@ public class ModelScraperDiTest
 
         Assert.All(listResultEnd, result => Assert.False(result.IsSuccess));
     }
-    public static async Task WaitModelFinish(IModelScraper model, CancellationToken cancellationToken = default)
-    {
-        cancellationToken.ThrowIfCancellationRequested();
-
-        while (model.State != ModelStateEnum.Disposed)
-        {
-            cancellationToken.ThrowIfCancellationRequested();
-            await Task.Delay(400);
-        }
-    }
 
     /// <summary>
     /// Runs model and expected Success in execute
@@ -588,7 +579,7 @@ public class ModelScraperDiTest
 
         Assert.True(result.IsSuccess, "Failed to run model.");
 
-        await WaitModelFinish(model, cancellationToken);
+        await model.WaitModelFinish(cancellationToken);
 
         Assert.Equal(ModelStateEnum.Disposed, model.State);
     }

@@ -6,6 +6,7 @@ using BlScraper.DependencyInjection.Tests.Extension;
 using BlScraper.DependencyInjection.ConfigureModel;
 using BlScraper.DependencyInjection.Tests.FakeProject;
 using BlScraper.DependencyInjection.Tests.QuestsBuilder.Filter;
+using BlScraper.DependencyInjection.ConfigureModel.Filter;
 
 namespace BlScraper.DependencyInjection.Tests;
 
@@ -1232,5 +1233,103 @@ public class ModelScraperDiBuilder
             });
             
         Assert.NotNull(servicesBase.ServiceProvider.GetService<IScrapBuilder>());
+    }
+    
+    [Fact]
+    public async Task AddQuestExceptionConfigureFilter_TryRunAndExecuteMethod_SuccessExecuted()
+    {
+        await Task.CompletedTask;
+        var servicesBase
+            = new ServicesTestBase(services =>
+            {
+                services
+                    .AddScraperBuilder(config =>
+                        config
+                        .AddQuestExceptionConfigureFilter<QuestExceptionConfigureFilterTest>()
+                        .AddAssembly(this.GetType().Assembly))
+                    .AddSingleton<IRouteService, RouteService>();
+            });
+        
+        var scrapBuilder = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
+        var routeService = servicesBase.ServiceProvider.GetRequiredService<IRouteService>();
+
+        var model = scrapBuilder.CreateModelByQuestType<WithQuestExceptionQuest>();
+
+        await model.RunAndWaitModelFinish(new CancellationTokenSource(5000).Token);
+
+        Assert.Contains(routeService.Routes, r => r.Equals(typeof(WithQuestExceptionConfigure)
+            .GetMethod(nameof(IQuestExceptionConfigure<WithQuestExceptionQuest,PublicSimpleData>.OnOccursException))));
+
+        Assert.Contains(routeService.Routes, r => r.Equals(typeof(QuestExceptionConfigureFilterTest)
+            .GetMethod(nameof(IQuestExceptionConfigureFilter.OnOccursException))));
+    }
+    
+    [Fact]
+    public async Task AddQuestExceptionConfigureFilter_TryRunAndExecuteTwoExceptionFilters_SuccessExecuted()
+    {
+        await Task.CompletedTask;
+        var servicesBase
+            = new ServicesTestBase(services =>
+            {
+                services
+                    .AddScraperBuilder(config =>
+                        config
+                        .AddQuestExceptionConfigureFilter<QuestExceptionConfigureFilterTest>()
+                        .AddQuestExceptionConfigureFilter<SeveralFilters>()
+                        .AddAssembly(this.GetType().Assembly))
+                    .AddSingleton<IRouteService, RouteService>();
+            });
+        
+        var scrapBuilder = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
+        var routeService = servicesBase.ServiceProvider.GetRequiredService<IRouteService>();
+
+        var model = scrapBuilder.CreateModelByQuestType<WithQuestExceptionQuest>();
+
+        await model.RunAndWaitModelFinish(new CancellationTokenSource(5000).Token);
+
+        Assert.Contains(routeService.Routes, r => r.Equals(typeof(WithQuestExceptionConfigure)
+            .GetMethod(nameof(IQuestExceptionConfigure<WithQuestExceptionQuest,PublicSimpleData>.OnOccursException))));
+
+        Assert.Contains(routeService.Routes, r => r.Equals(typeof(QuestExceptionConfigureFilterTest)
+            .GetMethod(nameof(IQuestExceptionConfigureFilter.OnOccursException))));
+
+        Assert.Contains(routeService.Routes, r => r.Equals(typeof(SeveralFilters)
+            .GetMethod(nameof(IQuestExceptionConfigureFilter.OnOccursException))));
+    }
+    
+    [Fact]
+    public async Task AddQuestExceptionConfigureFilter_TryRunAndExecuteTwoExceptionFiltersWithoutRequiredException_SuccessExecuted()
+    {
+        var servicesBase
+            = new ServicesTestBase(services =>
+            {
+                services
+                    .AddScraperBuilder(config =>
+                        config
+                        .AddQuestExceptionConfigureFilter<QuestExceptionConfigureFilterTest>()
+                        .AddQuestExceptionConfigureFilter<SeveralFilters>()
+                        .AddAssembly(this.GetType().Assembly))
+                    .AddSingleton<IRouteService, RouteService>();
+            });
+        
+        var scrapBuilder = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
+        var routeService = servicesBase.ServiceProvider.GetRequiredService<IRouteService>();
+
+        var model = scrapBuilder.CreateModelByQuestType<WithoutQuestExceptionNonRequired>();
+
+        await model.Run();
+
+        await Task.Delay(200);
+
+        await model.StopAsync(new CancellationTokenSource(5000).Token);
+
+        Assert.DoesNotContain(routeService.Routes, r => r.Equals(typeof(WithQuestExceptionConfigure)
+            .GetMethod(nameof(IQuestExceptionConfigure<WithQuestExceptionQuest,PublicSimpleData>.OnOccursException))));
+
+        Assert.Contains(routeService.Routes, r => r.Equals(typeof(QuestExceptionConfigureFilterTest)
+            .GetMethod(nameof(IQuestExceptionConfigureFilter.OnOccursException))));
+
+        Assert.Contains(routeService.Routes, r => r.Equals(typeof(SeveralFilters)
+            .GetMethod(nameof(IQuestExceptionConfigureFilter.OnOccursException))));
     }
 }
