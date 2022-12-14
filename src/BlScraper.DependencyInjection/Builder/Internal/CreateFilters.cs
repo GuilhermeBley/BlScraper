@@ -29,7 +29,7 @@ internal sealed class CreateFilters
     public Func<Exception, object, QuestResult> CreateOnOccursException()
     {
         IQuestExceptionConfigureFilter[] filters 
-            = CreateInstancesOfType<IQuestExceptionConfigureFilter>(_serviceProvider, _builderConfig.PoolDataFinishedConfigureFilter).ToArray();
+            = CreateInstancesOfType<IQuestExceptionConfigureFilter>(_serviceProvider, _builderConfig.PoolQuestExceptionConfigureFilter).ToArray();
             
 
         return (exc, data) =>

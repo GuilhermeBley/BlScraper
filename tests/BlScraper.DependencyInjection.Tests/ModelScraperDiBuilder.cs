@@ -1332,4 +1332,81 @@ public class ModelScraperDiBuilder
         Assert.Contains(routeService.Routes, r => r.Equals(typeof(SeveralFilters)
             .GetMethod(nameof(IQuestExceptionConfigureFilter.OnOccursException))));
     }
+    
+    [Fact]
+    public async Task TestAllFilters_TryRunAndExecuteAllFilters_SuccessExecuted()
+    {
+        var servicesBase
+            = new ServicesTestBase(services =>
+            {
+                services
+                    .AddScraperBuilder(config =>
+                        config
+                        .AddAllWorksEndConfigureFilter<AllWorksEndConfigureFilterTest>()
+                        .AddDataCollectedConfigureFilter<DataCollectedConfigureFilterTest>()
+                        .AddDataFinishedConfigureFilter<DataFinishedConfigureFilterTest>()
+                        .AddGetArgsConfigureFilter<GetArgsConfigureFilterTest>()
+                        .AddQuestCreatedConfigureFilter<QuestCreatedConfigureFilterTest>()
+                        .AddQuestExceptionConfigureFilter<QuestExceptionConfigureFilterTest>()
+                        
+                        .AddAllWorksEndConfigureFilter<SeveralFilters>()
+                        .AddDataCollectedConfigureFilter<SeveralFilters>()
+                        .AddDataFinishedConfigureFilter<SeveralFilters>()
+                        .AddGetArgsConfigureFilter<SeveralFilters>()
+                        .AddQuestCreatedConfigureFilter<SeveralFilters>()
+                        .AddQuestExceptionConfigureFilter<SeveralFilters>()
+                        .AddAssembly(this.GetType().Assembly))
+                    .AddSingleton<IRouteService, RouteService>();
+            });
+        
+        var scrapBuilder = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
+        var routeService = servicesBase.ServiceProvider.GetRequiredService<IRouteService>();
+
+        var model = scrapBuilder.CreateModelByQuestType<WithoutQuestExceptionNonRequired>();
+
+        await model.Run();
+
+        await Task.Delay(200);
+
+        await model.StopAsync(new CancellationTokenSource(5000).Token);
+
+        Assert.DoesNotContain(routeService.Routes, r => r.Equals(typeof(WithQuestExceptionConfigure)
+            .GetMethod(nameof(IQuestExceptionConfigure<WithQuestExceptionQuest,PublicSimpleData>.OnOccursException))));
+
+        Assert.Contains(routeService.Routes, r => r.Equals(typeof(AllWorksEndConfigureFilterTest)
+            .GetMethod(nameof(AllWorksEndConfigureFilterTest.OnFinished))));
+
+        Assert.Contains(routeService.Routes, r => r.Equals(typeof(SeveralFilters)
+            .GetMethod(nameof(SeveralFilters.OnFinished))));
+
+        Assert.Contains(routeService.Routes, r => r.Equals(typeof(DataCollectedConfigureFilterTest)
+            .GetMethod(nameof(DataCollectedConfigureFilterTest.OnCollected))));
+
+        Assert.Contains(routeService.Routes, r => r.Equals(typeof(SeveralFilters)
+            .GetMethod(nameof(SeveralFilters.OnCollected))));
+
+        Assert.Contains(routeService.Routes, r => r.Equals(typeof(DataFinishedConfigureFilterTest)
+            .GetMethod(nameof(DataFinishedConfigureFilterTest.OnDataFinished))));
+
+        Assert.Contains(routeService.Routes, r => r.Equals(typeof(SeveralFilters)
+            .GetMethod(nameof(SeveralFilters.OnDataFinished))));
+
+        Assert.Contains(routeService.Routes, r => r.Equals(typeof(GetArgsConfigureFilterTest)
+            .GetMethod(nameof(GetArgsConfigureFilterTest.GetArgs))));
+
+        Assert.Contains(routeService.Routes, r => r.Equals(typeof(SeveralFilters)
+            .GetMethod(nameof(SeveralFilters.GetArgs))));
+
+        Assert.Contains(routeService.Routes, r => r.Equals(typeof(QuestCreatedConfigureFilterTest)
+            .GetMethod(nameof(QuestCreatedConfigureFilterTest.OnCreated))));
+
+        Assert.Contains(routeService.Routes, r => r.Equals(typeof(SeveralFilters)
+            .GetMethod(nameof(SeveralFilters.OnCreated))));
+
+        Assert.Contains(routeService.Routes, r => r.Equals(typeof(QuestExceptionConfigureFilterTest)
+            .GetMethod(nameof(IQuestExceptionConfigureFilter.OnOccursException))));
+
+        Assert.Contains(routeService.Routes, r => r.Equals(typeof(SeveralFilters)
+            .GetMethod(nameof(IQuestExceptionConfigureFilter.OnOccursException))));
+    }
 }
