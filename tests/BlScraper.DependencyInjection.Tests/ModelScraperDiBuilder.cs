@@ -1362,7 +1362,7 @@ public class ModelScraperDiBuilder
         var scrapBuilder = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
         var routeService = servicesBase.ServiceProvider.GetRequiredService<IRouteService>();
 
-        var model = scrapBuilder.CreateModelByQuestType<WithoutQuestExceptionNonRequired>();
+        var model = scrapBuilder.CreateModelByQuestType<WithQuestExceptionQuest>();
 
         await model.Run();
 
@@ -1370,7 +1370,7 @@ public class ModelScraperDiBuilder
 
         await model.StopAsync(new CancellationTokenSource(5000).Token);
 
-        Assert.DoesNotContain(routeService.Routes, r => r.Equals(typeof(WithQuestExceptionConfigure)
+        Assert.Contains(routeService.Routes, r => r.Equals(typeof(WithQuestExceptionConfigure)
             .GetMethod(nameof(IQuestExceptionConfigure<WithQuestExceptionQuest,PublicSimpleData>.OnOccursException))));
 
         Assert.Contains(routeService.Routes, r => r.Equals(typeof(AllWorksEndConfigureFilterTest)

@@ -12,7 +12,7 @@ public class DataFinishedConfigureFilterTest : IDataFinishedConfigureFilter
         _routeService = routeService;
     }
 
-    public async Task OnDataFinished(ResultBase<object> resultFinished)
+    public async Task OnDataFinished(ResultBase resultFinished)
     {
         await Task.CompletedTask;
 

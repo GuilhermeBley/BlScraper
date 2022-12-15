@@ -36,7 +36,7 @@ public class SeveralFilters : IAllWorksEndConfigureFilter, IDataCollectedConfigu
         _routeService.Add(this.GetType().GetMethod(nameof(OnCreated)));
     }
 
-    public async Task OnDataFinished(ResultBase<object> resultFinished)
+    public async Task OnDataFinished(ResultBase resultFinished)
     {
         await Task.CompletedTask;
 

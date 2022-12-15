@@ -54,7 +54,7 @@ internal sealed class CreateFilters
     /// <summary>
     /// Create event 'OnOccursException'
     /// </summary>
-    public Action<Results.ResultBase<object>> CreateOnDataFinished()
+    public Action<Results.ResultBase> CreateOnDataFinished()
     {
         IDataFinishedConfigureFilter[] filters 
             = CreateInstancesOfType<IDataFinishedConfigureFilter>(_serviceProvider, _builderConfig.PoolDataFinishedConfigureFilter).ToArray();

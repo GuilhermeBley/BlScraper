@@ -11,5 +11,5 @@ public interface IDataFinishedConfigureFilter
     /// On data finished
     /// </summary>
     /// <param name="resultFinished">Result after search</param>
-    Task OnDataFinished(ResultBase<object> resultFinished);
+    Task OnDataFinished(ResultBase resultFinished);
 }
