@@ -49,7 +49,7 @@ internal class PoolFilter : IEnumerable<(Type FilterInterface, Type Filter)>
     }
 
     /// <summary>
-    /// union
+    /// union pool
     /// </summary>
     public PoolFilter Union(PoolFilter poolFilter)
     {

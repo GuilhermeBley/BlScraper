@@ -83,8 +83,32 @@ internal static class TypeUtils
     /// <exception cref="ArgumentException">Conflict</exception>
     public static Type? GetUniqueAssignableFrom(Assembly[] assemblies, Type typeTo, bool onlyClass = true, bool nonAbstract = true, bool nonObsolete = true)
     {
-        Type? finded = null;
+        Type? found = null;
 
+        foreach (var type in GetAssignableFrom(assemblies, typeTo, onlyClass, nonAbstract, nonObsolete))
+        {
+            if (found is not null)
+                throw new ArgumentException($"Duplicate type of same assign in {found.FullName} and {type.FullName}.", typeTo.Name);
+
+            found = type;
+        }
+
+        return found;
+    }
+
+    
+    /// <summary>
+    /// Check in all of the assemblies objects which assign the <paramref name="typeTo"/>
+    /// </summary>
+    /// <param name="assemblies">assemblies to check</param>
+    /// <param name="typeTo">type to check assignable from</param>
+    /// <param name="onlyClass">Only classes is mapped, true to map only classes</param>
+    /// <param name="nonAbstract">Abstract members isn't mapped, true to non map abstract</param>
+    /// <param name="nonObsolete">If true, Don't map type which contains <see cref="ObsoleteAttribute"/></param>
+    /// <returns>Type founded or null</returns>
+    /// <exception cref="ArgumentException">Conflict</exception>
+    public static IEnumerable<Type> GetAssignableFrom(Assembly[] assemblies, Type typeTo, bool onlyClass = true, bool nonAbstract = true, bool nonObsolete = true)
+    {
         foreach (var assembly in assemblies)
         {
             foreach (var type in assembly.GetTypes())
@@ -101,14 +125,9 @@ internal static class TypeUtils
                 if (!typeTo.IsAssignableFrom(type))
                     continue;
 
-                if (finded != null)
-                    throw new ArgumentException($"Duplicate type of same assign in {finded.FullName} and {type.FullName}.", typeTo.Name);
-
-                finded = type;
+                yield return type;
             }
         }
-
-        return finded;
     }
 
     /// <summary>

@@ -1,3 +1,4 @@
+using BlScraper.Model;
 using BlScraper.Results;
 
 namespace BlScraper.DependencyInjection.ConfigureModel.Filter;
@@ -6,7 +7,7 @@ namespace BlScraper.DependencyInjection.ConfigureModel.Filter;
 /// Implementation for classes which want manage events on data finished - use in unique quest
 /// </summary>
 public interface IDataFinishedConfigureFilter<TQuest, TData> : IDataFinishedConfigureFilter
-    where TQuest : Queue<TData>
+    where TQuest : Quest<TData>
     where TData : class
 {
     

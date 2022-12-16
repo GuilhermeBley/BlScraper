@@ -122,6 +122,8 @@ internal class ScrapBuilder : IScrapBuilder
 
         SetParametersOnModel(model);
 
+        SetFiltersOnModel(model);
+
         var modelScraperType = TypeUtils.SetGenericParameters(_modelType, model.QuestType, model.DataType);
 
         var filterEvents = ActivatorUtilities.CreateInstance<CreateFilters>(_serviceProvider, model, _builderConfig);
@@ -149,7 +151,7 @@ internal class ScrapBuilder : IScrapBuilder
     private void SetParametersOnModel(ScrapModelInternal model)
     {
         #region RequiredConfigure
-        Type typeInstaceRequired = 
+        Type typeInstaceRequired =
             TypeUtils.GetUniqueAssignableFrom(_assemblies.ToArray(), typeof(RequiredConfigure<,>).MakeGenericType(model.QuestType, model.DataType))
             ?? throw ThrowRequiredTypeNotFound(model, typeof(RequiredConfigure<,>));
 
@@ -167,10 +169,10 @@ internal class ScrapBuilder : IScrapBuilder
             throw ThrowRequiredTypeNotFound(model, typeof(IAllWorksEndConfigure<,>));
 
         if (typeInstaceAllWorksEnd is not null)
-            model.InstanceAllWorksEnd = 
+            model.InstanceAllWorksEnd =
                 ActivatorUtilities.CreateInstance(_serviceProvider.CreateScope().ServiceProvider, typeInstaceAllWorksEnd);
         #endregion
-        
+
         #region IGetArgsConfigure
         Type? typeInstaceArgs =
             TypeUtils.GetUniqueAssignableFrom(_assemblies.ToArray(), typeof(IGetArgsConfigure<,>).MakeGenericType(model.QuestType, model.DataType));
@@ -179,10 +181,10 @@ internal class ScrapBuilder : IScrapBuilder
             throw ThrowRequiredTypeNotFound(model, typeof(IGetArgsConfigure<,>));
 
         if (typeInstaceArgs is not null)
-            model.InstanceArgs = 
+            model.InstanceArgs =
                 ActivatorUtilities.CreateInstance(_serviceProvider.CreateScope().ServiceProvider, typeInstaceArgs);
         #endregion
-                
+
         #region IOnDataCollectedConfigure
         Type? typeDataCollected =
             TypeUtils.GetUniqueAssignableFrom(_assemblies.ToArray(), typeof(IDataCollectedConfigure<,>).MakeGenericType(model.QuestType, model.DataType));
@@ -191,10 +193,10 @@ internal class ScrapBuilder : IScrapBuilder
             throw ThrowRequiredTypeNotFound(model, typeof(IDataCollectedConfigure<,>));
 
         if (typeDataCollected is not null)
-            model.InstanceDataCollected = 
+            model.InstanceDataCollected =
                 ActivatorUtilities.CreateInstance(_serviceProvider.CreateScope().ServiceProvider, typeDataCollected);
         #endregion
-                        
+
         #region IDataFinishedConfigure
         Type? typeDataFinished =
             TypeUtils.GetUniqueAssignableFrom(_assemblies.ToArray(), typeof(IDataFinishedConfigure<,>).MakeGenericType(model.QuestType, model.DataType));
@@ -203,10 +205,10 @@ internal class ScrapBuilder : IScrapBuilder
             throw ThrowRequiredTypeNotFound(model, typeof(IDataFinishedConfigure<,>));
 
         if (typeDataFinished is not null)
-            model.InstanceDataFinished = 
+            model.InstanceDataFinished =
                 ActivatorUtilities.CreateInstance(_serviceProvider.CreateScope().ServiceProvider, typeDataFinished);
         #endregion
-        
+
         #region IOnQuestCreatedConfigure
         Type? typeQuestCreated =
             TypeUtils.GetUniqueAssignableFrom(_assemblies.ToArray(), typeof(IQuestCreatedConfigure<,>).MakeGenericType(model.QuestType, model.DataType));
@@ -215,7 +217,7 @@ internal class ScrapBuilder : IScrapBuilder
             throw ThrowRequiredTypeNotFound(model, typeof(IQuestCreatedConfigure<,>));
 
         if (typeQuestCreated is not null)
-            model.InstanceQuestCreated = 
+            model.InstanceQuestCreated =
                 ActivatorUtilities.CreateInstance(_serviceProvider.CreateScope().ServiceProvider, typeQuestCreated);
         #endregion
 
@@ -227,8 +229,57 @@ internal class ScrapBuilder : IScrapBuilder
             throw ThrowRequiredTypeNotFound(model, typeof(IQuestExceptionConfigure<,>));
 
         if (typeQuestException is not null)
-            model.InstanceQuestException = 
+            model.InstanceQuestException =
                 ActivatorUtilities.CreateInstance(_serviceProvider.CreateScope().ServiceProvider, typeQuestException);
+        #endregion
+    }
+
+    /// <summary>
+    /// Set filters in model
+    /// </summary>
+    /// <param name="model">Model to set parameters</param>
+    private void SetFiltersOnModel(ScrapModelInternal model)
+    {
+        #region IAllWorksEndConfigureFilter
+
+        foreach (var filterType in TypeUtils.GetAssignableFrom(_assemblies.ToArray(), typeof(IAllWorksEndConfigureFilter<,>).MakeGenericType(model.QuestType, model.DataType)))
+            model.Filters.Add(typeof(IAllWorksEndConfigureFilter), filterType);
+
+        #endregion
+
+        #region IGetArgsConfigureFilter
+
+        foreach (var filterType in TypeUtils.GetAssignableFrom(_assemblies.ToArray(), typeof(IGetArgsConfigureFilter<,>).MakeGenericType(model.QuestType, model.DataType)))
+            model.Filters.Add(typeof(IGetArgsConfigureFilter), filterType);
+
+        #endregion
+
+        #region IDataCollectedConfigureFilter
+
+        foreach (var filterType in TypeUtils.GetAssignableFrom(_assemblies.ToArray(), typeof(IDataCollectedConfigureFilter<,>).MakeGenericType(model.QuestType, model.DataType)))
+            model.Filters.Add(typeof(IDataCollectedConfigureFilter), filterType);
+
+        #endregion
+
+        #region IDataFinishedConfigureFilter
+
+        foreach (var filterType in TypeUtils.GetAssignableFrom(_assemblies.ToArray(), typeof(IDataFinishedConfigureFilter<,>).MakeGenericType(model.QuestType, model.DataType)))
+            model.Filters.Add(typeof(IDataFinishedConfigureFilter), filterType);
+
+        #endregion
+
+        #region IQuestCreatedConfigureFilter
+
+        foreach (var filterType in TypeUtils.GetAssignableFrom(_assemblies.ToArray(), typeof(IQuestCreatedConfigureFilter<,>).MakeGenericType(model.QuestType, model.DataType)))
+            model.Filters.Add(typeof(IQuestCreatedConfigureFilter), filterType);
+
+        #endregion
+
+        #region IQuestExceptionConfigureFilter
+
+        foreach (var filterType in TypeUtils.GetAssignableFrom(_assemblies.ToArray(), typeof(IQuestExceptionConfigureFilter<,>).MakeGenericType(model.QuestType, model.DataType)))
+            model.Filters.Add(typeof(IQuestExceptionConfigureFilter), filterType);
+
         #endregion
     }
 

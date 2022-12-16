@@ -18,6 +18,11 @@ internal sealed class ScrapModelInternal
     /// </summary>
     private readonly Type _dataType;
 
+    /// <summary>
+    /// Filters
+    /// </summary>
+    public PoolFilter Filters { get; set; } = new();
+
     /// <inheritdoc cref="_questType" path="*"/>
     public Type QuestType => _questType;
 
