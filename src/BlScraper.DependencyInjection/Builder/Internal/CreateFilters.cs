@@ -1,6 +1,7 @@
 using BlScraper.DependencyInjection.ConfigureBuilder;
 using BlScraper.DependencyInjection.ConfigureModel;
 using BlScraper.DependencyInjection.ConfigureModel.Filter;
+using BlScraper.DependencyInjection.Extension.Internal;
 using BlScraper.Model;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -29,7 +30,7 @@ internal sealed class CreateFilters
     public Func<Exception, object, QuestResult> CreateOnOccursException()
     {
         IQuestExceptionConfigureFilter[] filters 
-            = CreateInstancesOfType<IQuestExceptionConfigureFilter>(_serviceProvider, _builderConfig.PoolQuestExceptionConfigureFilter).ToArray();
+            = CreateInstancesOfType<IQuestExceptionConfigureFilter>(_serviceProvider, _builderConfig.Filters.GetPoolQuestExceptionConfigureFilter()).ToArray();
             
 
         return (exc, data) =>
@@ -57,7 +58,7 @@ internal sealed class CreateFilters
     public Action<Results.ResultBase> CreateOnDataFinished()
     {
         IDataFinishedConfigureFilter[] filters 
-            = CreateInstancesOfType<IDataFinishedConfigureFilter>(_serviceProvider, _builderConfig.PoolDataFinishedConfigureFilter).ToArray();
+            = CreateInstancesOfType<IDataFinishedConfigureFilter>(_serviceProvider, _builderConfig.Filters.GetPoolDataFinishedConfigureFilter()).ToArray();
 
         return (result) =>
         {
@@ -81,7 +82,7 @@ internal sealed class CreateFilters
     public Action<Results.Models.EndEnumerableModel> CreateOnAllWorksEnd()
     {
         IAllWorksEndConfigureFilter[] filters 
-            = CreateInstancesOfType<IAllWorksEndConfigureFilter>(_serviceProvider, _builderConfig.PoolAllWorksEndConfigureFilter).ToArray();
+            = CreateInstancesOfType<IAllWorksEndConfigureFilter>(_serviceProvider, _builderConfig.Filters.GetPoolAllWorksEndConfigureFilter()).ToArray();
 
         return (endModelEnumerable) =>
         {
@@ -105,7 +106,7 @@ internal sealed class CreateFilters
     public Action<IEnumerable<object>> CreateOnCollected()
     {
         IDataCollectedConfigureFilter[] filters 
-            = CreateInstancesOfType<IDataCollectedConfigureFilter>(_serviceProvider, _builderConfig.PoolDataCollectedConfigureFilter).ToArray();
+            = CreateInstancesOfType<IDataCollectedConfigureFilter>(_serviceProvider, _builderConfig.Filters.GetPoolDataCollectedConfigureFilter()).ToArray();
 
         return (collectedList) =>
         {
@@ -132,7 +133,7 @@ internal sealed class CreateFilters
         var args = new object[0];
 
         IGetArgsConfigureFilter[] filters 
-            = CreateInstancesOfType<IGetArgsConfigureFilter>(_serviceProvider, _builderConfig.PoolGetArgsConfigureFilter).ToArray();
+            = CreateInstancesOfType<IGetArgsConfigureFilter>(_serviceProvider, _builderConfig.Filters.GetPoolGetArgsConfigureFilter()).ToArray();
 
         args = 
             (object[]?) _model.InstanceArgs?.GetType().GetMethod("GetArgs")?.Invoke(_model.InstanceArgs, null) ?? new object[0];
@@ -152,7 +153,7 @@ internal sealed class CreateFilters
     public Action<IQuest> CreateOnCreated()
     {
         IQuestCreatedConfigureFilter[] filters 
-            = CreateInstancesOfType<IQuestCreatedConfigureFilter>(_serviceProvider, _builderConfig.PoolQuestCreatedConfigureFilter).ToArray();
+            = CreateInstancesOfType<IQuestCreatedConfigureFilter>(_serviceProvider, _builderConfig.Filters.GetPoolQuestCreatedConfigureFilter()).ToArray();
 
         return (excCreated) =>
         {
