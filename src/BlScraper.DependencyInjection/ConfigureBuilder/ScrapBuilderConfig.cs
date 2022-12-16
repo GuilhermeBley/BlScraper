@@ -73,6 +73,8 @@ public class ScrapBuilderConfig
     /// <inheritdoc cref="PoolFilter.Add(Type, Type)" path="/exception"/>
     public ScrapBuilderConfig AddAllWorksEndConfigureFilter(Type filter)
     {
+        if (TypeUtils.IsObsolete(filter)) return this;
+
         _poolFilters.Add(typeof(IAllWorksEndConfigureFilter), filter);
         return this;
     }
@@ -95,6 +97,8 @@ public class ScrapBuilderConfig
     /// <inheritdoc cref="PoolFilter.Add(Type, Type)" path="/exception"/>
     public ScrapBuilderConfig AddDataCollectedConfigureFilter(Type filter)
     {
+        if (TypeUtils.IsObsolete(filter)) return this;
+
         _poolFilters.Add(typeof(IDataCollectedConfigureFilter), filter);
         return this;
     }
@@ -118,6 +122,8 @@ public class ScrapBuilderConfig
     /// <inheritdoc cref="PoolFilter.Add(Type, Type)" path="/exception"/>
     public ScrapBuilderConfig AddDataFinishedConfigureFilter(Type filter)
     {
+        if (TypeUtils.IsObsolete(filter)) return this;
+
         _poolFilters.Add(typeof(IDataFinishedConfigureFilter), filter);
         return this;
     }
@@ -140,6 +146,8 @@ public class ScrapBuilderConfig
     /// <inheritdoc cref="PoolFilter.Add(Type, Type)" path="/exception"/>
     public ScrapBuilderConfig AddGetArgsConfigureFilter(Type filter)
     {
+        if (TypeUtils.IsObsolete(filter)) return this;
+
         _poolFilters.Add(typeof(IGetArgsConfigureFilter), filter);
         return this;
     }
@@ -163,6 +171,8 @@ public class ScrapBuilderConfig
     /// <inheritdoc cref="PoolFilter.Add(Type, Type)" path="/exception"/>
     public ScrapBuilderConfig AddQuestCreatedConfigureFilter(Type filter)
     {
+        if (TypeUtils.IsObsolete(filter)) return this;
+
         _poolFilters.Add(typeof(IQuestCreatedConfigureFilter), filter);
         return this;
     }
@@ -185,6 +195,8 @@ public class ScrapBuilderConfig
     /// <inheritdoc cref="PoolFilter.Add(Type, Type)" path="/exception"/>
     public ScrapBuilderConfig AddQuestExceptionConfigureFilter(Type filter)
     {
+        if (TypeUtils.IsObsolete(filter)) return this;
+
         _poolFilters.Add(typeof(IQuestExceptionConfigureFilter), filter);
         return this;
     }

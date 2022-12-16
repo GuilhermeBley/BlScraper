@@ -27,9 +27,6 @@ internal class PoolFilter : IEnumerable<(Type FilterInterface, Type Filter)>
         try
         {
             Add(filterInterface, filter);
-            
-            if (TypeUtils.IsObsolete(filter))
-                return false;
 
             return true;
         }
@@ -42,9 +39,6 @@ internal class PoolFilter : IEnumerable<(Type FilterInterface, Type Filter)>
     /// <summary>
     /// Add and check
     /// </summary>
-    /// <remarks>
-    ///     <para>Obsolete filter isn't added.</para>
-    /// </remarks>
     /// <param name="filterInterface">Filter interface</param>
     /// <param name="filter">Filter</param>
     /// <exception cref="ArgumentException"/>
@@ -52,11 +46,11 @@ internal class PoolFilter : IEnumerable<(Type FilterInterface, Type Filter)>
     {
         if (_poolFilters.Contains((filterInterface, filter)))
             throw new ArgumentException($"List already contains '{filter.FullName}' to '{filterInterface.FullName}'.", filter.FullName);
+        
+        if (TypeUtils.IsObsolete(filter))
+            throw new ArgumentException($"The filter '{filter.FullName}' is Obsolete.");
 
         CheckAndThrowFilter(filter, filterInterface);
-
-        if (TypeUtils.IsObsolete(filter))
-            return;
 
         _poolFilters.Add((filterInterface, filter));
     }
