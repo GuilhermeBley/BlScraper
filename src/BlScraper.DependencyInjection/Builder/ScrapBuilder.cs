@@ -281,6 +281,15 @@ internal class ScrapBuilder : IScrapBuilder
             model.Filters.Add(typeof(IQuestExceptionConfigureFilter), filterType);
 
         #endregion
+
+        var requiredFilters = ((IRequiredConfigureFilters?)model.InstaceRequired)?.RequiredFilters
+            ?? throw new ArgumentNullException(nameof(IRequiredConfigureFilters));
+
+        var requiredNonSetted = requiredFilters.Except(_builderConfig.Filters.Union(model.Filters).Select(f => f.Filter));
+
+        if (requiredNonSetted.Any())
+            throw new ArgumentException($"Required filters not implemented. Types: {string.Join('\n', requiredNonSetted.Select(r => r.FullName))}.", 
+                $"{string.Join('|', requiredNonSetted.Select(r => r.Name))}");
     }
 
     /// <summary>
