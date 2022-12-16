@@ -1409,4 +1409,42 @@ public class ModelScraperDiBuilder
         Assert.Contains(routeService.Routes, r => r.Equals(typeof(SeveralFilters)
             .GetMethod(nameof(IQuestExceptionConfigureFilter.OnOccursException))));
     }
+
+    [Fact]
+    public async Task ObsoleteFilter_TryRunAndExecuteObsoleteFilter_FailedExecution()
+    {
+        #pragma warning disable 612, 618 
+        var servicesBase
+            = new ServicesTestBase(services =>
+            {
+                services
+                    .AddScraperBuilder(config =>
+                        config
+                        .AddAllWorksEndConfigureFilter<AllWorksEndConfigureFilterTest>()
+                        .AddAllWorksEndConfigureFilter<ObsoleteFilter>()
+                        .AddAssembly(this.GetType().Assembly))
+                    .AddSingleton<IRouteService, RouteService>();
+            });
+        
+        var scrapBuilder = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
+        var routeService = servicesBase.ServiceProvider.GetRequiredService<IRouteService>();
+
+        var model = scrapBuilder.CreateModelByQuestType<WithQuestExceptionQuest>();
+
+        await model.Run();
+
+        await Task.Delay(200);
+
+        await model.StopAsync(new CancellationTokenSource(5000).Token);
+
+        Assert.Contains(routeService.Routes, r => r.Equals(typeof(WithQuestExceptionConfigure)
+            .GetMethod(nameof(IQuestExceptionConfigure<WithQuestExceptionQuest,PublicSimpleData>.OnOccursException))));
+
+        Assert.Contains(routeService.Routes, r => r.Equals(typeof(AllWorksEndConfigureFilterTest)
+            .GetMethod(nameof(AllWorksEndConfigureFilterTest.OnFinished))));
+
+        Assert.DoesNotContain(routeService.Routes, r => r.Equals(typeof(ObsoleteFilter)
+            .GetMethod(nameof(ObsoleteFilter.OnFinished))));
+        #pragma warning restore 612, 618
+    }
 }
