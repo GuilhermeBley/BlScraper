@@ -5,9 +5,18 @@ namespace BlScraper.DependencyInjection.ConfigureModel.Filter;
 /// <summary>
 /// Implementation for classes which want manage exceptions on quests
 /// </summary>
-public interface IQuestExceptionConfigureFilter
+public interface IQuestExceptionConfigureFilter<TQuest, TData> : IQuestExceptionConfigureFilter
+    where TQuest : Quest<TData>
+    where TData : class
 {
 
+}
+
+/// <summary>
+/// Implementation for classes which want manage exceptions on quests
+/// </summary>
+public interface IQuestExceptionConfigureFilter
+{
     /// <summary>
     /// Called on exception
     /// </summary>

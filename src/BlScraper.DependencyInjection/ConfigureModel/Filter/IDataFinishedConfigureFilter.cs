@@ -3,6 +3,16 @@ using BlScraper.Results;
 namespace BlScraper.DependencyInjection.ConfigureModel.Filter;
 
 /// <summary>
+/// Implementation for classes which want manage events on data finished - use in unique quest
+/// </summary>
+public interface IDataFinishedConfigureFilter<TQuest, TData> : IDataFinishedConfigureFilter
+    where TQuest : Queue<TData>
+    where TData : class
+{
+    
+}
+
+/// <summary>
 /// Implementation for classes which want manage events on data finished
 /// </summary>
 public interface IDataFinishedConfigureFilter
