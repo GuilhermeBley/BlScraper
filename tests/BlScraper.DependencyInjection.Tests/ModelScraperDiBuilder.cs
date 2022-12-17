@@ -1447,4 +1447,26 @@ public class ModelScraperDiBuilder
             .GetMethod(nameof(ObsoleteFilter.OnFinished))));
         #pragma warning restore 612, 618
     }
+
+    [Fact]
+    public async Task UniqueFilter_TryUniqueAndGlobalFilter_FailedExecution()
+    {
+        var servicesBase
+            = new ServicesTestBase(services =>
+            {
+                services
+                    .AddScraperBuilder(config =>
+                        config
+                        .AddAllWorksEndConfigureFilter<UniqueAndGlobalFilter>()
+                        .AddAssembly(this.GetType().Assembly))
+                    .AddSingleton<IRouteService, RouteService>();
+            });
+        
+        var scrapBuilder = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
+        var routeService = servicesBase.ServiceProvider.GetRequiredService<IRouteService>();
+
+        Assert.Throws<ArgumentException>(()=> scrapBuilder.CreateModelByQuestType<UniqueAndGlobalFilterQuest>());
+
+        await Task.CompletedTask;
+    }
 }
