@@ -7,7 +7,7 @@ namespace BlScraper.DependencyInjection.ConfigureModel;
 /// </summary>
 /// <typeparam name="TQuest">Identifier quest</typeparam>
 /// <typeparam name="TData">Data type</typeparam>
-public abstract class RequiredConfigure<TQuest, TData> : IRequiredConfigure, IRequiredConfigureFilters, IEventScrap
+public abstract class RequiredConfigure<TQuest, TData> : IRequiredConfigure, IRequiredConfigureFilters
     where TQuest : Quest<TData>
     where TData : class
 {

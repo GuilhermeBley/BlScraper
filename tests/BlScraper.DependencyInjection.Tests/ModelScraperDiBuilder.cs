@@ -1469,4 +1469,55 @@ public class ModelScraperDiBuilder
 
         await Task.CompletedTask;
     }
+
+    [Fact]
+    public async Task InvalidFilter_TryInstanceModelWithInvalidFilter_FailedExecution()
+    {
+        var servicesBase
+            = new ServicesTestBase(services =>
+            {
+                services
+                    .AddScraperBuilder(config =>
+                        config
+                        .AddAssembly(this.GetType().Assembly))
+                    .AddSingleton<IRouteService, RouteService>();
+            });
+        
+        var scrapBuilder = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
+        var routeService = servicesBase.ServiceProvider.GetRequiredService<IRouteService>();
+
+        Assert.Throws<ArgumentException>($"{typeof(object).Name}", ()=> scrapBuilder.CreateModelByQuestType<QuestWithInvalidFilter>());
+
+        await Task.CompletedTask;
+    }
+
+    [Fact]
+    public async Task RequiredFilter_TryInstanceModelWithInvalidFilter_FailedExecution()
+    {
+        var servicesBase
+            = new ServicesTestBase(services =>
+            {
+                services
+                    .AddScraperBuilder(config =>
+                        config
+                        .AddAllWorksEndConfigureFilter<AllWorksEndConfigureFilterTest>()
+                        .AddAssembly(this.GetType().Assembly))
+                    .AddSingleton<IRouteService, RouteService>();
+            });
+        
+        var scrapBuilder = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
+        var routeService = servicesBase.ServiceProvider.GetRequiredService<IRouteService>();
+
+        var model = scrapBuilder.CreateModelByQuestType<QuestWithFilterImplemented>();
+
+        await model.RunAndWaitModelFinish();
+
+        Assert.Contains(routeService.Routes, r => r.Equals(typeof(AllWorksEndConfigureFilterTest)
+            .GetMethod(nameof(AllWorksEndConfigureFilterTest.OnFinished))));
+
+        Assert.Contains(routeService.Routes, r => r.Equals(typeof(AllWorksEndConfigureFilterUniqueImplemented)
+            .GetMethod(nameof(AllWorksEndConfigureFilterUniqueImplemented.OnFinished))));
+
+        await Task.CompletedTask;
+    }
 }

@@ -121,17 +121,17 @@ internal sealed class ScrapModelInternal
         }}
     
     /// <inheritdoc cref="_instaceRequired" path="*"/>
-    public object? InstaceRequired { 
+    public object? InstanceRequired { 
         get => _instaceRequired;
         set {
             if (value is null)
-                throw new ArgumentNullException(nameof(InstaceRequired));
+                throw new ArgumentNullException(nameof(InstanceRequired));
             var typeInstanceRequired =
                 typeof(RequiredConfigure<,>).MakeGenericType(_questType, _dataType);
             if (typeInstanceRequired.IsAssignableFrom(value.GetType()))
                 _instaceRequired = value;
             else
-                throw new ArgumentException(nameof(InstaceRequired));
+                throw new ArgumentException(nameof(InstanceRequired));
         }}
 
     /// <inheritdoc cref="_instanceQuestCreated" path="*"/>

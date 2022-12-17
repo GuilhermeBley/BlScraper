@@ -270,4 +270,22 @@ internal static class TypeUtils
 
         return genericType.MakeGenericType(parameters);
     }
+
+    /// <summary>
+    /// Check if type is assignable from any filter
+    /// </summary>
+    /// <param name="type">type to check</param>
+    /// <returns>if true is assignable from filter</returns>
+    public static bool IsFilter(Type type)
+    {
+        if (typeof(ConfigureModel.Filter.IAllWorksEndConfigureFilter).IsAssignableFrom(type) ||
+            typeof(ConfigureModel.Filter.IDataCollectedConfigureFilter).IsAssignableFrom(type) ||
+            typeof(ConfigureModel.Filter.IDataFinishedConfigureFilter).IsAssignableFrom(type) ||
+            typeof(ConfigureModel.Filter.IGetArgsConfigureFilter).IsAssignableFrom(type) ||
+            typeof(ConfigureModel.Filter.IQuestCreatedConfigureFilter).IsAssignableFrom(type) ||
+            typeof(ConfigureModel.Filter.IQuestExceptionConfigureFilter).IsAssignableFrom(type))
+            return true;
+
+        return false;
+    }
 }

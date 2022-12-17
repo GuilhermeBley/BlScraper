@@ -131,9 +131,9 @@ internal class ScrapBuilder : IScrapBuilder
         return
             CreateModel(
                 modelScraperType,
-                ((IRequiredConfigure)model.InstaceRequired!).initialQuantity,
+                ((IRequiredConfigure)model.InstanceRequired!).initialQuantity,
                 (IServiceProvider)_serviceProvider,
-                TypeUtils.CreateDelegateWithTarget(model.InstaceRequired.GetType().GetMethod("GetData"), model.InstaceRequired) ?? throw new ArgumentNullException("GetData"),
+                TypeUtils.CreateDelegateWithTarget(model.InstanceRequired.GetType().GetMethod("GetData"), model.InstanceRequired) ?? throw new ArgumentNullException("GetData"),
                 filterEvents.CreateOnOccursException(),
                 filterEvents.CreateOnDataFinished(),
                 filterEvents.CreateOnAllWorksEnd(),
@@ -155,10 +155,10 @@ internal class ScrapBuilder : IScrapBuilder
             TypeUtils.GetUniqueAssignableFrom(_assemblies.ToArray(), typeof(RequiredConfigure<,>).MakeGenericType(model.QuestType, model.DataType))
             ?? throw ThrowRequiredTypeNotFound(model, typeof(RequiredConfigure<,>));
 
-        model.InstaceRequired =
+        model.InstanceRequired =
             ActivatorUtilities.CreateInstance(_serviceProvider.CreateScope().ServiceProvider, typeInstaceRequired);
 
-        var configure = (IRequiredConfigure)model.InstaceRequired;
+        var configure = (IRequiredConfigure)model.InstanceRequired;
         #endregion
 
         #region IOnAllWorksEndConfigure
@@ -282,13 +282,20 @@ internal class ScrapBuilder : IScrapBuilder
 
         #endregion
 
-        var requiredFilters = ((IRequiredConfigureFilters?)model.InstaceRequired)?.RequiredFilters
+        var requiredFilters = ((IRequiredConfigureFilters?)model.InstanceRequired)?.RequiredFilters
             ?? throw new ArgumentNullException(nameof(IRequiredConfigureFilters));
+
+        var invalidFilters = requiredFilters.Where(f => !TypeUtils.IsFilter(f));
+
+        if (invalidFilters.Any())
+            throw new ArgumentException($"These required types aren't filters, config '{model.InstanceRequired.GetType().FullName}':\n" +
+                $"{string.Join('\n', invalidFilters.Select(f => f.FullName))}.", $"{string.Join('|', invalidFilters.Select(f => f.Name))}");
 
         var requiredNonSetted = requiredFilters.Except(_builderConfig.Filters.Union(model.Filters).Select(f => f.Filter));
 
         if (requiredNonSetted.Any())
-            throw new ArgumentException($"Required filters not implemented. Types: {string.Join('\n', requiredNonSetted.Select(r => r.FullName))}.", 
+            throw new ArgumentException($"Required filters not implemented in config '{model.InstanceRequired.GetType().FullName}':\n " +
+                $"{string.Join('\n', requiredNonSetted.Select(r => r.FullName))}.", 
                 $"{string.Join('|', requiredNonSetted.Select(r => r.Name))}");
     }
 

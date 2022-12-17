@@ -7,7 +7,7 @@ namespace BlScraper.DependencyInjection.ConfigureModel;
 /// </summary>
 /// <typeparam name="TQuest">Identifier quest</typeparam>
 /// <typeparam name="TData">Data type</typeparam>
-public interface IGetArgsConfigure<TQuest, TData> : IEventScrap
+public interface IGetArgsConfigure<TQuest, TData>
     where TQuest : Quest<TData>
     where TData : class
 {
