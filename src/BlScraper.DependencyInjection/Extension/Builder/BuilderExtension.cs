@@ -14,7 +14,7 @@ public static class BuilderExtension
         onAddAssemblies?.Invoke(assemblyBuilderAdd);
         return
             serviceCollection
-                .AddSingleton(typeof(IMapQuest), (serviceProvidier) => new MapQuest(assemblyBuilderAdd))
+                .AddSingleton(typeof(IMapQuest), (serviceProvidier) => MapQuestFactory.Create(assemblyBuilderAdd.Assemblies.ToArray()))
                 .AddSingleton(typeof(IScrapBuilder), 
                     (serviceProvider) => new ScrapBuilder(serviceProvider.CreateScope().ServiceProvider, assemblyBuilderAdd));
     }
