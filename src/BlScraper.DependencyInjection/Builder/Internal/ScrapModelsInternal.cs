@@ -1,12 +1,12 @@
 using BlScraper.DependencyInjection.ConfigureModel;
 using BlScraper.Model;
 
-namespace BlScraper.DependencyInjection.Builder;
+namespace BlScraper.DependencyInjection.Builder.Internal;
 
 /// <summary>
 /// Valdation models
 /// </summary>
-internal class ScrapModelsInternal
+internal sealed class ScrapModelInternal
 {
     /// <summary>
     /// Quest type
@@ -17,6 +17,11 @@ internal class ScrapModelsInternal
     /// Data Type
     /// </summary>
     private readonly Type _dataType;
+
+    /// <summary>
+    /// Filters
+    /// </summary>
+    public PoolFilter Filters { get; set; } = new();
 
     /// <inheritdoc cref="_questType" path="*"/>
     public Type QuestType => _questType;
@@ -116,17 +121,17 @@ internal class ScrapModelsInternal
         }}
     
     /// <inheritdoc cref="_instaceRequired" path="*"/>
-    public object? InstaceRequired { 
+    public object? InstanceRequired { 
         get => _instaceRequired;
         set {
             if (value is null)
-                throw new ArgumentNullException(nameof(InstaceRequired));
+                throw new ArgumentNullException(nameof(InstanceRequired));
             var typeInstanceRequired =
                 typeof(RequiredConfigure<,>).MakeGenericType(_questType, _dataType);
             if (typeInstanceRequired.IsAssignableFrom(value.GetType()))
                 _instaceRequired = value;
             else
-                throw new ArgumentException(nameof(InstaceRequired));
+                throw new ArgumentException(nameof(InstanceRequired));
         }}
 
     /// <inheritdoc cref="_instanceQuestCreated" path="*"/>
@@ -165,13 +170,11 @@ internal class ScrapModelsInternal
     /// </remarks>
     /// <param name="questType">Type assingnable from <see cref="Quest{TData}"/></param>
     /// <exception cref="ArgumentException"></exception>
-    public ScrapModelsInternal(Type questType)
+    public ScrapModelInternal(Type questType)
     {
         if (!TypeUtils.IsSubclassOfRawGeneric(typeof(Quest<>), questType, out Type? assignableToGenericFound) 
-            || assignableToGenericFound is null
-            || questType.IsAbstract
-            || !questType.IsClass
-            || !questType.IsPublic)
+            || !TypeUtils.IsTypeValidQuest(questType)
+            || assignableToGenericFound is null)
             throw new ArgumentException($"{nameof(questType)} is a invalid type.", typeof(Quest<>).Name);
 
         var genericTypes = assignableToGenericFound.GetGenericArguments();

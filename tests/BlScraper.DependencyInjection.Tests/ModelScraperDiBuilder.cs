@@ -5,6 +5,8 @@ using Microsoft.Extensions.DependencyInjection;
 using BlScraper.DependencyInjection.Tests.Extension;
 using BlScraper.DependencyInjection.ConfigureModel;
 using BlScraper.DependencyInjection.Tests.FakeProject;
+using BlScraper.DependencyInjection.Tests.QuestsBuilder.Filter;
+using BlScraper.DependencyInjection.ConfigureModel.Filter;
 
 namespace BlScraper.DependencyInjection.Tests;
 
@@ -932,5 +934,590 @@ public class ModelScraperDiBuilder
         var service = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
 
         Assert.Null(service.CreateModelByQuestTypeOrDefault<QuestWithoutConfig2>());
+    }
+
+    [Fact]
+    public async Task GetAvailableQuestsAndData_GetTypes_SuccessNotEmpty()
+    {
+        await Task.CompletedTask;
+        var servicesBase
+            = new ServicesTestBase(services =>
+            {
+                services
+                    .AddScraperBuilder(config => config.AddAssembly(this.GetType().Assembly));
+            });
+
+        var mapQuest = servicesBase.ServiceProvider.GetRequiredService<ConfigureBuilder.IMapQuest>();
+
+        Assert.NotEmpty(mapQuest.GetAvailableQuestsAndData());
+    }
+
+    [Fact]
+    public async Task GetAvailableQuests_GetTypes_SuccessNotEmpty()
+    {
+        await Task.CompletedTask;
+        var servicesBase
+            = new ServicesTestBase(services =>
+            {
+                services
+                    .AddScraperBuilder(config => config.AddAssembly(this.GetType().Assembly));
+            });
+
+        var mapQuest = servicesBase.ServiceProvider.GetRequiredService<ConfigureBuilder.IMapQuest>();
+
+        Assert.NotEmpty(mapQuest.GetAvailableQuests());
+    }
+
+    [Fact]
+    public async Task GetAvailableQuestsAndData_CheckAllTypes_SuccessNotAllAreQuest()
+    {
+        await Task.CompletedTask;
+        var servicesBase
+            = new ServicesTestBase(services =>
+            {
+                services
+                    .AddScraperBuilder(config => config.AddAssembly(this.GetType().Assembly));
+            });
+
+        var mapQuest = servicesBase.ServiceProvider.GetRequiredService<ConfigureBuilder.IMapQuest>();
+
+        var tuples = mapQuest.GetAvailableQuestsAndData();
+        Assert.NotEmpty(tuples);
+        Assert.All(tuples, (tuple) =>
+        {
+            Assert.True(typeof(BlScraper.Model.IQuest).IsAssignableFrom(tuple.Quest));
+        });
+    }
+
+    [Fact]
+    public async Task GetAvailableQuests_CheckAllTypes_SuccessNotAllAreQuest()
+    {
+        await Task.CompletedTask;
+        var servicesBase
+            = new ServicesTestBase(services =>
+            {
+                services
+                    .AddScraperBuilder(config => config.AddAssembly(this.GetType().Assembly));
+            });
+
+        var mapQuest = servicesBase.ServiceProvider.GetRequiredService<ConfigureBuilder.IMapQuest>();
+
+        var quests = mapQuest.GetAvailableQuests();
+        Assert.NotEmpty(quests);
+        Assert.All(quests, (quest) =>
+        {
+            Assert.True(typeof(BlScraper.Model.IQuest).IsAssignableFrom(quest));
+        });
+    }
+
+    [Fact]
+    public async Task AddAllWorksEndConfigureFilter_DuplicateType_FailedAdd()
+    {
+        await Task.CompletedTask;
+        var servicesBase
+            = new ServicesTestBase(services =>
+            {
+                Assert.Throws<ArgumentException>(typeof(AllWorksEndConfigureFilterTest).FullName, () =>
+                {
+                    services
+                        .AddScraperBuilder(config =>
+                        {
+                            config.AddAllWorksEndConfigureFilter<AllWorksEndConfigureFilterTest>()
+                            .AddAllWorksEndConfigureFilter<AllWorksEndConfigureFilterTest>();
+                        })
+                        .AddSingleton<IRouteService, RouteService>();
+                });
+            });
+    }
+
+    [Fact]
+    public async Task AddDataCollectedConfigureFilter_DuplicateType_FailedAdd()
+    {
+        await Task.CompletedTask;
+        var servicesBase
+            = new ServicesTestBase(services =>
+            {
+                Assert.Throws<ArgumentException>(typeof(DataCollectedConfigureFilterTest).FullName, () =>
+                {
+                    services
+                        .AddScraperBuilder(config =>
+                        {
+                            config.AddDataCollectedConfigureFilter<DataCollectedConfigureFilterTest>()
+                            .AddDataCollectedConfigureFilter<DataCollectedConfigureFilterTest>();
+                        })
+                        .AddSingleton<IRouteService, RouteService>();
+                });
+            });
+    }
+
+    [Fact]
+    public async Task AddDataFinishedConfigureFilter_DuplicateType_FailedAdd()
+    {
+        await Task.CompletedTask;
+        var servicesBase
+            = new ServicesTestBase(services =>
+            {
+                Assert.Throws<ArgumentException>(typeof(DataFinishedConfigureFilterTest).FullName, () =>
+                {
+                    services
+                        .AddScraperBuilder(config =>
+                        {
+                            config.AddDataFinishedConfigureFilter<DataFinishedConfigureFilterTest>()
+                            .AddDataFinishedConfigureFilter<DataFinishedConfigureFilterTest>();
+                        })
+                        .AddSingleton<IRouteService, RouteService>();
+                });
+            });
+    }
+
+    [Fact]
+    public async Task AddGetArgsConfigureFilter_DuplicateType_FailedAdd()
+    {
+        await Task.CompletedTask;
+        var servicesBase
+            = new ServicesTestBase(services =>
+            {
+                Assert.Throws<ArgumentException>(typeof(GetArgsConfigureFilterTest).FullName, () =>
+                {
+                    services
+                        .AddScraperBuilder(config =>
+                        {
+                            config.AddGetArgsConfigureFilter<GetArgsConfigureFilterTest>()
+                            .AddGetArgsConfigureFilter<GetArgsConfigureFilterTest>();
+                        })
+                        .AddSingleton<IRouteService, RouteService>();
+                });
+            });
+    }
+
+    [Fact]
+    public async Task AddQuestCreatedConfigureFilter_DuplicateType_FailedAdd()
+    {
+        await Task.CompletedTask;
+        var servicesBase
+            = new ServicesTestBase(services =>
+            {
+                Assert.Throws<ArgumentException>(typeof(QuestCreatedConfigureFilterTest).FullName, () =>
+                {
+                    services
+                        .AddScraperBuilder(config =>
+                        {
+                            config.AddQuestCreatedConfigureFilter<QuestCreatedConfigureFilterTest>()
+                            .AddQuestCreatedConfigureFilter<QuestCreatedConfigureFilterTest>();
+                        })
+                        .AddSingleton<IRouteService, RouteService>();
+                });
+            });
+    }
+
+    [Fact]
+    public async Task AddQuestExceptionConfigureFilter_DuplicateType_FailedAdd()
+    {
+        await Task.CompletedTask;
+        var servicesBase
+            = new ServicesTestBase(services =>
+            {
+                Assert.Throws<ArgumentException>(typeof(QuestExceptionConfigureFilterTest).FullName, () =>
+                {
+                    services
+                        .AddScraperBuilder(config =>
+                        {
+                            config.AddQuestExceptionConfigureFilter<QuestExceptionConfigureFilterTest>()
+                            .AddQuestExceptionConfigureFilter<QuestExceptionConfigureFilterTest>();
+                        })
+                        .AddSingleton<IRouteService, RouteService>();
+                });
+            });
+    }
+
+    [Fact]
+    public async Task AllFilters_DuplicateType_Success()
+    {
+        await Task.CompletedTask;
+        var servicesBase
+            = new ServicesTestBase(services =>
+            {
+                services
+                    .AddScraperBuilder(config =>
+                    {
+                        config.AddAllWorksEndConfigureFilter<AllWorksEndConfigureFilterTest>()
+                        .AddDataCollectedConfigureFilter<DataCollectedConfigureFilterTest>()
+                        .AddDataFinishedConfigureFilter<DataFinishedConfigureFilterTest>()
+                        .AddGetArgsConfigureFilter<GetArgsConfigureFilterTest>()
+                        .AddQuestCreatedConfigureFilter<QuestCreatedConfigureFilterTest>()
+                        .AddQuestExceptionConfigureFilter<QuestExceptionConfigureFilterTest>()
+                        .AddAssembly(this.GetType().Assembly);
+                    })
+                    .AddSingleton<IRouteService, RouteService>();
+            });
+
+        Assert.NotNull(servicesBase.ServiceProvider.GetService<IScrapBuilder>());
+    }
+
+    [Fact]
+    public async Task AddDataCollectedConfigureFilter_TryAddAbstract_FailedAdd()
+    {
+        await Task.CompletedTask;
+        var servicesBase
+            = new ServicesTestBase(services =>
+            {
+                Assert.Throws<ArgumentException>(typeof(DataCollectedConfigureFilterAbstract).FullName, () =>
+                {
+                    services
+                        .AddScraperBuilder(config =>
+                        {
+                            config.AddDataCollectedConfigureFilter<DataCollectedConfigureFilterAbstract>();
+                        })
+                        .AddSingleton<IRouteService, RouteService>();
+                });
+            });
+    }
+
+    [Fact]
+    public async Task AddDataFinishedConfigureFilter_TryAddObject_FailedAdd()
+    {
+        await Task.CompletedTask;
+        var servicesBase
+            = new ServicesTestBase(services =>
+            {
+                Assert.Throws<ArgumentException>(typeof(object).FullName, () =>
+                {
+                    services
+                        .AddScraperBuilder(config =>
+                        {
+                            config.AddDataFinishedConfigureFilter(typeof(object));
+                        })
+                        .AddSingleton<IRouteService, RouteService>();
+                });
+            });
+    }
+
+    [Fact]
+    public async Task AddGetArgsConfigureFilter_TryAddGenericClass_FailedAdd()
+    {
+        await Task.CompletedTask;
+        var servicesBase
+            = new ServicesTestBase(services =>
+            {
+                Assert.Throws<ArgumentException>(typeof(GetArgsConfigureFilterGeneric<>).FullName, () =>
+                {
+                    services
+                        .AddScraperBuilder(config =>
+                        {
+                            config.AddGetArgsConfigureFilter(typeof(GetArgsConfigureFilterGeneric<>));
+                        })
+                        .AddSingleton<IRouteService, RouteService>();
+                });
+            });
+    }
+    
+    [Fact]
+    public async Task SeveralFilters_TryAddGenericClass_SuccessAdd()
+    {
+        await Task.CompletedTask;
+        var servicesBase
+            = new ServicesTestBase(services =>
+            {
+                services
+                    .AddScraperBuilder(config =>
+                    {
+                        config.AddAllWorksEndConfigureFilter<SeveralFilters>()
+                        .AddDataCollectedConfigureFilter<SeveralFilters>()
+                        .AddDataFinishedConfigureFilter<SeveralFilters>()
+                        .AddGetArgsConfigureFilter<SeveralFilters>()
+                        .AddQuestCreatedConfigureFilter<SeveralFilters>()
+                        .AddQuestExceptionConfigureFilter<SeveralFilters>()
+                        .AddAssembly(this.GetType().Assembly);
+                    })
+                    .AddSingleton<IRouteService, RouteService>();
+            });
+            
+        Assert.NotNull(servicesBase.ServiceProvider.GetService<IScrapBuilder>());
+    }
+    
+    [Fact]
+    public async Task AddQuestExceptionConfigureFilter_TryRunAndExecuteMethod_SuccessExecuted()
+    {
+        await Task.CompletedTask;
+        var servicesBase
+            = new ServicesTestBase(services =>
+            {
+                services
+                    .AddScraperBuilder(config =>
+                        config
+                        .AddQuestExceptionConfigureFilter<QuestExceptionConfigureFilterTest>()
+                        .AddAssembly(this.GetType().Assembly))
+                    .AddSingleton<IRouteService, RouteService>();
+            });
+        
+        var scrapBuilder = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
+        var routeService = servicesBase.ServiceProvider.GetRequiredService<IRouteService>();
+
+        var model = scrapBuilder.CreateModelByQuestType<WithQuestExceptionQuest>();
+
+        await model.RunAndWaitModelFinish(new CancellationTokenSource(5000).Token);
+
+        Assert.Contains(routeService.Routes, r => r.Equals(typeof(WithQuestExceptionConfigure)
+            .GetMethod(nameof(IQuestExceptionConfigure<WithQuestExceptionQuest,PublicSimpleData>.OnOccursException))));
+
+        Assert.Contains(routeService.Routes, r => r.Equals(typeof(QuestExceptionConfigureFilterTest)
+            .GetMethod(nameof(IQuestExceptionConfigureFilter.OnOccursException))));
+    }
+    
+    [Fact]
+    public async Task AddQuestExceptionConfigureFilter_TryRunAndExecuteTwoExceptionFilters_SuccessExecuted()
+    {
+        await Task.CompletedTask;
+        var servicesBase
+            = new ServicesTestBase(services =>
+            {
+                services
+                    .AddScraperBuilder(config =>
+                        config
+                        .AddQuestExceptionConfigureFilter<QuestExceptionConfigureFilterTest>()
+                        .AddQuestExceptionConfigureFilter<SeveralFilters>()
+                        .AddAssembly(this.GetType().Assembly))
+                    .AddSingleton<IRouteService, RouteService>();
+            });
+        
+        var scrapBuilder = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
+        var routeService = servicesBase.ServiceProvider.GetRequiredService<IRouteService>();
+
+        var model = scrapBuilder.CreateModelByQuestType<WithQuestExceptionQuest>();
+
+        await model.RunAndWaitModelFinish(new CancellationTokenSource(5000).Token);
+
+        Assert.Contains(routeService.Routes, r => r.Equals(typeof(WithQuestExceptionConfigure)
+            .GetMethod(nameof(IQuestExceptionConfigure<WithQuestExceptionQuest,PublicSimpleData>.OnOccursException))));
+
+        Assert.Contains(routeService.Routes, r => r.Equals(typeof(QuestExceptionConfigureFilterTest)
+            .GetMethod(nameof(IQuestExceptionConfigureFilter.OnOccursException))));
+
+        Assert.Contains(routeService.Routes, r => r.Equals(typeof(SeveralFilters)
+            .GetMethod(nameof(IQuestExceptionConfigureFilter.OnOccursException))));
+    }
+    
+    [Fact]
+    public async Task AddQuestExceptionConfigureFilter_TryRunAndExecuteTwoExceptionFiltersWithoutRequiredException_SuccessExecuted()
+    {
+        var servicesBase
+            = new ServicesTestBase(services =>
+            {
+                services
+                    .AddScraperBuilder(config =>
+                        config
+                        .AddQuestExceptionConfigureFilter<QuestExceptionConfigureFilterTest>()
+                        .AddQuestExceptionConfigureFilter<SeveralFilters>()
+                        .AddAssembly(this.GetType().Assembly))
+                    .AddSingleton<IRouteService, RouteService>();
+            });
+        
+        var scrapBuilder = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
+        var routeService = servicesBase.ServiceProvider.GetRequiredService<IRouteService>();
+
+        var model = scrapBuilder.CreateModelByQuestType<WithoutQuestExceptionNonRequired>();
+
+        await model.Run();
+
+        await Task.Delay(200);
+
+        await model.StopAsync(new CancellationTokenSource(5000).Token);
+
+        Assert.DoesNotContain(routeService.Routes, r => r.Equals(typeof(WithQuestExceptionConfigure)
+            .GetMethod(nameof(IQuestExceptionConfigure<WithQuestExceptionQuest,PublicSimpleData>.OnOccursException))));
+
+        Assert.Contains(routeService.Routes, r => r.Equals(typeof(QuestExceptionConfigureFilterTest)
+            .GetMethod(nameof(IQuestExceptionConfigureFilter.OnOccursException))));
+
+        Assert.Contains(routeService.Routes, r => r.Equals(typeof(SeveralFilters)
+            .GetMethod(nameof(IQuestExceptionConfigureFilter.OnOccursException))));
+    }
+    
+    [Fact]
+    public async Task TestAllFilters_TryRunAndExecuteAllFilters_SuccessExecuted()
+    {
+        var servicesBase
+            = new ServicesTestBase(services =>
+            {
+                services
+                    .AddScraperBuilder(config =>
+                        config
+                        .AddAllWorksEndConfigureFilter<AllWorksEndConfigureFilterTest>()
+                        .AddDataCollectedConfigureFilter<DataCollectedConfigureFilterTest>()
+                        .AddDataFinishedConfigureFilter<DataFinishedConfigureFilterTest>()
+                        .AddGetArgsConfigureFilter<GetArgsConfigureFilterTest>()
+                        .AddQuestCreatedConfigureFilter<QuestCreatedConfigureFilterTest>()
+                        .AddQuestExceptionConfigureFilter<QuestExceptionConfigureFilterTest>()
+                        
+                        .AddAllWorksEndConfigureFilter<SeveralFilters>()
+                        .AddDataCollectedConfigureFilter<SeveralFilters>()
+                        .AddDataFinishedConfigureFilter<SeveralFilters>()
+                        .AddGetArgsConfigureFilter<SeveralFilters>()
+                        .AddQuestCreatedConfigureFilter<SeveralFilters>()
+                        .AddQuestExceptionConfigureFilter<SeveralFilters>()
+                        .AddAssembly(this.GetType().Assembly))
+                    .AddSingleton<IRouteService, RouteService>();
+            });
+        
+        var scrapBuilder = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
+        var routeService = servicesBase.ServiceProvider.GetRequiredService<IRouteService>();
+
+        var model = scrapBuilder.CreateModelByQuestType<WithQuestExceptionQuest>();
+
+        await model.Run();
+
+        await Task.Delay(200);
+
+        await model.StopAsync(new CancellationTokenSource(5000).Token);
+
+        Assert.Contains(routeService.Routes, r => r.Equals(typeof(WithQuestExceptionConfigure)
+            .GetMethod(nameof(IQuestExceptionConfigure<WithQuestExceptionQuest,PublicSimpleData>.OnOccursException))));
+
+        Assert.Contains(routeService.Routes, r => r.Equals(typeof(AllWorksEndConfigureFilterTest)
+            .GetMethod(nameof(AllWorksEndConfigureFilterTest.OnFinished))));
+
+        Assert.Contains(routeService.Routes, r => r.Equals(typeof(SeveralFilters)
+            .GetMethod(nameof(SeveralFilters.OnFinished))));
+
+        Assert.Contains(routeService.Routes, r => r.Equals(typeof(DataCollectedConfigureFilterTest)
+            .GetMethod(nameof(DataCollectedConfigureFilterTest.OnCollected))));
+
+        Assert.Contains(routeService.Routes, r => r.Equals(typeof(SeveralFilters)
+            .GetMethod(nameof(SeveralFilters.OnCollected))));
+
+        Assert.Contains(routeService.Routes, r => r.Equals(typeof(DataFinishedConfigureFilterTest)
+            .GetMethod(nameof(DataFinishedConfigureFilterTest.OnDataFinished))));
+
+        Assert.Contains(routeService.Routes, r => r.Equals(typeof(SeveralFilters)
+            .GetMethod(nameof(SeveralFilters.OnDataFinished))));
+
+        Assert.Contains(routeService.Routes, r => r.Equals(typeof(GetArgsConfigureFilterTest)
+            .GetMethod(nameof(GetArgsConfigureFilterTest.GetArgs))));
+
+        Assert.Contains(routeService.Routes, r => r.Equals(typeof(SeveralFilters)
+            .GetMethod(nameof(SeveralFilters.GetArgs))));
+
+        Assert.Contains(routeService.Routes, r => r.Equals(typeof(QuestCreatedConfigureFilterTest)
+            .GetMethod(nameof(QuestCreatedConfigureFilterTest.OnCreated))));
+
+        Assert.Contains(routeService.Routes, r => r.Equals(typeof(SeveralFilters)
+            .GetMethod(nameof(SeveralFilters.OnCreated))));
+
+        Assert.Contains(routeService.Routes, r => r.Equals(typeof(QuestExceptionConfigureFilterTest)
+            .GetMethod(nameof(IQuestExceptionConfigureFilter.OnOccursException))));
+
+        Assert.Contains(routeService.Routes, r => r.Equals(typeof(SeveralFilters)
+            .GetMethod(nameof(IQuestExceptionConfigureFilter.OnOccursException))));
+    }
+
+    [Fact]
+    public async Task ObsoleteFilter_TryRunAndExecuteObsoleteFilter_FailedExecution()
+    {
+        #pragma warning disable 612, 618 
+        var servicesBase
+            = new ServicesTestBase(services =>
+            {
+                services
+                    .AddScraperBuilder(config =>
+                        config
+                        .AddAllWorksEndConfigureFilter<AllWorksEndConfigureFilterTest>()
+                        .AddAllWorksEndConfigureFilter<ObsoleteFilter>()
+                        .AddAssembly(this.GetType().Assembly))
+                    .AddSingleton<IRouteService, RouteService>();
+            });
+        
+        var scrapBuilder = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
+        var routeService = servicesBase.ServiceProvider.GetRequiredService<IRouteService>();
+
+        var model = scrapBuilder.CreateModelByQuestType<WithQuestExceptionQuest>();
+
+        await model.Run();
+
+        await Task.Delay(200);
+
+        await model.StopAsync(new CancellationTokenSource(5000).Token);
+
+        Assert.Contains(routeService.Routes, r => r.Equals(typeof(WithQuestExceptionConfigure)
+            .GetMethod(nameof(IQuestExceptionConfigure<WithQuestExceptionQuest,PublicSimpleData>.OnOccursException))));
+
+        Assert.Contains(routeService.Routes, r => r.Equals(typeof(AllWorksEndConfigureFilterTest)
+            .GetMethod(nameof(AllWorksEndConfigureFilterTest.OnFinished))));
+
+        Assert.DoesNotContain(routeService.Routes, r => r.Equals(typeof(ObsoleteFilter)
+            .GetMethod(nameof(ObsoleteFilter.OnFinished))));
+        #pragma warning restore 612, 618
+    }
+
+    [Fact]
+    public async Task UniqueFilter_TryUniqueAndGlobalFilter_FailedExecution()
+    {
+        var servicesBase
+            = new ServicesTestBase(services =>
+            {
+                services
+                    .AddScraperBuilder(config =>
+                        config
+                        .AddAllWorksEndConfigureFilter<UniqueAndGlobalFilter>()
+                        .AddAssembly(this.GetType().Assembly))
+                    .AddSingleton<IRouteService, RouteService>();
+            });
+        
+        var scrapBuilder = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
+        var routeService = servicesBase.ServiceProvider.GetRequiredService<IRouteService>();
+
+        Assert.Throws<ArgumentException>(()=> scrapBuilder.CreateModelByQuestType<UniqueAndGlobalFilterQuest>());
+
+        await Task.CompletedTask;
+    }
+
+    [Fact]
+    public async Task InvalidFilter_TryInstanceModelWithInvalidFilter_FailedExecution()
+    {
+        var servicesBase
+            = new ServicesTestBase(services =>
+            {
+                services
+                    .AddScraperBuilder(config =>
+                        config
+                        .AddAssembly(this.GetType().Assembly))
+                    .AddSingleton<IRouteService, RouteService>();
+            });
+        
+        var scrapBuilder = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
+        var routeService = servicesBase.ServiceProvider.GetRequiredService<IRouteService>();
+
+        Assert.Throws<ArgumentException>($"{typeof(object).Name}", ()=> scrapBuilder.CreateModelByQuestType<QuestWithInvalidFilter>());
+
+        await Task.CompletedTask;
+    }
+
+    [Fact]
+    public async Task RequiredFilter_TryInstanceModelWithInvalidFilter_FailedExecution()
+    {
+        var servicesBase
+            = new ServicesTestBase(services =>
+            {
+                services
+                    .AddScraperBuilder(config =>
+                        config
+                        .AddAllWorksEndConfigureFilter<AllWorksEndConfigureFilterTest>()
+                        .AddAssembly(this.GetType().Assembly))
+                    .AddSingleton<IRouteService, RouteService>();
+            });
+        
+        var scrapBuilder = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
+        var routeService = servicesBase.ServiceProvider.GetRequiredService<IRouteService>();
+
+        var model = scrapBuilder.CreateModelByQuestType<QuestWithFilterImplemented>();
+
+        await model.RunAndWaitModelFinish();
+
+        Assert.Contains(routeService.Routes, r => r.Equals(typeof(AllWorksEndConfigureFilterTest)
+            .GetMethod(nameof(AllWorksEndConfigureFilterTest.OnFinished))));
+
+        Assert.Contains(routeService.Routes, r => r.Equals(typeof(AllWorksEndConfigureFilterUniqueImplemented)
+            .GetMethod(nameof(AllWorksEndConfigureFilterUniqueImplemented.OnFinished))));
+
+        await Task.CompletedTask;
     }
 }

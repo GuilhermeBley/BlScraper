@@ -7,10 +7,15 @@ namespace BlScraper.DependencyInjection.ConfigureModel;
 /// </summary>
 /// <typeparam name="TQuest">Identifier quest</typeparam>
 /// <typeparam name="TData">Data type</typeparam>
-public abstract class RequiredConfigure<TQuest, TData> : IRequiredConfigure
+public abstract class RequiredConfigure<TQuest, TData> : IRequiredConfigure, IRequiredConfigureFilters
     where TQuest : Quest<TData>
     where TData : class
 {
+    /// <summary>
+    /// Required filters
+    /// </summary>
+    protected virtual Type[] _requiredFilters { get; } = new Type[0];
+
     /// <inheritdoc cref="IRequiredConfigure.IsRequiredAllWorksEnd" path="*"/>
     public virtual bool IsRequiredAllWorksEnd => false;
 
@@ -31,6 +36,25 @@ public abstract class RequiredConfigure<TQuest, TData> : IRequiredConfigure
 
     /// <inheritdoc cref="IRequiredConfigure.initialQuantity" path="*"/>
     public abstract int initialQuantity { get; }
+
+    /// <summary>
+    /// Required filters
+    /// </summary>
+    public Type[] RequiredFilters => _requiredFilters;
+
+    /// <summary>
+    /// Instance
+    /// </summary>
+    public RequiredConfigure() { }
+
+    /// <summary>
+    /// Instance with filters
+    /// </summary>
+    /// <param name="filter">filters</param>
+    public RequiredConfigure(params Type[] filter)
+    {
+        _requiredFilters = filter;
+    }
 
     /// <summary>
     /// Called to collect data to search
@@ -96,4 +120,15 @@ internal interface IRequiredConfigure
     /// Initial quantity to execute
     /// </summary>
     int initialQuantity { get; }
+}
+
+/// <summary>
+/// Required filters
+/// </summary>
+internal interface IRequiredConfigureFilters
+{
+    /// <summary>
+    /// Required filters
+    /// </summary>
+    Type[] RequiredFilters { get; }
 }

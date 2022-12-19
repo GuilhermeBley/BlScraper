@@ -13,7 +13,7 @@ namespace BlScraper.DependencyInjection.Model;
 ///     <para>Class creates a new scope of service providier for each execution.</para>
 /// </remarks>
 /// <inheritdoc path="*"/>
-public class ModelScraperService<TQuest, TData> : ModelScraper<TQuest, TData>
+public sealed class ModelScraperService<TQuest, TData> : ModelScraper<TQuest, TData>
     where TData : class
     where TQuest : Quest<TData>
 {
@@ -50,7 +50,7 @@ public class ModelScraperService<TQuest, TData> : ModelScraper<TQuest, TData>
         ) : base(countScraper, GetContextWithServices(serviceProvider, whenExecutionCreated, args), getData, whenOccursException, whenDataFinished, whenAllWorksEnd, whenDataWasCollected)
     {
     }
-
+    
     /// <summary>
     /// Method make a function that returns a new instance of exection with our services
     /// </summary>

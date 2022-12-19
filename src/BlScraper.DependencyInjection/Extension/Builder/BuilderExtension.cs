@@ -6,13 +6,16 @@ namespace BlScraper.DependencyInjection.Extension.Builder;
 
 public static class BuilderExtension
 {
-    public static IServiceCollection AddScraperBuilder(this IServiceCollection serviceCollection, Action<AssemblyBuilderAdd> onAddAssemblies)
+    private static readonly object _stateLock = new();
+
+    public static IServiceCollection AddScraperBuilder(this IServiceCollection serviceCollection, Action<ScrapBuilderConfig> onAddAssemblies)
     {
-        var AssemblyBuilderAdd = new AssemblyBuilderAdd();
-        onAddAssemblies?.Invoke(AssemblyBuilderAdd);
+        var assemblyBuilderAdd = new ScrapBuilderConfig();
+        onAddAssemblies?.Invoke(assemblyBuilderAdd);
         return
             serviceCollection
+                .AddSingleton(typeof(IMapQuest), (serviceProvidier) => new MapQuest(assemblyBuilderAdd))
                 .AddSingleton(typeof(IScrapBuilder), 
-                    (serviceProvider) => new ScrapBuilder(serviceProvider.CreateScope().ServiceProvider, AssemblyBuilderAdd));
-    }  
+                    (serviceProvider) => new ScrapBuilder(serviceProvider.CreateScope().ServiceProvider, assemblyBuilderAdd));
+    }
 }
