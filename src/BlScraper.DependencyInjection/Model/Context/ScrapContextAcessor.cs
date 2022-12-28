@@ -5,7 +5,7 @@ namespace BlScraper.DependencyInjection.Model.Context;
 /// <summary>
 /// Controls async context
 /// </summary>
-public class ScrapContextAcessor : IScrapContextAcessor
+internal class ScrapContextAcessor : IScrapContextAcessor
 {
     private static readonly AsyncLocal<ModelScraperInfoHolder> _scrapInfoCurrent = new AsyncLocal<ModelScraperInfoHolder>();
 

@@ -1,6 +1,7 @@
 using BlScraper.DependencyInjection.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using BlScraper.DependencyInjection.ConfigureBuilder;
+using BlScraper.DependencyInjection.Model.Context;
 
 namespace BlScraper.DependencyInjection.Extension.Builder;
 
@@ -14,6 +15,8 @@ public static class BuilderExtension
         onAddAssemblies?.Invoke(assemblyBuilderAdd);
         return
             serviceCollection
+                .AddSingleton<ScrapContextAcessor>()
+                .AddSingleton<IScrapContextAcessor>((serviceProvider) => serviceProvider.GetRequiredService<ScrapContextAcessor>())
                 .AddSingleton(typeof(IMapQuest), (serviceProvidier) => MapQuestFactory.Create(assemblyBuilderAdd.Assemblies.ToArray()))
                 .AddSingleton(typeof(IScrapBuilder), 
                     (serviceProvider) => new ScrapBuilder(serviceProvider.CreateScope().ServiceProvider, assemblyBuilderAdd));

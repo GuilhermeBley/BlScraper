@@ -6,6 +6,7 @@ using BlScraper.DependencyInjection.Builder.Internal;
 using BlScraper.Model;
 using BlScraper.Results.Models;
 using Microsoft.Extensions.DependencyInjection;
+using BlScraper.DependencyInjection.Model.Context;
 
 namespace BlScraper.DependencyInjection.Builder;
 
