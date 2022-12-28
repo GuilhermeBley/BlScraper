@@ -128,8 +128,9 @@ internal class ScrapBuilder : IScrapBuilder
         var modelScraperType = TypeUtils.SetGenericParameters(_modelType, model.QuestType, model.DataType);
 
         var filterEvents = ActivatorUtilities.CreateInstance<CreateFilters>(_serviceProvider, model, _builderConfig);
-
-        return
+        
+        IModelScraper? modelScraper = null;
+        modelScraper =
             CreateModel(
                 modelScraperType,
                 ((IRequiredConfigure)model.InstanceRequired!).initialQuantity,
@@ -139,9 +140,11 @@ internal class ScrapBuilder : IScrapBuilder
                 filterEvents.CreateOnDataFinished(),
                 filterEvents.CreateOnAllWorksEnd(),
                 filterEvents.CreateOnCollected(),
-                filterEvents.CreateOnCreated(),
+                filterEvents.CreateOnCreated(()=>modelScraper ?? throw new ArgumentNullException(nameof(IModelScraper))),
                 filterEvents.CreateArgs()
             ) ?? throw new ArgumentNullException(nameof(IModelScraper));
+        
+        return modelScraper;
     }
 
     /// <summary>

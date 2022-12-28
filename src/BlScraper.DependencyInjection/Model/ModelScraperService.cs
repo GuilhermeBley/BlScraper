@@ -50,7 +50,13 @@ public sealed class ModelScraperService<TQuest, TData> : ModelScraper<TQuest, TD
         ) : base(countScraper, GetContextWithServices(serviceProvider, whenExecutionCreated, args), getData, whenOccursException, whenDataFinished, whenAllWorksEnd, whenDataWasCollected)
     {
     }
-    
+
+    public async Task<IEnumerable<TData>> InternalGetData()
+    {
+        await Task.CompletedTask;
+        return Enumerable.Empty<TData>();
+    }
+
     /// <summary>
     /// Method make a function that returns a new instance of exection with our services
     /// </summary>

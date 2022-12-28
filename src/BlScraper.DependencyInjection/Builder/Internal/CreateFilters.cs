@@ -150,13 +150,16 @@ internal sealed class CreateFilters
     /// <summary>
     /// Create event 'OnCreated'
     /// </summary>
-    public Action<IQuest> CreateOnCreated()
+    public Action<IQuest> CreateOnCreated(Func<IModelScraperInfo> getInfo)
     {
         IQuestCreatedConfigureFilter[] filters 
             = CreateInstancesOfType<IQuestCreatedConfigureFilter>(_serviceProvider, _poolFilter.GetPoolQuestCreatedConfigureFilter()).ToArray();
 
         return (excCreated) =>
         {
+            _serviceProvider.GetRequiredService<Model.Context.ScrapContextAcessor>().ScrapContext 
+                = getInfo.Invoke();
+
             var act = TypeUtils.CreateDelegateWithTarget(_model.InstanceQuestCreated?.GetType().GetMethod("OnCreated",
                 new Type[] { _model.QuestType }), _model.InstanceQuestCreated) ?? null;
 
