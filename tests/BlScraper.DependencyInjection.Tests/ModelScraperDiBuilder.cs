@@ -1520,4 +1520,23 @@ public class ModelScraperDiBuilder
 
         await Task.CompletedTask;
     }
+
+    [Fact]
+    public async Task T()
+    {
+        var servicesBase
+            = new ServicesTestBase(services =>
+            {
+                services
+                    .AddScraperBuilder(config =>
+                        config
+                        .AddAssembly(this.GetType().Assembly))
+                    .AddScoped<ICounterService, CounterService>()
+                    .AddScoped<IServiceMocPublicSimpleData>((serviceProvider) => new ServiceMocPublicSimpleData(10));
+            });
+        
+        var scrapBuilder = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
+        var model = scrapBuilder.CreateModelByQuestType<SimpleQuest>();
+        await model.Run();
+    }
 }
