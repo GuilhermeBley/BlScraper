@@ -7,8 +7,19 @@ namespace BlScraper.DependencyInjection.Extension.Builder;
 
 public static class BuilderExtension
 {
-    private static readonly object _stateLock = new();
-
+    /// <summary>
+    /// Add service scrap builder
+    /// </summary>
+    /// <remarks>
+    ///     <para>Add follow services:</para>
+    ///     <list type="bullet">
+    ///         <item><see cref="IScrapContextAcessor"/></item>
+    ///         <item><see cref="IMapQuest"/></item>
+    ///         <item><see cref="IScrapBuilder"/></item>
+    ///     </list>
+    /// </remarks>
+    /// <param name="serviceCollection">current service collection</param>
+    /// <param name="onAddAssemblies">assemblies to map</param>
     public static IServiceCollection AddScraperBuilder(this IServiceCollection serviceCollection, Action<ScrapBuilderConfig> onAddAssemblies)
     {
         var assemblyBuilderAdd = new ScrapBuilderConfig();

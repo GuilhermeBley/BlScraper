@@ -11,4 +11,9 @@ public interface IScrapContextAcessor
     /// Current context of thread
     /// </summary>
     IModelScraperInfo? ScrapContext { get; }
+    
+    /// <summary>
+    /// Required current context of thread
+    /// </summary>
+    IModelScraperInfo RequiredScrapContext { get; }
 }

@@ -9,7 +9,6 @@ namespace BlScraper.DependencyInjection.Tests.QuestsBuilder;
 
 public class AllConfigureQuestsWithContext : Quest<PublicSimpleData>
 {
-    private bool _isFirst = true;
     private readonly IScrapContextAcessor _contextAcessor;
     private readonly IRouteObjectService _routeService;
 
@@ -22,13 +21,6 @@ public class AllConfigureQuestsWithContext : Quest<PublicSimpleData>
     public override QuestResult Execute(PublicSimpleData data, CancellationToken cancellationToken = default)
     {
         _routeService.Add(this.GetType().GetMethod(nameof(Execute)), _contextAcessor.ScrapContext);
-
-        if (_isFirst)
-        {
-            _isFirst = false;
-            throw new Exception();
-        }
-
         Thread.Sleep(10);
         return QuestResult.Ok();
     }

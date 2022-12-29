@@ -9,9 +9,12 @@ internal class ScrapContextAcessor : IScrapContextAcessor
 {
     private static readonly AsyncLocal<ModelScraperInfoHolder> _scrapInfoCurrent = new AsyncLocal<ModelScraperInfoHolder>();
 
-    public IModelScraperInfo? ScrapContext {
+    /// <inheritdoc cref="IScrapContextAcessor.ScrapContext" path="*"/>
+    public IModelScraperInfo? ScrapContext
+    {
         get { return _scrapInfoCurrent.Value?.ScrapContext; }
-        set {
+        set
+        {
             var holder = _scrapInfoCurrent.Value;
             if (holder != null)
             {
@@ -24,6 +27,11 @@ internal class ScrapContextAcessor : IScrapContextAcessor
             }
         }
     }
+
+    /// <inheritdoc cref="IScrapContextAcessor.RequiredScrapContext" path="*"/>
+    /// <exception cref="ArgumentNullException"/>
+    public IModelScraperInfo RequiredScrapContext => 
+        ScrapContext ?? throw new ArgumentNullException(nameof(RequiredScrapContext));
 
     /// <summary>
     /// Private unique holder class to context

@@ -1522,7 +1522,42 @@ public class ModelScraperDiBuilder
     }
 
     [Fact]
-    public async Task T()
+    public async Task RequiredConfigure_CheckContext_FailedToGetTheContext()
+    {
+        var tuple = await CreateContextModelAndRun();
+        var route = tuple.ServiceProvider.GetRequiredService<IRouteObjectService>();
+        var expectedMethod = typeof(AllConfigureQuestsWithContextRequiredConfigure)
+            .GetMethod(nameof(AllConfigureQuestsWithContextRequiredConfigure.GetData))
+            ?? throw new ArgumentNullException("expected method");
+        Assert.Contains((expectedMethod, null), 
+            route.Routes);
+    }
+
+    [Fact]
+    public async Task AllWorksEndConfigure_CheckContext_SuccessToGetTheContext()
+    {
+        var tuple = await CreateContextModelAndRun();
+        var route = tuple.ServiceProvider.GetRequiredService<IRouteObjectService>();
+        var expectedMethod = typeof(AllConfigureQuestsWithContextAllWorkEndConfigure)
+            .GetMethod(nameof(AllConfigureQuestsWithContextAllWorkEndConfigure.OnFinished))
+            ?? throw new ArgumentNullException("expected method");
+        Assert.Contains((expectedMethod, tuple.modelScrapCreated), 
+            route.Routes);
+    }
+
+    [Fact]
+    public async Task DataCollectedConfigure_CheckContext_SuccessToGetTheContext()
+    {
+        var tuple = await CreateContextModelAndRun();
+        var route = tuple.ServiceProvider.GetRequiredService<IRouteObjectService>();
+        var expectedMethod = typeof(AllConfigureQuestsWithContextDataCollectedConfigure)
+            .GetMethod(nameof(AllConfigureQuestsWithContextDataCollectedConfigure.OnCollected))
+            ?? throw new ArgumentNullException("expected method");
+        Assert.Contains((expectedMethod, tuple.modelScrapCreated), 
+            route.Routes);
+    }
+
+    private async Task<(IServiceProvider ServiceProvider, BlScraper.Model.IModelScraper modelScrapCreated)> CreateContextModelAndRun(int maxData = 10)
     {
         var servicesBase
             = new ServicesTestBase(services =>
@@ -1531,11 +1566,13 @@ public class ModelScraperDiBuilder
                     .AddScraperBuilder(config =>
                         config
                         .AddAssembly(this.GetType().Assembly))
-                    .AddSingleton<IRouteObjectService, RouteObjectService>();
+                    .AddSingleton<IRouteObjectService, RouteObjectService>()
+                    .AddScoped<IServiceMocPublicSimpleData>((serviceProvider)=> new ServiceMocPublicSimpleData(maxData));
             });
         
         var scrapBuilder = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
-        var model = scrapBuilder.CreateModelByQuestType<SimpleQuest>();
-        await model.Run();
+        var model = scrapBuilder.CreateModelByQuestType<AllConfigureQuestsWithContext>();
+        await model.RunAndWaitModelFinish(new CancellationTokenSource(5000).Token);
+        return (servicesBase.ServiceProvider.CreateScope().ServiceProvider, model);
     }
 }

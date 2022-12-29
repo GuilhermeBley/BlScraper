@@ -8,7 +8,7 @@ public interface IRouteObjectService
     /// <summary>
     /// Enumerable which contains a storages of sequence of methods executed
     /// </summary>
-    IEnumerable<(MethodInfo, object?)> Routes { get; }
+    IEnumerable<(MethodInfo Method, object? ObjRoute)> Routes { get; }
 
     void Add(MethodInfo? methodExcuted, object? objRoute);
 }
