@@ -12,9 +12,6 @@ internal class ScrapContextAcessor : IScrapContextAcessor
     public IModelScraperInfo? ScrapContext {
         get { return _scrapInfoCurrent.Value?.ScrapContext; }
         set {
-            if (value is null)
-                throw new ArgumentNullException(nameof(IModelScraperInfo));
-            
             var holder = _scrapInfoCurrent.Value;
             if (holder != null)
             {
