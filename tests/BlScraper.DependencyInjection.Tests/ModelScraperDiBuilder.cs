@@ -1531,8 +1531,7 @@ public class ModelScraperDiBuilder
                     .AddScraperBuilder(config =>
                         config
                         .AddAssembly(this.GetType().Assembly))
-                    .AddScoped<ICounterService, CounterService>()
-                    .AddScoped<IServiceMocPublicSimpleData>((serviceProvider) => new ServiceMocPublicSimpleData(10));
+                    .AddSingleton<IRouteObjectService, RouteObjectService>();
             });
         
         var scrapBuilder = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
