@@ -12,9 +12,17 @@ namespace BlScraper.DependencyInjection.Builder.Internal;
 /// </summary>
 internal sealed class CreateFilters
 {
+    private IModelScraperInfo? _currentInfo;
     private readonly PoolFilter _poolFilter;
     private readonly IServiceProvider _serviceProvider;
     private readonly ScrapModelInternal _model;
+    public IModelScraperInfo? CurrentInfo { 
+        get { return _currentInfo; } 
+        set { 
+            if (value is null) 
+                throw new ArgumentNullException(nameof(CurrentInfo)); 
+            _currentInfo = value;
+        }}
 
     public CreateFilters(ScrapModelInternal model, IServiceProvider serviceProvider, ScrapBuilderConfig builderConfig)
     {
@@ -150,7 +158,7 @@ internal sealed class CreateFilters
     /// <summary>
     /// Create event 'OnCreated'
     /// </summary>
-    public Action<IQuest> CreateOnCreated(Func<IModelScraperInfo> getInfo)
+    public Action<IQuest> CreateOnCreated()
     {
         IQuestCreatedConfigureFilter[] filters 
             = CreateInstancesOfType<IQuestCreatedConfigureFilter>(_serviceProvider, _poolFilter.GetPoolQuestCreatedConfigureFilter()).ToArray();
@@ -158,7 +166,7 @@ internal sealed class CreateFilters
         return (excCreated) =>
         {
             _serviceProvider.GetRequiredService<Model.Context.ScrapContextAcessor>().ScrapContext 
-                = getInfo.Invoke();
+                = CurrentInfo;
 
             var act = TypeUtils.CreateDelegateWithTarget(_model.InstanceQuestCreated?.GetType().GetMethod("OnCreated",
                 new Type[] { _model.QuestType }), _model.InstanceQuestCreated) ?? null;

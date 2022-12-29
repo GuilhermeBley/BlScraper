@@ -140,10 +140,12 @@ internal class ScrapBuilder : IScrapBuilder
                 filterEvents.CreateOnDataFinished(),
                 filterEvents.CreateOnAllWorksEnd(),
                 filterEvents.CreateOnCollected(),
-                filterEvents.CreateOnCreated(()=>modelScraper ?? throw new ArgumentNullException(nameof(IModelScraper))),
+                filterEvents.CreateOnCreated(),
                 filterEvents.CreateArgs()
             ) ?? throw new ArgumentNullException(nameof(IModelScraper));
-        
+
+        filterEvents.CurrentInfo = modelScraper;
+
         return modelScraper;
     }
 
