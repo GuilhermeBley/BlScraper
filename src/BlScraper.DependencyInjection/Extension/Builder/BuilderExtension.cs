@@ -26,8 +26,7 @@ public static class BuilderExtension
         onAddAssemblies?.Invoke(assemblyBuilderAdd);
         return
             serviceCollection
-                .AddSingleton<ScrapContextAcessor>()
-                .AddSingleton<IScrapContextAcessor>((serviceProvider) => serviceProvider.GetRequiredService<ScrapContextAcessor>())
+                .AddSingleton<IScrapContextAcessor>((serviceProvider) => new ScrapContextAcessor())
                 .AddSingleton(typeof(IMapQuest), (serviceProvidier) => MapQuestFactory.Create(assemblyBuilderAdd.Assemblies.ToArray()))
                 .AddSingleton(typeof(IScrapBuilder), 
                     (serviceProvider) => new ScrapBuilder(serviceProvider.CreateScope().ServiceProvider, assemblyBuilderAdd));

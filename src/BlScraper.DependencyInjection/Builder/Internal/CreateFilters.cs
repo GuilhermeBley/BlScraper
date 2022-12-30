@@ -1,3 +1,4 @@
+using System.Reflection;
 using BlScraper.DependencyInjection.ConfigureBuilder;
 using BlScraper.DependencyInjection.ConfigureModel;
 using BlScraper.DependencyInjection.ConfigureModel.Filter;
@@ -16,6 +17,8 @@ internal sealed class CreateFilters
     private readonly PoolFilter _poolFilter;
     private readonly IServiceProvider _serviceProvider;
     private readonly ScrapModelInternal _model;
+    private readonly Model.Context.ScrapContextAcessor _contextAcessor = new();
+
     public IModelScraperInfo? CurrentInfo { 
         get { return _currentInfo; } 
         set { 
@@ -31,7 +34,17 @@ internal sealed class CreateFilters
         _poolFilter = builderConfig.Filters.Union(model.Filters);
     }
 
-    
+    /// <summary>
+    /// Create event 'OnOccursException' and sets <see cref="Model.Context.ScrapContextAcessor"/>
+    /// </summary>
+    /// <exception cref="ArgumentNullException"></exception>
+    public Delegate CreateGetData()
+    {
+        return TypeUtils.CreateDelegateWithTarget(
+            this.GetType().GetMethod(nameof(GetDataHolderMethod), BindingFlags.NonPublic | BindingFlags.Instance)?.MakeGenericMethod(_model.DataType) ?? throw new ArgumentNullException("method", $"Failed in {nameof(CreateGetData)}."), 
+            this) ?? throw new ArgumentNullException("func", $"Failed in {nameof(CreateGetData)}.");
+    }
+
     /// <summary>
     /// Create event 'OnOccursException'
     /// </summary>
@@ -39,7 +52,6 @@ internal sealed class CreateFilters
     {
         IQuestExceptionConfigureFilter[] filters 
             = CreateInstancesOfType<IQuestExceptionConfigureFilter>(_serviceProvider, _poolFilter.GetPoolQuestExceptionConfigureFilter()).ToArray();
-            
 
         return (exc, data) =>
         {
@@ -109,7 +121,7 @@ internal sealed class CreateFilters
     }
 
     /// <summary>
-    /// Create event 'OnCollected'
+    /// Create event 'OnCollected' and sets <see cref="Model.Context.ScrapContextAcessor"/>
     /// </summary>
     public Action<IEnumerable<object>> CreateOnCollected()
     {
@@ -118,17 +130,26 @@ internal sealed class CreateFilters
 
         return (collectedList) =>
         {
-            var act = TypeUtils.CreateDelegateWithTarget(_model.InstanceDataCollected?.GetType().GetMethod("OnCollected", 
-                new Type[] { typeof(IEnumerable<>).MakeGenericType(_model.DataType) }), _model.InstanceDataCollected) ?? null;
-
-            if (act is not null)
-                act.DynamicInvoke(collectedList);
-
             try
             {
-                Task.WaitAll(filters.Select(f => f.OnCollected(collectedList)).ToArray());
+                _contextAcessor.ScrapContext = _currentInfo;
+
+                var act = TypeUtils.CreateDelegateWithTarget(_model.InstanceDataCollected?.GetType().GetMethod("OnCollected", 
+                    new Type[] { typeof(IEnumerable<>).MakeGenericType(_model.DataType) }), _model.InstanceDataCollected) ?? null;
+
+                if (act is not null)
+                    act.DynamicInvoke(collectedList);
+
+                try
+                {
+                    Task.WaitAll(filters.Select(f => f.OnCollected(collectedList)).ToArray());
+                }
+                catch { }
             }
-            catch { }
+            finally
+            {
+                _contextAcessor.ScrapContext = null;
+            }
         };
     }
 
@@ -156,7 +177,7 @@ internal sealed class CreateFilters
     }
 
     /// <summary>
-    /// Create event 'OnCreated'
+    /// Create event 'OnCreated' and sets <see cref="Model.Context.ScrapContextAcessor"/>
     /// </summary>
     public Action<IQuest> CreateOnCreated()
     {
@@ -165,8 +186,7 @@ internal sealed class CreateFilters
 
         return (excCreated) =>
         {
-            _serviceProvider.GetRequiredService<Model.Context.ScrapContextAcessor>().ScrapContext 
-                = CurrentInfo;
+            _contextAcessor.ScrapContext = CurrentInfo;
 
             var act = TypeUtils.CreateDelegateWithTarget(_model.InstanceQuestCreated?.GetType().GetMethod("OnCreated",
                 new Type[] { _model.QuestType }), _model.InstanceQuestCreated) ?? null;
@@ -180,6 +200,27 @@ internal sealed class CreateFilters
             }
             catch { }
         };
+    }
+
+    private Task<IEnumerable<TData>> GetDataHolderMethod<TData>()
+        where TData : class
+    {
+        var method = _model.InstanceRequired?.GetType().GetMethod("GetData")
+            ?? throw new ArgumentNullException("GetData");
+
+        try
+        {
+            _contextAcessor.ScrapContext = _currentInfo;
+
+            var func = TypeUtils.CreateDelegateWithTarget(method, _model.InstanceRequired) 
+                ?? throw new ArgumentNullException("GetData");
+            
+            return (Task<IEnumerable<TData>>?)func.DynamicInvoke() ?? throw new ArgumentNullException();
+        }
+        finally
+        {
+            _contextAcessor.ScrapContext = null;
+        }
     }
 
     /// <summary>

@@ -32,6 +32,8 @@ internal class ScrapContextAcessor : IScrapContextAcessor
     /// <exception cref="ArgumentNullException"/>
     public IModelScraperInfo RequiredScrapContext => 
         ScrapContext ?? throw new ArgumentNullException(nameof(RequiredScrapContext));
+    
+    internal ScrapContextAcessor() { }
 
     /// <summary>
     /// Private unique holder class to context
