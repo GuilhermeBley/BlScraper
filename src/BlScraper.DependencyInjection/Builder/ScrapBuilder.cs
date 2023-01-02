@@ -6,6 +6,7 @@ using BlScraper.DependencyInjection.Builder.Internal;
 using BlScraper.Model;
 using BlScraper.Results.Models;
 using Microsoft.Extensions.DependencyInjection;
+using BlScraper.DependencyInjection.Model.Context;
 
 namespace BlScraper.DependencyInjection.Builder;
 
@@ -127,13 +128,14 @@ internal class ScrapBuilder : IScrapBuilder
         var modelScraperType = TypeUtils.SetGenericParameters(_modelType, model.QuestType, model.DataType);
 
         var filterEvents = ActivatorUtilities.CreateInstance<CreateFilters>(_serviceProvider, model, _builderConfig);
-
-        return
-            CreateModel(
+        
+        IModelScraper? modelScraper = null;
+        modelScraper =
+            (IModelScraper?)Activator.CreateInstance(
                 modelScraperType,
                 ((IRequiredConfigure)model.InstanceRequired!).initialQuantity,
                 (IServiceProvider)_serviceProvider,
-                TypeUtils.CreateDelegateWithTarget(model.InstanceRequired.GetType().GetMethod("GetData"), model.InstanceRequired) ?? throw new ArgumentNullException("GetData"),
+                filterEvents.CreateGetData(),
                 filterEvents.CreateOnOccursException(),
                 filterEvents.CreateOnDataFinished(),
                 filterEvents.CreateOnAllWorksEnd(),
@@ -141,6 +143,10 @@ internal class ScrapBuilder : IScrapBuilder
                 filterEvents.CreateOnCreated(),
                 filterEvents.CreateArgs()
             ) ?? throw new ArgumentNullException(nameof(IModelScraper));
+
+        filterEvents.CurrentInfo = modelScraper;
+
+        return modelScraper;
     }
 
     /// <summary>
@@ -378,6 +384,7 @@ internal class ScrapBuilder : IScrapBuilder
     /// <param name="args">constructor arguments</param>
     /// <returns>instanced <see cref="IModelScraper"/></returns>
     /// <inheritdoc cref="CreateModel(Type, object[])" path="/exception"/>
+    [Obsolete]
     private static IModelScraper? CreateModel<T>(params object[] args)
         where T : IModelScraper
     {
@@ -392,6 +399,7 @@ internal class ScrapBuilder : IScrapBuilder
     /// <returns>instanced <see cref="IModelScraper"/></returns>
     /// <exception cref="ArgumentException"></exception>
     /// <exception cref="ArgumentNullException"></exception>
+    [Obsolete]
     private static IModelScraper? CreateModel(Type model, params object[] args)
     {
         if (!typeof(IModelScraper).IsAssignableFrom(model))

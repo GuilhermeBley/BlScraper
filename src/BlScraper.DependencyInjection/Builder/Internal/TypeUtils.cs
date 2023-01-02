@@ -145,7 +145,7 @@ internal static class TypeUtils
         if (method.IsStatic)
             return null;
 
-        if (method.IsGenericMethod)
+        if (method.ContainsGenericParameters)
             return null;
 
         return method.CreateDelegate(Expression.GetDelegateType(
