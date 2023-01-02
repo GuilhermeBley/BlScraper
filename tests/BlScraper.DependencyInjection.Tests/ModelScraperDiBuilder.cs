@@ -1584,9 +1584,9 @@ public class ModelScraperDiBuilder
         (IServiceProvider ServiceProvider, BlScraper.Model.IModelScraper modelScrapCreated) tupleModel1 = (null!,null!);
         (IServiceProvider ServiceProvider, BlScraper.Model.IModelScraper modelScrapCreated) tupleModel2 = (null!,null!);
         (IServiceProvider ServiceProvider, BlScraper.Model.IModelScraper modelScrapCreated) tupleModel3 = (null!,null!);
-        threadList.Add(new Thread(() => { mrse.WaitOne(); tupleModel1 = CreateContextModelAndRun(servicesBase: servicesBase).GetAwaiter().GetResult(); }));
-        threadList.Add(new Thread(() => { mrse.WaitOne(); tupleModel2 = CreateContextModelAndRun(servicesBase: servicesBase).GetAwaiter().GetResult(); }));
-        threadList.Add(new Thread(() => { mrse.WaitOne(); tupleModel3 = CreateContextModelAndRun(servicesBase: servicesBase).GetAwaiter().GetResult(); }));
+        threadList.Add(new Thread(new ThreadStart(() => { mrse.WaitOne(); tupleModel1 = CreateContextModelAndRun(servicesBase: servicesBase).GetAwaiter().GetResult(); })));
+        threadList.Add(new Thread(new ThreadStart(() => { mrse.WaitOne(); tupleModel2 = CreateContextModelAndRun(servicesBase: servicesBase).GetAwaiter().GetResult(); })));
+        threadList.Add(new Thread(new ThreadStart(() => { mrse.WaitOne(); tupleModel3 = CreateContextModelAndRun(servicesBase: servicesBase).GetAwaiter().GetResult(); })));
 
         RunAndWaitThreads(threadList, () => mrse.Set());
 
@@ -1620,6 +1620,126 @@ public class ModelScraperDiBuilder
         var route = tuple.ServiceProvider.GetRequiredService<IRouteObjectService>();
         var expectedMethod = typeof(AllConfigureQuestsWithContextDataCollectedConfigure)
             .GetMethod(nameof(AllConfigureQuestsWithContextDataCollectedConfigure.OnCollected))
+            ?? throw new ArgumentNullException("expected method");
+        Assert.Contains((expectedMethod, tuple.modelScrapCreated), 
+            route.Routes);
+    }
+
+    [Fact]
+    public async Task DataFinishedConfigure_CheckContext_SuccessToGetTheContext()
+    {
+        var tuple = await CreateContextModelAndRun();
+        var route = tuple.ServiceProvider.GetRequiredService<IRouteObjectService>();
+        var expectedMethod = typeof(AllConfigureQuestsWithContextDataFinishedConfigure)
+            .GetMethod(nameof(AllConfigureQuestsWithContextDataFinishedConfigure.OnDataFinished))
+            ?? throw new ArgumentNullException("expected method");
+        Assert.Contains((expectedMethod, tuple.modelScrapCreated), 
+            route.Routes);
+    }
+
+    [Fact]
+    public async Task GetArgsConfigure_CheckContext_FailedToGetTheContext()
+    {
+        var tuple = await CreateContextModelAndRun();
+        var route = tuple.ServiceProvider.GetRequiredService<IRouteObjectService>();
+        var expectedMethod = typeof(AllConfigureQuestsWithContextGetArgsConfigure)
+            .GetMethod(nameof(AllConfigureQuestsWithContextGetArgsConfigure.GetArgs))
+            ?? throw new ArgumentNullException("expected method");
+        Assert.DoesNotContain((expectedMethod, tuple.modelScrapCreated), 
+            route.Routes);
+    }
+
+    [Fact]
+    public async Task QuestCreatedConfigure_CheckContext_SuccessToGetTheContext()
+    {
+        var tuple = await CreateContextModelAndRun();
+        var route = tuple.ServiceProvider.GetRequiredService<IRouteObjectService>();
+        var expectedMethod = typeof(AllConfigureQuestsWithContextQuestCreatedConfigure)
+            .GetMethod(nameof(AllConfigureQuestsWithContextQuestCreatedConfigure.OnCreated))
+            ?? throw new ArgumentNullException("expected method");
+        Assert.Contains((expectedMethod, tuple.modelScrapCreated), 
+            route.Routes);
+    }
+
+    [Fact]
+    public async Task QuestExceptionConfigure_CheckContext_SuccessToGetTheContext()
+    {
+        var tuple = await CreateContextModelAndRun();
+        var route = tuple.ServiceProvider.GetRequiredService<IRouteObjectService>();
+        var expectedMethod = typeof(AllConfigureQuestsWithContextQuestExceptionConfigure)
+            .GetMethod(nameof(AllConfigureQuestsWithContextQuestExceptionConfigure.OnOccursException))
+            ?? throw new ArgumentNullException("expected method");
+        Assert.Contains((expectedMethod, tuple.modelScrapCreated), 
+            route.Routes);
+    }
+
+    [Fact]
+    public async Task AllWorksEndConfigureFilter_CheckContext_SuccessToGetTheContext()
+    {
+        var tuple = await CreateContextModelAndRun();
+        var route = tuple.ServiceProvider.GetRequiredService<IRouteObjectService>();
+        var expectedMethod = typeof(AllConfigureQuestsWithContextAllWorksEndConfigureFilter)
+            .GetMethod(nameof(AllConfigureQuestsWithContextAllWorksEndConfigureFilter.OnFinished))
+            ?? throw new ArgumentNullException("expected method");
+        Assert.Contains((expectedMethod, tuple.modelScrapCreated), 
+            route.Routes);
+    }
+
+    [Fact]
+    public async Task DataCollectedConfigureFilter_CheckContext_SuccessToGetTheContext()
+    {
+        var tuple = await CreateContextModelAndRun();
+        var route = tuple.ServiceProvider.GetRequiredService<IRouteObjectService>();
+        var expectedMethod = typeof(AllConfigureQuestsWithContextDataCollectedConfigureFilter)
+            .GetMethod(nameof(AllConfigureQuestsWithContextDataCollectedConfigureFilter.OnCollected))
+            ?? throw new ArgumentNullException("expected method");
+        Assert.Contains((expectedMethod, tuple.modelScrapCreated), 
+            route.Routes);
+    }
+
+    [Fact]
+    public async Task DataFinishedConfigureFilter_CheckContext_SuccessToGetTheContext()
+    {
+        var tuple = await CreateContextModelAndRun();
+        var route = tuple.ServiceProvider.GetRequiredService<IRouteObjectService>();
+        var expectedMethod = typeof(AllConfigureQuestsWithContextDataFinishedConfigureFilter)
+            .GetMethod(nameof(AllConfigureQuestsWithContextDataFinishedConfigureFilter.OnDataFinished))
+            ?? throw new ArgumentNullException("expected method");
+        Assert.Contains((expectedMethod, tuple.modelScrapCreated), 
+            route.Routes);
+    }
+
+    [Fact]
+    public async Task GetArgsConfigureFilter_CheckContext_FailedToGetTheContext()
+    {
+        var tuple = await CreateContextModelAndRun();
+        var route = tuple.ServiceProvider.GetRequiredService<IRouteObjectService>();
+        var expectedMethod = typeof(AllConfigureQuestsWithContextGetArgsConfigureFilter)
+            .GetMethod(nameof(AllConfigureQuestsWithContextGetArgsConfigureFilter.GetArgs))
+            ?? throw new ArgumentNullException("expected method");
+        Assert.DoesNotContain((expectedMethod, tuple.modelScrapCreated), 
+            route.Routes);
+    }
+
+    [Fact]
+    public async Task QuestCreatedConfigureFilter_CheckContext_SuccessToGetTheContext()
+    {
+        var tuple = await CreateContextModelAndRun();
+        var route = tuple.ServiceProvider.GetRequiredService<IRouteObjectService>();
+        var expectedMethod = typeof(AllConfigureQuestsWithContextQuestCreatedConfigureFilter)
+            .GetMethod(nameof(AllConfigureQuestsWithContextQuestCreatedConfigureFilter.OnCreated))
+            ?? throw new ArgumentNullException("expected method");
+        Assert.Contains((expectedMethod, tuple.modelScrapCreated), 
+            route.Routes);
+    }
+
+    [Fact]
+    public async Task QuestExceptionConfigureFilter_CheckContext_SuccessToGetTheContext()
+    {
+        var tuple = await CreateContextModelAndRun();
+        var route = tuple.ServiceProvider.GetRequiredService<IRouteObjectService>();
+        var expectedMethod = typeof(AllConfigureQuestsWithContextQuestExceptionConfigureFilter)
+            .GetMethod(nameof(AllConfigureQuestsWithContextQuestExceptionConfigureFilter.OnOccursException))
             ?? throw new ArgumentNullException("expected method");
         Assert.Contains((expectedMethod, tuple.modelScrapCreated), 
             route.Routes);

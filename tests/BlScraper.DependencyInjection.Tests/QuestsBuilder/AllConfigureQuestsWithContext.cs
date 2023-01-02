@@ -9,6 +9,7 @@ namespace BlScraper.DependencyInjection.Tests.QuestsBuilder;
 
 public class AllConfigureQuestsWithContext : Quest<PublicSimpleData>
 {
+    private bool _shouldHaveException = true;
     private readonly IScrapContextAcessor _contextAcessor;
     private readonly IRouteObjectService _routeService;
 
@@ -20,8 +21,13 @@ public class AllConfigureQuestsWithContext : Quest<PublicSimpleData>
 
     public override QuestResult Execute(PublicSimpleData data, CancellationToken cancellationToken = default)
     {
+        if (_shouldHaveException)
+        {
+            _shouldHaveException = false;
+            throw new Exception();
+        }
+
         _routeService.Add(this.GetType().GetMethod(nameof(Execute)), _contextAcessor.ScrapContext);
-        Thread.Sleep(10);
         return QuestResult.Ok();
     }
 }
