@@ -1492,7 +1492,7 @@ public class ModelScraperDiBuilder
     }
 
     [Fact]
-    public async Task RequiredFilter_TryInstanceModelWithInvalidFilter_FailedExecution()
+    public async Task RequiredFilter_TryInstanceModelWithRequiredFilter_SuccessExecution()
     {
         var servicesBase
             = new ServicesTestBase(services =>
@@ -1517,6 +1517,27 @@ public class ModelScraperDiBuilder
 
         Assert.Contains(routeService.Routes, r => r.Equals(typeof(AllWorksEndConfigureFilterUniqueImplemented)
             .GetMethod(nameof(AllWorksEndConfigureFilterUniqueImplemented.OnFinished))));
+
+        await Task.CompletedTask;
+    }
+
+    [Fact]
+    public async Task RequiredFilter_TryInstanceModelWithRequiredFilterNonImplemented_FailedExecution()
+    {
+        var servicesBase
+            = new ServicesTestBase(services =>
+            {
+                services
+                    .AddScraperBuilder(config =>
+                        config
+                        .AddAssembly(this.GetType().Assembly))
+                    .AddSingleton<IRouteService, RouteService>();
+            });
+        
+        var scrapBuilder = servicesBase.ServiceProvider.GetRequiredService<IScrapBuilder>();
+        var routeService = servicesBase.ServiceProvider.GetRequiredService<IRouteService>();
+
+        Assert.Throws<ArgumentException>(nameof(AllWorksEndConfigureFilterTest), ()=> scrapBuilder.CreateModelByQuestType<QuestWithFilterImplemented>());
 
         await Task.CompletedTask;
     }
