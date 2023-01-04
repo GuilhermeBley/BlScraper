@@ -39,7 +39,7 @@ public class AllConfigureQuestsWithContextRequiredConfigure : RequiredConfigure<
 {
     private IServiceMocPublicSimpleData _serviceData;
     private readonly IRouteObjectService _routeService;
-    private readonly IScrapContextAcessor _contextAcessor;
+    private readonly IModelScraperInfo _scraperInfo;
 
     public override int initialQuantity => 5;
     public override bool IsRequiredDataFinished => true;
@@ -53,12 +53,12 @@ public class AllConfigureQuestsWithContextRequiredConfigure : RequiredConfigure<
     {
         _serviceData = serviceData;
         _routeService = routeService;
-        _contextAcessor = scrapContextAcessor;
+        _scraperInfo = scrapContextAcessor.RequiredScrapContext;
     }
 
     public override async Task<IEnumerable<PublicSimpleData>> GetData()
     {
-        _routeService.Add(this.GetType().GetMethod(nameof(GetData)), _contextAcessor.ScrapContext);
+        _routeService.Add(this.GetType().GetMethod(nameof(GetData)), _scraperInfo);
         return await _serviceData.GetDataSearch();
     }
 }
