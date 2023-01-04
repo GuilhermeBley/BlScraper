@@ -127,7 +127,7 @@ internal class ScrapBuilder : IScrapBuilder
 
         var modelScraperType = TypeUtils.SetGenericParameters(_modelType, model.QuestType, model.DataType);
 
-        var filterEvents = ActivatorUtilities.CreateInstance<CreateFilters>(_serviceProvider, model, _builderConfig);
+        var delegateEvents = ActivatorUtilities.CreateInstance<DelageteHolder>(_serviceProvider, model, _builderConfig);
         
         IModelScraper? modelScraper = null;
         modelScraper =
@@ -135,18 +135,42 @@ internal class ScrapBuilder : IScrapBuilder
                 modelScraperType,
                 ((IRequiredConfigure)model.InstanceRequired!).initialQuantity,
                 (IServiceProvider)_serviceProvider,
-                filterEvents.CreateGetData(),
-                filterEvents.CreateOnOccursException(),
-                filterEvents.CreateOnDataFinished(),
-                filterEvents.CreateOnAllWorksEnd(),
-                filterEvents.CreateOnCollected(),
-                filterEvents.CreateOnCreated(),
-                filterEvents.CreateArgs()
+                delegateEvents.CreateGetData(),
+                delegateEvents.CreateOnOccursException(),
+                delegateEvents.CreateOnDataFinished(),
+                delegateEvents.CreateOnAllWorksEnd(),
+                delegateEvents.CreateOnCollected(),
+                delegateEvents.CreateOnCreated(),
+                delegateEvents.CreateArgs()
             ) ?? throw new ArgumentNullException(nameof(IModelScraper));
 
-        filterEvents.CurrentInfo = modelScraper;
+        delegateEvents.CurrentInfo = modelScraper;
 
         return modelScraper;
+    }
+
+    /// <summary>
+    /// Create model by <paramref name="questType"/>
+    /// </summary>
+    /// <remarks>
+    ///     <para>Makes a validation in type</para>
+    /// </remarks>
+    /// <param name="questType">Concrete and public class of assignable to <see cref="Quest{TData}"/></param>
+    /// <returns>Model scraper</returns>
+    /// <exception cref="ArgumentNullException"></exception>
+    /// <exception cref="InvalidOperationException"></exception>
+    /// <inheritdoc cref="SetParametersOnModel(ScrapModelInternal)" path="exception"/>
+    private IModelScraper CreateWithContext(Type questType)
+    {
+        try
+        {
+
+            return Create(questType);
+        }
+        finally
+        {
+
+        }
     }
 
     /// <summary>
