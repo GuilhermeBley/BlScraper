@@ -82,6 +82,7 @@ internal interface IRequiredConfigure
     /// <remarks>
     ///     <para>True : Is necessary to the execution, false: don't is</para>
     /// </remarks>
+    [Obsolete("Required args is used on creation of model.")]
     bool IsRequiredArgs { get; }
 
     /// <summary>

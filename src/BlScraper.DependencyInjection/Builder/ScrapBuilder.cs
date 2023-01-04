@@ -207,9 +207,6 @@ internal class ScrapBuilder : IScrapBuilder
         Type? typeInstaceArgs =
             TypeUtils.GetUniqueAssignableFrom(_assemblies.ToArray(), typeof(IGetArgsConfigure<,>).MakeGenericType(model.QuestType, model.DataType));
 
-        if (typeInstaceArgs is null && configure.IsRequiredArgs)
-            throw ThrowRequiredTypeNotFound(model, typeof(IGetArgsConfigure<,>));
-
         if (typeInstaceArgs is not null)
             model.InstanceArgs =
                 ActivatorUtilities.CreateInstance(_serviceProvider.CreateScope().ServiceProvider, typeInstaceArgs);
