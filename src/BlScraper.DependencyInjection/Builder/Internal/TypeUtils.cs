@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace BlScraper.DependencyInjection.Builder.Internal;
 
@@ -281,11 +282,25 @@ internal static class TypeUtils
         if (typeof(ConfigureModel.Filter.IAllWorksEndConfigureFilter).IsAssignableFrom(type) ||
             typeof(ConfigureModel.Filter.IDataCollectedConfigureFilter).IsAssignableFrom(type) ||
             typeof(ConfigureModel.Filter.IDataFinishedConfigureFilter).IsAssignableFrom(type) ||
-            typeof(ConfigureModel.Filter.IGetArgsConfigureFilter).IsAssignableFrom(type) ||
             typeof(ConfigureModel.Filter.IQuestCreatedConfigureFilter).IsAssignableFrom(type) ||
             typeof(ConfigureModel.Filter.IQuestExceptionConfigureFilter).IsAssignableFrom(type))
             return true;
 
         return false;
+    }
+
+    /// <summary>
+    /// Create instances with new scope of <paramref name="types"/> and convert to <typeparamref name="T"/>
+    /// </summary>
+    /// <typeparam name="T">Type to convert</typeparam>
+    /// <param name="serviceProvider">providier</param>
+    /// <param name="types">classes types</param>
+    /// <returns>List of instaced types</returns>
+    public static IEnumerable<T> CreateInstancesOfType<T>(IServiceProvider serviceProvider, IEnumerable<Type> types)
+    {
+        foreach (var type in types)
+        {
+            yield return (T)Microsoft.Extensions.DependencyInjection.ActivatorUtilities.CreateInstance(serviceProvider.CreateScope().ServiceProvider, type);
+        }
     }
 }

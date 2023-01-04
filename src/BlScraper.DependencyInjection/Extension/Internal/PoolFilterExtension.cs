@@ -26,6 +26,7 @@ internal static class GetPoolFilterExtension
     /// <summary>
     /// <see cref="IGetArgsConfigureFilter"/> GetPool
     /// </summary>internal static
+    [Obsolete]
     internal static IEnumerable<Type> GetPoolGetArgsConfigureFilter(this PoolFilter _poolFilters) =>
         _poolFilters.Where(tuple => typeof(IGetArgsConfigureFilter).IsAssignableFrom(tuple.FilterInterface)).Select(tuple => tuple.Filter);
 

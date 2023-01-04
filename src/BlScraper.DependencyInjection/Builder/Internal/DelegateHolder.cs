@@ -156,23 +156,14 @@ internal sealed class DelageteHolder
     /// <summary>
     /// Create event 'GetArgs'
     /// </summary>
-    public object[] CreateArgs()
+    public object[] CreateArgs(object? instanceArgs = null)
     {
-        var args = new object[0];
-
-        IGetArgsConfigureFilter[] filters 
-            = TypeUtils.CreateInstancesOfType<IGetArgsConfigureFilter>(_serviceProvider, _poolFilter.GetPoolGetArgsConfigureFilter()).ToArray();
-
-        args = 
-            (object[]?) _model.InstanceArgs?.GetType().GetMethod("GetArgs")?.Invoke(_model.InstanceArgs, null) ?? new object[0];
-
-        try
-        {
-            Task.WaitAll(filters.Select(f => f.GetArgs(args)).ToArray());
-        }
-        catch { }
-
-        return args;
+        if (instanceArgs is null)
+            return new object[0];
+        
+        return
+            (object[]?) instanceArgs.GetType().GetMethod(nameof(IGetArgsConfigure<HolderQuest, dynamic>.GetArgs))?.Invoke(instanceArgs, null)
+                ?? throw new ArgumentException($"Class does not constain the method {nameof(IGetArgsConfigure<HolderQuest, dynamic>.GetArgs)}");
     }
 
     /// <summary>
@@ -219,6 +210,17 @@ internal sealed class DelageteHolder
         finally
         {
             _contextAcessor.ScrapContext = null;
+        }
+    }
+
+    /// <summary>
+    /// Holder class
+    /// </summary>
+    private class HolderQuest : BlScraper.Model.Quest<dynamic>
+    {
+        public override QuestResult Execute(dynamic data, CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -2,6 +2,7 @@ using BlScraper.DependencyInjection.ConfigureModel.Filter;
 
 namespace BlScraper.DependencyInjection.Tests.QuestsBuilder.Filter;
 
+[Obsolete("Args filters are not used.")]
 public class GetArgsConfigureFilterGeneric<T> : IGetArgsConfigureFilter
 {
     private readonly IRouteService _routeService;

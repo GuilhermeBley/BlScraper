@@ -6,20 +6,13 @@ using BlScraper.Results.Models;
 namespace BlScraper.DependencyInjection.Tests.QuestsBuilder.Filter;
 
 public class SeveralFilters : IAllWorksEndConfigureFilter, IDataCollectedConfigureFilter, 
-    IDataFinishedConfigureFilter, IGetArgsConfigureFilter, IQuestCreatedConfigureFilter, IQuestExceptionConfigureFilter
+    IDataFinishedConfigureFilter, IQuestCreatedConfigureFilter, IQuestExceptionConfigureFilter
 {
     private readonly IRouteService _routeService;
 
     public SeveralFilters(IRouteService routeService)
     {
         _routeService = routeService;
-    }
-
-    public async Task GetArgs(object[] args)
-    {
-        await Task.CompletedTask;
-
-        _routeService.Add(this.GetType().GetMethod(nameof(GetArgs)));
     }
 
     public async Task OnCollected(IEnumerable<object> dataCollected)

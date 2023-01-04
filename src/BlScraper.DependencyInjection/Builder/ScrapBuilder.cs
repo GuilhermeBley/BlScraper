@@ -277,13 +277,6 @@ internal class ScrapBuilder : IScrapBuilder
 
         #endregion
 
-        #region IGetArgsConfigureFilter
-
-        foreach (var filterType in TypeUtils.GetAssignableFrom(_assemblies.ToArray(), typeof(IGetArgsConfigureFilter<,>).MakeGenericType(model.QuestType, model.DataType)))
-            model.Filters.Add(typeof(IGetArgsConfigureFilter), filterType);
-
-        #endregion
-
         #region IDataCollectedConfigureFilter
 
         foreach (var filterType in TypeUtils.GetAssignableFrom(_assemblies.ToArray(), typeof(IDataCollectedConfigureFilter<,>).MakeGenericType(model.QuestType, model.DataType)))

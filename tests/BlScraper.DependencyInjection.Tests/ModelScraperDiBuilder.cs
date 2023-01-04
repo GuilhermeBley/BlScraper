@@ -1070,7 +1070,7 @@ public class ModelScraperDiBuilder
             });
     }
 
-    [Fact]
+    [Obsolete("Args filters are not used.")]
     public async Task AddGetArgsConfigureFilter_DuplicateType_FailedAdd()
     {
         await Task.CompletedTask;
@@ -1143,7 +1143,6 @@ public class ModelScraperDiBuilder
                         config.AddAllWorksEndConfigureFilter<AllWorksEndConfigureFilterTest>()
                         .AddDataCollectedConfigureFilter<DataCollectedConfigureFilterTest>()
                         .AddDataFinishedConfigureFilter<DataFinishedConfigureFilterTest>()
-                        .AddGetArgsConfigureFilter<GetArgsConfigureFilterTest>()
                         .AddQuestCreatedConfigureFilter<QuestCreatedConfigureFilterTest>()
                         .AddQuestExceptionConfigureFilter<QuestExceptionConfigureFilterTest>()
                         .AddAssembly(this.GetType().Assembly);
@@ -1192,7 +1191,7 @@ public class ModelScraperDiBuilder
             });
     }
 
-    [Fact]
+    [Obsolete("Args filters are not used.")]
     public async Task AddGetArgsConfigureFilter_TryAddGenericClass_FailedAdd()
     {
         await Task.CompletedTask;
@@ -1224,7 +1223,6 @@ public class ModelScraperDiBuilder
                         config.AddAllWorksEndConfigureFilter<SeveralFilters>()
                         .AddDataCollectedConfigureFilter<SeveralFilters>()
                         .AddDataFinishedConfigureFilter<SeveralFilters>()
-                        .AddGetArgsConfigureFilter<SeveralFilters>()
                         .AddQuestCreatedConfigureFilter<SeveralFilters>()
                         .AddQuestExceptionConfigureFilter<SeveralFilters>()
                         .AddAssembly(this.GetType().Assembly);
@@ -1345,14 +1343,12 @@ public class ModelScraperDiBuilder
                         .AddAllWorksEndConfigureFilter<AllWorksEndConfigureFilterTest>()
                         .AddDataCollectedConfigureFilter<DataCollectedConfigureFilterTest>()
                         .AddDataFinishedConfigureFilter<DataFinishedConfigureFilterTest>()
-                        .AddGetArgsConfigureFilter<GetArgsConfigureFilterTest>()
                         .AddQuestCreatedConfigureFilter<QuestCreatedConfigureFilterTest>()
                         .AddQuestExceptionConfigureFilter<QuestExceptionConfigureFilterTest>()
                         
                         .AddAllWorksEndConfigureFilter<SeveralFilters>()
                         .AddDataCollectedConfigureFilter<SeveralFilters>()
                         .AddDataFinishedConfigureFilter<SeveralFilters>()
-                        .AddGetArgsConfigureFilter<SeveralFilters>()
                         .AddQuestCreatedConfigureFilter<SeveralFilters>()
                         .AddQuestExceptionConfigureFilter<SeveralFilters>()
                         .AddAssembly(this.GetType().Assembly))
@@ -1390,12 +1386,6 @@ public class ModelScraperDiBuilder
 
         Assert.Contains(routeService.Routes, r => r.Equals(typeof(SeveralFilters)
             .GetMethod(nameof(SeveralFilters.OnDataFinished))));
-
-        Assert.Contains(routeService.Routes, r => r.Equals(typeof(GetArgsConfigureFilterTest)
-            .GetMethod(nameof(GetArgsConfigureFilterTest.GetArgs))));
-
-        Assert.Contains(routeService.Routes, r => r.Equals(typeof(SeveralFilters)
-            .GetMethod(nameof(SeveralFilters.GetArgs))));
 
         Assert.Contains(routeService.Routes, r => r.Equals(typeof(QuestCreatedConfigureFilterTest)
             .GetMethod(nameof(QuestCreatedConfigureFilterTest.OnCreated))));
@@ -1730,7 +1720,7 @@ public class ModelScraperDiBuilder
             route.Routes);
     }
 
-    [Fact]
+    [Obsolete("Args filters are not used.")]
     public async Task GetArgsConfigureFilter_CheckContext_FailedToGetTheContext()
     {
         var tuple = await CreateContextModelAndRun();

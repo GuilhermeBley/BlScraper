@@ -228,6 +228,7 @@ public class AllConfigureQuestsWithContextDataFinishedConfigureFilter
     }
 }
 
+[Obsolete("Args filters are not used.")]
 public class AllConfigureQuestsWithContextGetArgsConfigureFilter
     : IGetArgsConfigureFilter<AllConfigureQuestsWithContext, PublicSimpleData>
 {

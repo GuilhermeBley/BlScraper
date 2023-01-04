@@ -3,6 +3,7 @@ using BlScraper.Results.Models;
 
 namespace BlScraper.DependencyInjection.Tests.QuestsBuilder.Filter;
 
+[Obsolete("Args filters are not used.")]
 public class GetArgsConfigureFilterTest : IGetArgsConfigureFilter
 {
     private readonly IRouteService _routeService;

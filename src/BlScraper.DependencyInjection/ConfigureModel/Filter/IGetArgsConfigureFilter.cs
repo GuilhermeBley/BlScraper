@@ -5,6 +5,7 @@ namespace BlScraper.DependencyInjection.ConfigureModel.Filter;
 /// <summary>
 /// Implementation for classes which want args to quests - use in unique quest
 /// </summary>
+[Obsolete("Filters in args are not used.")]
 public interface IGetArgsConfigureFilter<TQuest, TData> : IGetArgsConfigureFilter
     where TQuest : Quest<TData>
     where TData : class
@@ -15,6 +16,7 @@ public interface IGetArgsConfigureFilter<TQuest, TData> : IGetArgsConfigureFilte
 /// <summary>
 /// Implementation for classes which want args to quests
 /// </summary>
+[Obsolete("Filters in args are not used.")]
 public interface IGetArgsConfigureFilter
 {
 
