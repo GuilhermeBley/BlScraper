@@ -9,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace BlScraper.DependencyInjection.Builder.Internal;
 
 /// <summary>
-/// Create Filters
+/// Create delegates
 /// </summary>
 internal sealed class DelageteHolder
 {
@@ -19,11 +19,14 @@ internal sealed class DelageteHolder
     private readonly ScrapModelInternal _model;
     private readonly Model.Context.ScrapContextAcessor _contextAcessor = new();
 
-    public IModelScraperInfo? CurrentInfo { 
+    /// <summary>
+    /// Context
+    /// </summary>
+    public IModelScraperInfo? Context { 
         get { return _currentInfo; } 
         set { 
             if (value is null) 
-                throw new ArgumentNullException(nameof(CurrentInfo)); 
+                throw new ArgumentNullException(nameof(Context)); 
             _currentInfo = value;
         }}
 
@@ -57,8 +60,9 @@ internal sealed class DelageteHolder
         {
             QuestResult result = QuestResult.ThrowException(exc);
 
-            var func = TypeUtils.CreateDelegateWithTarget(_model.InstanceQuestException?.GetType().GetMethod("OnOccursException", new Type[] { typeof(Exception), _model.DataType }), _model.InstanceQuestException) ?? null;
-
+            var func = TypeUtils.CreateDelegateWithTarget(_model.FactoryQuestException?.TypeToCreate.GetType().GetMethod("OnOccursException", new Type[] { typeof(Exception), _model.DataType })
+                , _model.FactoryQuestException?.CreateInstanceWithNewScope()) ?? null;
+            
             if (func is not null)
                 result = (QuestResult?)func.DynamicInvoke(exc, data) ?? throw new ArgumentNullException();
 
@@ -82,8 +86,8 @@ internal sealed class DelageteHolder
 
         return (result) =>
         {
-            var act = TypeUtils.CreateDelegateWithTarget(_model.InstanceDataFinished?.GetType().GetMethod("OnDataFinished", 
-                new Type[] { typeof(Results.ResultBase<>).MakeGenericType(_model.DataType) }), _model.InstanceDataFinished) ?? null;
+            var act = TypeUtils.CreateDelegateWithTarget(_model.FactoryDataFinished?.TypeToCreate.GetType().GetMethod("OnDataFinished", 
+                new Type[] { typeof(Results.ResultBase<>).MakeGenericType(_model.DataType) }), _model.FactoryDataFinished?.CreateInstanceWithNewScope()) ?? null;
 
             if (act is not null)
                 act.DynamicInvoke(result);
@@ -106,8 +110,8 @@ internal sealed class DelageteHolder
 
         return (endModelEnumerable) =>
         {
-            var act = TypeUtils.CreateDelegateWithTarget(_model.InstanceAllWorksEnd?.GetType().GetMethod("OnFinished",
-                new Type[] { typeof(Results.Models.EndEnumerableModel) }), _model.InstanceAllWorksEnd) ?? null;
+            var act = TypeUtils.CreateDelegateWithTarget(_model.FactoryAllWorksEnd?.TypeToCreate.GetType().GetMethod("OnFinished",
+                new Type[] { typeof(Results.Models.EndEnumerableModel) }), _model.FactoryAllWorksEnd?.CreateInstanceWithNewScope()) ?? null;
 
             if (act is not null)
                 act.DynamicInvoke(endModelEnumerable);
@@ -134,8 +138,8 @@ internal sealed class DelageteHolder
             {
                 _contextAcessor.ScrapContext = _currentInfo;
 
-                var act = TypeUtils.CreateDelegateWithTarget(_model.InstanceDataCollected?.GetType().GetMethod("OnCollected", 
-                    new Type[] { typeof(IEnumerable<>).MakeGenericType(_model.DataType) }), _model.InstanceDataCollected) ?? null;
+                var act = TypeUtils.CreateDelegateWithTarget(_model.FactoryDataCollected?.TypeToCreate.GetType().GetMethod("OnCollected", 
+                    new Type[] { typeof(IEnumerable<>).MakeGenericType(_model.DataType) }), _model.FactoryDataCollected?.CreateInstanceWithNewScope()) ?? null;
 
                 if (act is not null)
                     act.DynamicInvoke(collectedList);
@@ -156,13 +160,13 @@ internal sealed class DelageteHolder
     /// <summary>
     /// Create event 'GetArgs'
     /// </summary>
-    public object[] CreateArgs(object? instanceArgs = null)
+    public object[] CreateArgs()
     {
-        if (instanceArgs is null)
+        if (_model.InstanceArgs is null)
             return new object[0];
         
         return
-            (object[]?) instanceArgs.GetType().GetMethod(nameof(IGetArgsConfigure<HolderQuest, dynamic>.GetArgs))?.Invoke(instanceArgs, null)
+            (object[]?) _model.InstanceArgs.GetType().GetMethod(nameof(IGetArgsConfigure<HolderQuest, dynamic>.GetArgs))?.Invoke(_model.InstanceArgs, null)
                 ?? throw new ArgumentException($"Class does not constain the method {nameof(IGetArgsConfigure<HolderQuest, dynamic>.GetArgs)}");
     }
 
@@ -176,10 +180,10 @@ internal sealed class DelageteHolder
 
         return (excCreated) =>
         {
-            _contextAcessor.ScrapContext = CurrentInfo;
+            _contextAcessor.ScrapContext = Context;
 
-            var act = TypeUtils.CreateDelegateWithTarget(_model.InstanceQuestCreated?.GetType().GetMethod("OnCreated",
-                new Type[] { _model.QuestType }), _model.InstanceQuestCreated) ?? null;
+            var act = TypeUtils.CreateDelegateWithTarget(_model.FactoryQuestCreated?.TypeToCreate.GetType().GetMethod("OnCreated",
+                new Type[] { _model.QuestType }), _model.FactoryQuestCreated?.CreateInstanceWithNewScope()) ?? null;
 
             if (act is not null)
                 act.DynamicInvoke(excCreated);
