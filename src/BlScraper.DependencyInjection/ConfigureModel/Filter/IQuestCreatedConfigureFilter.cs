@@ -2,9 +2,7 @@ using BlScraper.Model;
 
 namespace BlScraper.DependencyInjection.ConfigureModel.Filter;
 
-/// <summary>
-/// Implementation for classes which want manage event on create quests - use in unique quest
-/// </summary>
+/// <inheritdoc cref="IQuestCreatedConfigureFilter" path="*"/>
 public interface IQuestCreatedConfigureFilter<TQuest, TData> : IQuestCreatedConfigureFilter
     where TQuest : Quest<TData>
     where TData : class
@@ -15,6 +13,9 @@ public interface IQuestCreatedConfigureFilter<TQuest, TData> : IQuestCreatedConf
 /// <summary>
 /// Implementation for classes which want manage event on create quests
 /// </summary>
+/// <remarks>
+///     <para>This interface is instanced when the method <see cref="IQuestCreatedConfigureFilter.OnCreated(IQuest)"/> called.</para>
+/// </remarks>
 public interface IQuestCreatedConfigureFilter
 {
     /// <summary>

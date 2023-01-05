@@ -5,6 +5,9 @@ namespace BlScraper.DependencyInjection.ConfigureModel;
 /// <summary>
 /// Required implementation for quests, it that defines the data to search and initial quantity of scrapers
 /// </summary>
+/// <remarks>
+///     <para>This class is instanced when model created.</para>
+/// <remarks>
 /// <typeparam name="TQuest">Identifier quest</typeparam>
 /// <typeparam name="TData">Data type</typeparam>
 public abstract class RequiredConfigure<TQuest, TData> : IRequiredConfigure, IRequiredConfigureFilters
@@ -43,11 +46,6 @@ public abstract class RequiredConfigure<TQuest, TData> : IRequiredConfigure, IRe
     public Type[] RequiredFilters => _requiredFilters;
 
     /// <summary>
-    /// Instance
-    /// </summary>
-    public RequiredConfigure() { }
-
-    /// <summary>
     /// Instance with filters
     /// </summary>
     /// <param name="filter">filters</param>
@@ -66,6 +64,9 @@ public abstract class RequiredConfigure<TQuest, TData> : IRequiredConfigure, IRe
 /// <summary>
 /// Required events
 /// </summary>
+/// <remarks>
+///     <para>This interface is instanced when model created.</para>
+/// <remarks>
 internal interface IRequiredConfigure
 {
     /// <summary>
