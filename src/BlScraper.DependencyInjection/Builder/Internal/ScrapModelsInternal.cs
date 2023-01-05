@@ -65,6 +65,7 @@ internal sealed class ScrapModelInternal
     private object? _instanceQuestCreated;
     
     /// <inheritdoc cref="_instanceAllWorksEnd" path="*"/>
+    [Obsolete]
     public object? InstanceAllWorksEnd { 
         get => _instanceAllWorksEnd;
         set {
@@ -79,6 +80,7 @@ internal sealed class ScrapModelInternal
         }}
     
     /// <inheritdoc cref="_instanceArgs" path="*"/>
+    [Obsolete]
     public object? InstanceArgs { 
         get => _instanceArgs;
         set {
@@ -93,6 +95,7 @@ internal sealed class ScrapModelInternal
         }}
 
     /// <inheritdoc cref="_instanceDataCollected" path="*"/>
+    [Obsolete]
     public object? InstanceDataCollected { 
         get => _instanceDataCollected;
         set {
@@ -107,6 +110,7 @@ internal sealed class ScrapModelInternal
         }}
 
     /// <inheritdoc cref="_instanceDataFinished" path="*"/>
+    [Obsolete]
     public object? InstanceDataFinished { 
         get => _instanceDataFinished;
         set {
@@ -121,6 +125,7 @@ internal sealed class ScrapModelInternal
         }}
     
     /// <inheritdoc cref="_instaceRequired" path="*"/>
+    [Obsolete]
     public object? InstanceRequired { 
         get => _instaceRequired;
         set {
@@ -135,6 +140,7 @@ internal sealed class ScrapModelInternal
         }}
 
     /// <inheritdoc cref="_instanceQuestCreated" path="*"/>
+    [Obsolete]
     public object? InstanceQuestCreated { 
         get => _instanceQuestCreated;
         set {
@@ -149,6 +155,7 @@ internal sealed class ScrapModelInternal
         }}
 
     /// <inheritdoc cref="_instanceQuestException" path="*"/>
+    [Obsolete]
     public object? InstanceQuestException { 
         get => _instanceQuestException;
         set {
