@@ -17,7 +17,6 @@ internal sealed class DelageteHolder
     private readonly PoolFilter _poolFilter;
     private readonly IServiceProvider _serviceProvider;
     private readonly ScrapModelInternal _model;
-    private readonly Model.Context.ScrapContextAcessor _contextAcessor = new();
 
     /// <summary>
     /// Context
@@ -53,15 +52,16 @@ internal sealed class DelageteHolder
     /// </summary>
     public Func<Exception, object, QuestResult> CreateOnOccursException()
     {
-        IQuestExceptionConfigureFilter[] filters 
-            = TypeUtils.CreateInstancesOfType<IQuestExceptionConfigureFilter>(_serviceProvider, _poolFilter.GetPoolQuestExceptionConfigureFilter()).ToArray();
-
         return (exc, data) =>
         {
+            IQuestExceptionConfigureFilter[] filters 
+                = TypeUtils.CreateInstancesOfType<IQuestExceptionConfigureFilter>(_serviceProvider, _poolFilter.GetPoolQuestExceptionConfigureFilter()).ToArray();
+
             QuestResult result = QuestResult.ThrowException(exc);
 
-            var func = TypeUtils.CreateDelegateWithTarget(_model.FactoryQuestException?.TypeToCreate.GetType().GetMethod("OnOccursException", new Type[] { typeof(Exception), _model.DataType })
-                , _model.FactoryQuestException?.CreateInstanceWithNewScope()) ?? null;
+            var func = TypeUtils.CreateDelegateWithTarget(_model.InstanceQuestException?.GetType().GetMethod(nameof(IQuestExceptionConfigure<HolderQuest, dynamic>.OnOccursException)
+                , new Type[] { typeof(Exception), _model.DataType })
+                , _model.InstanceQuestException) ?? null;
             
             if (func is not null)
                 result = (QuestResult?)func.DynamicInvoke(exc, data) ?? throw new ArgumentNullException();
@@ -81,13 +81,13 @@ internal sealed class DelageteHolder
     /// </summary>
     public Action<Results.ResultBase> CreateOnDataFinished()
     {
-        IDataFinishedConfigureFilter[] filters 
-            = TypeUtils.CreateInstancesOfType<IDataFinishedConfigureFilter>(_serviceProvider, _poolFilter.GetPoolDataFinishedConfigureFilter()).ToArray();
-
         return (result) =>
         {
-            var act = TypeUtils.CreateDelegateWithTarget(_model.FactoryDataFinished?.TypeToCreate.GetType().GetMethod("OnDataFinished", 
-                new Type[] { typeof(Results.ResultBase<>).MakeGenericType(_model.DataType) }), _model.FactoryDataFinished?.CreateInstanceWithNewScope()) ?? null;
+            IDataFinishedConfigureFilter[] filters 
+                = TypeUtils.CreateInstancesOfType<IDataFinishedConfigureFilter>(_serviceProvider, _poolFilter.GetPoolDataFinishedConfigureFilter()).ToArray();
+
+            var act = TypeUtils.CreateDelegateWithTarget(_model.InstanceDataFinished?.GetType().GetMethod(nameof(IDataFinishedConfigure<HolderQuest, dynamic>.OnDataFinished), 
+                new Type[] { typeof(Results.ResultBase<>).MakeGenericType(_model.DataType) }), _model.InstanceDataFinished) ?? null;
 
             if (act is not null)
                 act.DynamicInvoke(result);
@@ -105,13 +105,13 @@ internal sealed class DelageteHolder
     /// </summary>
     public Action<Results.Models.EndEnumerableModel> CreateOnAllWorksEnd()
     {
-        IAllWorksEndConfigureFilter[] filters 
-            = TypeUtils.CreateInstancesOfType<IAllWorksEndConfigureFilter>(_serviceProvider, _poolFilter.GetPoolAllWorksEndConfigureFilter()).ToArray();
-
         return (endModelEnumerable) =>
         {
-            var act = TypeUtils.CreateDelegateWithTarget(_model.FactoryAllWorksEnd?.TypeToCreate.GetType().GetMethod("OnFinished",
-                new Type[] { typeof(Results.Models.EndEnumerableModel) }), _model.FactoryAllWorksEnd?.CreateInstanceWithNewScope()) ?? null;
+            IAllWorksEndConfigureFilter[] filters 
+                = TypeUtils.CreateInstancesOfType<IAllWorksEndConfigureFilter>(_serviceProvider, _poolFilter.GetPoolAllWorksEndConfigureFilter()).ToArray();
+
+            var act = TypeUtils.CreateDelegateWithTarget(_model.InstanceAllWorksEnd?.GetType().GetMethod(nameof(IAllWorksEndConfigure<HolderQuest, dynamic>.OnFinished),
+                new Type[] { typeof(Results.Models.EndEnumerableModel) }), _model.InstanceAllWorksEnd) ?? null;
 
             if (act is not null)
                 act.DynamicInvoke(endModelEnumerable);
@@ -129,17 +129,17 @@ internal sealed class DelageteHolder
     /// </summary>
     public Action<IEnumerable<object>> CreateOnCollected()
     {
-        IDataCollectedConfigureFilter[] filters 
-            = TypeUtils.CreateInstancesOfType<IDataCollectedConfigureFilter>(_serviceProvider, _poolFilter.GetPoolDataCollectedConfigureFilter()).ToArray();
-
         return (collectedList) =>
         {
+            IDataCollectedConfigureFilter[] filters 
+                = TypeUtils.CreateInstancesOfType<IDataCollectedConfigureFilter>(_serviceProvider, _poolFilter.GetPoolDataCollectedConfigureFilter()).ToArray();
+
             try
             {
-                _contextAcessor.ScrapContext = _currentInfo;
+                SetCurrentContextThread(_currentInfo);
 
-                var act = TypeUtils.CreateDelegateWithTarget(_model.FactoryDataCollected?.TypeToCreate.GetType().GetMethod("OnCollected", 
-                    new Type[] { typeof(IEnumerable<>).MakeGenericType(_model.DataType) }), _model.FactoryDataCollected?.CreateInstanceWithNewScope()) ?? null;
+                var act = TypeUtils.CreateDelegateWithTarget(_model.InstanceDataCollected?.GetType().GetMethod(nameof(IDataCollectedConfigure<HolderQuest, dynamic>.OnCollected), 
+                    new Type[] { typeof(IEnumerable<>).MakeGenericType(_model.DataType) }), _model.InstanceDataCollected) ?? null;
 
                 if (act is not null)
                     act.DynamicInvoke(collectedList);
@@ -175,15 +175,15 @@ internal sealed class DelageteHolder
     /// </summary>
     public Action<IQuest> CreateOnCreated()
     {
-        IQuestCreatedConfigureFilter[] filters 
-            = TypeUtils.CreateInstancesOfType<IQuestCreatedConfigureFilter>(_serviceProvider, _poolFilter.GetPoolQuestCreatedConfigureFilter()).ToArray();
-
         return (excCreated) =>
         {
+            IQuestCreatedConfigureFilter[] filters 
+                = TypeUtils.CreateInstancesOfType<IQuestCreatedConfigureFilter>(_serviceProvider, _poolFilter.GetPoolQuestCreatedConfigureFilter()).ToArray();
+
             _contextAcessor.ScrapContext = Context;
 
-            var act = TypeUtils.CreateDelegateWithTarget(_model.FactoryQuestCreated?.TypeToCreate.GetType().GetMethod("OnCreated",
-                new Type[] { _model.QuestType }), _model.FactoryQuestCreated?.CreateInstanceWithNewScope()) ?? null;
+            var act = TypeUtils.CreateDelegateWithTarget(_model.InstanceQuestCreated?.GetType().GetMethod(nameof(IQuestCreatedConfigure<HolderQuest, dynamic>.OnCreated),
+                new Type[] { _model.QuestType }), _model.InstanceQuestCreated) ?? null;
 
             if (act is not null)
                 act.DynamicInvoke(excCreated);
@@ -196,18 +196,27 @@ internal sealed class DelageteHolder
         };
     }
 
+    /// <summary>
+    /// Sets context on current thread which called it
+    /// </summary>
+    /// <param name="infoContext">context or null to refresh</param>
+    public void SetCurrentContextThread(IModelScraperInfo? infoContext)
+    {
+        new Model.Context.ScrapContextAcessor().ScrapContext = infoContext;
+    }
+
     private Task<IEnumerable<TData>> GetDataHolderMethod<TData>()
         where TData : class
     {
-        var method = _model.InstanceRequired?.GetType().GetMethod("GetData")
-            ?? throw new ArgumentNullException("GetData");
+        var method = _model.InstanceRequired?.GetType().GetMethod(nameof(RequiredConfigure<HolderQuest, dynamic>.GetData))
+            ?? throw new ArgumentNullException(nameof(RequiredConfigure<HolderQuest, dynamic>.GetData));
 
         try
         {
             _contextAcessor.ScrapContext = _currentInfo;
 
             var func = TypeUtils.CreateDelegateWithTarget(method, _model.InstanceRequired) 
-                ?? throw new ArgumentNullException("GetData");
+                ?? throw new ArgumentNullException(nameof(RequiredConfigure<HolderQuest, dynamic>.GetData));
             
             return (Task<IEnumerable<TData>>?)func.DynamicInvoke() ?? throw new ArgumentNullException();
         }

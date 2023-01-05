@@ -65,7 +65,6 @@ internal sealed class ScrapModelInternal
     private object? _instanceQuestCreated;
     
     /// <inheritdoc cref="_instanceAllWorksEnd" path="*"/>
-    [Obsolete]
     public object? InstanceAllWorksEnd { 
         get => _instanceAllWorksEnd;
         set {
@@ -94,7 +93,6 @@ internal sealed class ScrapModelInternal
         }}
 
     /// <inheritdoc cref="_instanceDataCollected" path="*"/>
-    [Obsolete]
     public object? InstanceDataCollected { 
         get => _instanceDataCollected;
         set {
@@ -109,7 +107,6 @@ internal sealed class ScrapModelInternal
         }}
 
     /// <inheritdoc cref="_instanceDataFinished" path="*"/>
-    [Obsolete]
     public object? InstanceDataFinished { 
         get => _instanceDataFinished;
         set {
@@ -138,7 +135,6 @@ internal sealed class ScrapModelInternal
         }}
 
     /// <inheritdoc cref="_instanceQuestCreated" path="*"/>
-    [Obsolete]
     public object? InstanceQuestCreated { 
         get => _instanceQuestCreated;
         set {
@@ -153,7 +149,6 @@ internal sealed class ScrapModelInternal
         }}
 
     /// <inheritdoc cref="_instanceQuestException" path="*"/>
-    [Obsolete]
     public object? InstanceQuestException { 
         get => _instanceQuestException;
         set {
@@ -165,120 +160,6 @@ internal sealed class ScrapModelInternal
                 _instanceQuestException = value;
             else
                 throw new ArgumentException(nameof(InstanceQuestException));
-        }}
-
-    /// <summary>
-    /// Contains instance of type <see cref="IAllWorksEndConfigure{TQuest, TData}}"/> or null
-    /// </summary>
-    private TypeUtils.FactoryType? _factoryAllWorksEnd;
-
-    /// <summary>
-    /// Contains factory of type <see cref="IGetArgsConfigure{TQuest, TData}"/> or null
-    /// </summary>
-    private TypeUtils.FactoryType? _factoryArgs;
-
-    /// <summary>
-    /// Contains factory of type <see cref="IDataCollectedConfigure{TQuest, TData}"/> or null
-    /// </summary>
-    private TypeUtils.FactoryType? _factoryDataCollected;
-    
-    /// <summary>
-    /// Contains factory of type <see cref="IDataFinishedConfigure{TQuest, TData}"/> or null
-    /// </summary>
-    private TypeUtils.FactoryType? _factoryDataFinished;
-    
-    /// <summary>
-    /// Contains factory of type <see cref="IQuestExceptionConfigure{TQuest, TData}"/> or null
-    /// </summary>
-    private TypeUtils.FactoryType? _factoryQuestException;
-    
-    /// <summary>
-    /// Contains factory of type <see cref="IQuestCreatedConfigure{TQuest, TData}{TQuest, TData}"/> or null
-    /// </summary>
-    private TypeUtils.FactoryType? _factoryQuestCreated;
-    
-    /// <inheritdoc cref="_factoryAllWorksEnd" path="*"/>
-    public TypeUtils.FactoryType? FactoryAllWorksEnd { 
-        get => _factoryAllWorksEnd;
-        set {
-            if (value is null)
-                throw new ArgumentNullException(nameof(FactoryAllWorksEnd));
-            var typeInstanceRequired =
-                typeof(IAllWorksEndConfigure<,>).MakeGenericType(_questType, _dataType);
-            if (typeInstanceRequired.IsAssignableFrom(value.TypeToCreate.GetType()))
-                _factoryAllWorksEnd = value;
-            else
-                throw new ArgumentException(nameof(FactoryAllWorksEnd));
-        }}
-    
-    /// <inheritdoc cref="_factoryArgs" path="*"/>
-    public TypeUtils.FactoryType? FactoryArgs { 
-        get => _factoryArgs;
-        set {
-            if (value is null)
-                throw new ArgumentNullException(nameof(FactoryArgs));
-            var typeInstanceRequired =
-                typeof(IGetArgsConfigure<,>).MakeGenericType(_questType, _dataType);
-            if (typeInstanceRequired.IsAssignableFrom(value.TypeToCreate.GetType()))
-                _factoryArgs = value;
-            else
-                throw new ArgumentException(nameof(FactoryArgs));
-        }}
-
-    /// <inheritdoc cref="_factoryDataCollected" path="*"/>
-    public TypeUtils.FactoryType? FactoryDataCollected { 
-        get => _factoryDataCollected;
-        set {
-            if (value is null)
-                throw new ArgumentNullException(nameof(FactoryDataCollected));
-            var typeInstanceRequired =
-                typeof(IDataCollectedConfigure<,>).MakeGenericType(_questType, _dataType);
-            if (typeInstanceRequired.IsAssignableFrom(value.TypeToCreate.GetType()))
-                _factoryDataCollected = value;
-            else
-                throw new ArgumentException(nameof(FactoryDataCollected));
-        }}
-
-    /// <inheritdoc cref="_factoryDataFinished" path="*"/>
-    public TypeUtils.FactoryType? FactoryDataFinished { 
-        get => _factoryDataFinished;
-        set {
-            if (value is null)
-                throw new ArgumentNullException(nameof(FactoryDataFinished));
-            var typeInstanceRequired =
-                typeof(IDataFinishedConfigure<,>).MakeGenericType(_questType, _dataType);
-            if (typeInstanceRequired.IsAssignableFrom(value.TypeToCreate.GetType()))
-                _factoryDataFinished = value;
-            else
-                throw new ArgumentException(nameof(FactoryDataFinished));
-        }}
-
-    /// <inheritdoc cref="_factoryQuestCreated" path="*"/>
-    public TypeUtils.FactoryType? FactoryQuestCreated { 
-        get => _factoryQuestCreated;
-        set {
-            if (value is null)
-                throw new ArgumentNullException(nameof(FactoryQuestCreated));
-            var typeInstanceRequired =
-                typeof(IQuestCreatedConfigure<,>).MakeGenericType(_questType, _dataType);
-            if (typeInstanceRequired.IsAssignableFrom(value.TypeToCreate.GetType()))
-                _factoryQuestCreated = value;
-            else
-                throw new ArgumentException(nameof(FactoryQuestCreated));
-        }}
-
-    /// <inheritdoc cref="_factoryQuestException" path="*"/>
-    public TypeUtils.FactoryType? FactoryQuestException { 
-        get => _factoryQuestException;
-        set {
-            if (value is null)
-                throw new ArgumentNullException(nameof(FactoryQuestException));
-            var typeInstanceRequired =
-                typeof(IQuestExceptionConfigure<,>).MakeGenericType(_questType, _dataType);
-            if (typeInstanceRequired.IsAssignableFrom(value.TypeToCreate.GetType()))
-               _factoryQuestException = value;
-            else
-                throw new ArgumentException(nameof(FactoryQuestException));
         }}
 
     /// <summary>

@@ -211,7 +211,7 @@ internal class ScrapBuilder : IScrapBuilder
             throw ThrowRequiredTypeNotFound(model, typeof(IAllWorksEndConfigure<,>));
 
         if (typeInstaceAllWorksEnd is not null)
-            model.FactoryAllWorksEnd = _serviceProvider.CreateFactory(typeInstaceAllWorksEnd);
+            model.InstanceAllWorksEnd = _serviceProvider.CreateInstanceWithNewScope(typeInstaceAllWorksEnd);
         #endregion
 
         #region IOnDataCollectedConfigure
@@ -222,7 +222,7 @@ internal class ScrapBuilder : IScrapBuilder
             throw ThrowRequiredTypeNotFound(model, typeof(IDataCollectedConfigure<,>));
 
         if (typeDataCollected is not null)
-            model.FactoryDataCollected = _serviceProvider.CreateFactory(typeDataCollected);
+            model.InstanceDataCollected = _serviceProvider.CreateInstanceWithNewScope(typeDataCollected);
         #endregion
 
         #region IDataFinishedConfigure
@@ -233,7 +233,7 @@ internal class ScrapBuilder : IScrapBuilder
             throw ThrowRequiredTypeNotFound(model, typeof(IDataFinishedConfigure<,>));
 
         if (typeDataFinished is not null)
-            model.FactoryDataFinished = _serviceProvider.CreateFactory(typeDataFinished);
+            model.InstanceDataFinished = _serviceProvider.CreateInstanceWithNewScope(typeDataFinished);
         #endregion
 
         #region IOnQuestCreatedConfigure
@@ -244,7 +244,7 @@ internal class ScrapBuilder : IScrapBuilder
             throw ThrowRequiredTypeNotFound(model, typeof(IQuestCreatedConfigure<,>));
 
         if (typeQuestCreated is not null)
-            model.FactoryQuestCreated = _serviceProvider.CreateFactory(typeQuestCreated);
+            model.InstanceQuestCreated = _serviceProvider.CreateInstanceWithNewScope(typeQuestCreated);
         
         #endregion
 
@@ -256,7 +256,7 @@ internal class ScrapBuilder : IScrapBuilder
             throw ThrowRequiredTypeNotFound(model, typeof(IQuestExceptionConfigure<,>));
 
         if (typeQuestException is not null)
-            model.FactoryQuestException = _serviceProvider.CreateFactory(typeQuestException);
+            model.InstanceQuestException = _serviceProvider.CreateInstanceWithNewScope(typeQuestException);
         #endregion
     }
 
