@@ -14,7 +14,7 @@ namespace BlScraper.DependencyInjection.Builder.Internal;
 internal sealed class DelageteHolder
 {
     private IModelScraperInfo? _currentInfo;
-    private readonly PoolFilter _poolFilter;
+    private PoolFilter _poolFilter;
     private readonly IServiceProvider _serviceProvider;
     private readonly ScrapModelInternal _model;
 
@@ -29,16 +29,22 @@ internal sealed class DelageteHolder
             _currentInfo = value;
         }}
 
+    /// <summary>
+    /// Instances delegate holder
+    /// </summary>
     public DelageteHolder(ScrapModelInternal model, IServiceProvider serviceProvider, ScrapBuilderConfig builderConfig)
     {
         _serviceProvider = serviceProvider;
         _model = model;
-        _poolFilter = builderConfig.Filters.Union(model.Filters);
+        _poolFilter = builderConfig.Filters;
     }
 
     /// <summary>
     /// Create event 'OnOccursException' and sets <see cref="Model.Context.ScrapContextAcessor"/>
     /// </summary>
+    /// <remarks>
+    ///     <para>Called by the Thread which creates the model.</para>
+    /// </remarks>
     /// <exception cref="ArgumentNullException"></exception>
     public Delegate CreateGetData()
     {
@@ -50,13 +56,13 @@ internal sealed class DelageteHolder
     /// <summary>
     /// Create event 'OnOccursException'
     /// </summary>
+    /// <remarks>
+    ///     <para>The thread created when the model runs, calls this method when occurs exception in search.</para>
+    /// </remarks>
     public Func<Exception, object, QuestResult> CreateOnOccursException()
     {
         return (exc, data) =>
         {
-            IQuestExceptionConfigureFilter[] filters 
-                = TypeUtils.CreateInstancesOfType<IQuestExceptionConfigureFilter>(_serviceProvider, _poolFilter.GetPoolQuestExceptionConfigureFilter()).ToArray();
-
             QuestResult result = QuestResult.ThrowException(exc);
 
             var func = TypeUtils.CreateDelegateWithTarget(_model.InstanceQuestException?.GetType().GetMethod(nameof(IQuestExceptionConfigure<HolderQuest, dynamic>.OnOccursException)
@@ -68,6 +74,9 @@ internal sealed class DelageteHolder
 
             try
             {
+                IQuestExceptionConfigureFilter[] filters 
+                    = TypeUtils.CreateInstancesOfType<IQuestExceptionConfigureFilter>(_serviceProvider, _poolFilter.GetPoolQuestExceptionConfigureFilter()).ToArray();
+
                 Task.WaitAll(filters.Select(t => t.OnOccursException(exc, data, result)).ToArray());
             }
             catch { }
@@ -79,13 +88,13 @@ internal sealed class DelageteHolder
     /// <summary>
     /// Create event 'OnOccursException'
     /// </summary>
+    /// <remarks>
+    ///     <para>The thread created when the model runs, calls this method when data is collected.</para>
+    /// </remarks>
     public Action<Results.ResultBase> CreateOnDataFinished()
     {
         return (result) =>
         {
-            IDataFinishedConfigureFilter[] filters 
-                = TypeUtils.CreateInstancesOfType<IDataFinishedConfigureFilter>(_serviceProvider, _poolFilter.GetPoolDataFinishedConfigureFilter()).ToArray();
-
             var act = TypeUtils.CreateDelegateWithTarget(_model.InstanceDataFinished?.GetType().GetMethod(nameof(IDataFinishedConfigure<HolderQuest, dynamic>.OnDataFinished), 
                 new Type[] { typeof(Results.ResultBase<>).MakeGenericType(_model.DataType) }), _model.InstanceDataFinished) ?? null;
 
@@ -94,6 +103,9 @@ internal sealed class DelageteHolder
 
             try
             {
+                IDataFinishedConfigureFilter[] filters 
+                    = TypeUtils.CreateInstancesOfType<IDataFinishedConfigureFilter>(_serviceProvider, _poolFilter.GetPoolDataFinishedConfigureFilter()).ToArray();
+
                 Task.WaitAll(filters.Select(f => f.OnDataFinished(result)).ToArray());
             }
             catch { }
@@ -103,13 +115,13 @@ internal sealed class DelageteHolder
     /// <summary>
     /// Create event 'OnFinished'
     /// </summary>
+    /// <remarks>
+    ///     <para>The thread created when the model runs, calls this method in the end of search.</para>
+    /// </remarks>
     public Action<Results.Models.EndEnumerableModel> CreateOnAllWorksEnd()
     {
         return (endModelEnumerable) =>
         {
-            IAllWorksEndConfigureFilter[] filters 
-                = TypeUtils.CreateInstancesOfType<IAllWorksEndConfigureFilter>(_serviceProvider, _poolFilter.GetPoolAllWorksEndConfigureFilter()).ToArray();
-
             var act = TypeUtils.CreateDelegateWithTarget(_model.InstanceAllWorksEnd?.GetType().GetMethod(nameof(IAllWorksEndConfigure<HolderQuest, dynamic>.OnFinished),
                 new Type[] { typeof(Results.Models.EndEnumerableModel) }), _model.InstanceAllWorksEnd) ?? null;
 
@@ -118,6 +130,9 @@ internal sealed class DelageteHolder
 
             try
             {
+                IAllWorksEndConfigureFilter[] filters 
+                    = TypeUtils.CreateInstancesOfType<IAllWorksEndConfigureFilter>(_serviceProvider, _poolFilter.GetPoolAllWorksEndConfigureFilter()).ToArray();
+
                 Task.WaitAll(filters.Select(f => f.OnFinished(endModelEnumerable)).ToArray());
             }
             catch { }
@@ -127,16 +142,16 @@ internal sealed class DelageteHolder
     /// <summary>
     /// Create event 'OnCollected' and sets <see cref="Model.Context.ScrapContextAcessor"/>
     /// </summary>
-    public Action<IEnumerable<object>> CreateOnCollected()
+    /// <remarks>
+    ///     <para>Called by the Thread which creates the model.</para>
+    /// </remarks>
+    public Action<IEnumerable<object>> CreateOnDataToSearchCollected()
     {
         return (collectedList) =>
         {
-            IDataCollectedConfigureFilter[] filters 
-                = TypeUtils.CreateInstancesOfType<IDataCollectedConfigureFilter>(_serviceProvider, _poolFilter.GetPoolDataCollectedConfigureFilter()).ToArray();
-
             try
             {
-                SetCurrentContextThread(_currentInfo);
+                SetCurrentContextThread(Context);
 
                 var act = TypeUtils.CreateDelegateWithTarget(_model.InstanceDataCollected?.GetType().GetMethod(nameof(IDataCollectedConfigure<HolderQuest, dynamic>.OnCollected), 
                     new Type[] { typeof(IEnumerable<>).MakeGenericType(_model.DataType) }), _model.InstanceDataCollected) ?? null;
@@ -146,13 +161,16 @@ internal sealed class DelageteHolder
 
                 try
                 {
+                    IDataCollectedConfigureFilter[] filters 
+                        = TypeUtils.CreateInstancesOfType<IDataCollectedConfigureFilter>(_serviceProvider, _poolFilter.GetPoolDataCollectedConfigureFilter()).ToArray();
+
                     Task.WaitAll(filters.Select(f => f.OnCollected(collectedList)).ToArray());
                 }
                 catch { }
             }
             finally
             {
-                _contextAcessor.ScrapContext = null;
+                SetCurrentContextThread();
             }
         };
     }
@@ -160,6 +178,9 @@ internal sealed class DelageteHolder
     /// <summary>
     /// Create event 'GetArgs'
     /// </summary>
+    /// <remarks>
+    ///     <para>Called by the Thread which creates the model.</para>
+    /// </remarks>
     public object[] CreateArgs()
     {
         if (_model.InstanceArgs is null)
@@ -173,14 +194,14 @@ internal sealed class DelageteHolder
     /// <summary>
     /// Create event 'OnCreated' and sets <see cref="Model.Context.ScrapContextAcessor"/>
     /// </summary>
-    public Action<IQuest> CreateOnCreated()
+    /// <remarks>
+    ///     <para>The thread created when the model runs, calls this method first</para>
+    /// </remarks>
+    public Action<IQuest> CreateOnCreatedQuest()
     {
         return (excCreated) =>
         {
-            IQuestCreatedConfigureFilter[] filters 
-                = TypeUtils.CreateInstancesOfType<IQuestCreatedConfigureFilter>(_serviceProvider, _poolFilter.GetPoolQuestCreatedConfigureFilter()).ToArray();
-
-            _contextAcessor.ScrapContext = Context;
+            SetCurrentContextThread(_currentInfo);
 
             var act = TypeUtils.CreateDelegateWithTarget(_model.InstanceQuestCreated?.GetType().GetMethod(nameof(IQuestCreatedConfigure<HolderQuest, dynamic>.OnCreated),
                 new Type[] { _model.QuestType }), _model.InstanceQuestCreated) ?? null;
@@ -190,6 +211,9 @@ internal sealed class DelageteHolder
 
             try
             {
+                IQuestCreatedConfigureFilter[] filters 
+                    = TypeUtils.CreateInstancesOfType<IQuestCreatedConfigureFilter>(_serviceProvider, _poolFilter.GetPoolQuestCreatedConfigureFilter()).ToArray();
+
                 Task.WaitAll(filters.Select(f => f.OnCreated(excCreated)).ToArray());
             }
             catch { }
@@ -197,23 +221,20 @@ internal sealed class DelageteHolder
     }
 
     /// <summary>
-    /// Sets context on current thread which called it
+    /// Holder method to get data
     /// </summary>
-    /// <param name="infoContext">context or null to refresh</param>
-    public void SetCurrentContextThread(IModelScraperInfo? infoContext)
-    {
-        new Model.Context.ScrapContextAcessor().ScrapContext = infoContext;
-    }
-
+    /// <remarks>
+    ///     <para>Called by the Thread which creates the model.</para>
+    /// </remarks>
     private Task<IEnumerable<TData>> GetDataHolderMethod<TData>()
         where TData : class
     {
-        var method = _model.InstanceRequired?.GetType().GetMethod(nameof(RequiredConfigure<HolderQuest, dynamic>.GetData))
-            ?? throw new ArgumentNullException(nameof(RequiredConfigure<HolderQuest, dynamic>.GetData));
-
         try
         {
-            _contextAcessor.ScrapContext = _currentInfo;
+            SetCurrentContextThread(Context);
+            
+            var method = _model.InstanceRequired?.GetType().GetMethod(nameof(RequiredConfigure<HolderQuest, dynamic>.GetData))
+                ?? throw new ArgumentNullException(nameof(RequiredConfigure<HolderQuest, dynamic>.GetData));
 
             var func = TypeUtils.CreateDelegateWithTarget(method, _model.InstanceRequired) 
                 ?? throw new ArgumentNullException(nameof(RequiredConfigure<HolderQuest, dynamic>.GetData));
@@ -222,8 +243,28 @@ internal sealed class DelageteHolder
         }
         finally
         {
-            _contextAcessor.ScrapContext = null;
+            SetCurrentContextThread();
         }
+    }
+
+    /// <summary>
+    /// Sets context on current thread which called it
+    /// </summary>
+    /// <param name="infoContext">context or null to refresh</param>
+    public void SetCurrentContextThread(IModelScraperInfo? infoContext = null)
+    {
+        var context = new Model.Context.ScrapContextAcessor();
+        if (context.ScrapContext != infoContext)
+            context.ScrapContext = infoContext;
+    }
+    
+    /// <summary>
+    /// Union filters
+    /// </summary>
+    /// <param name="filter">filters to add</param>
+    public void AddFilters(PoolFilter filter)
+    {
+        _poolFilter = _poolFilter.Union(filter);
     }
 
     /// <summary>

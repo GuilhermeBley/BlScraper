@@ -300,7 +300,7 @@ internal static class TypeUtils
     {
         foreach (var type in types)
         {
-            yield return CreateInstanceWithNewScope<T>(serviceProvider, typeof(T));
+            yield return (T)CreateInstanceWithNewScope(serviceProvider, type);
         }
     }
 

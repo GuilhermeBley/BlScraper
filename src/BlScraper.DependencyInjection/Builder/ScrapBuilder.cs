@@ -119,38 +119,61 @@ internal class ScrapBuilder : IScrapBuilder
     /// <inheritdoc cref="SetParametersOnModel(ScrapModelInternal)" path="exception"/>
     private IModelScraper Create(Type questType)
     {
-        var model = new ScrapModelInternal(questType);
+        var modelScraperInternal = new ScrapModelInternal(questType);
 
-        SetArgsOnModel(model);
+        SetRequiredConfigure(modelScraperInternal);
 
-        SetRequiredConfigure(model);
+        SetArgsOnModel(modelScraperInternal);
 
-        var modelScraperType = TypeUtils.SetGenericParameters(_modelType, model.QuestType, model.DataType);
+        var modelScraperType = TypeUtils.SetGenericParameters(_modelType, modelScraperInternal.QuestType, modelScraperInternal.DataType);
 
-        var delegateEvents = new DelageteHolder(model, _serviceProvider, _builderConfig);
+        var delegateEvents = new DelageteHolder(modelScraperInternal, _serviceProvider, _builderConfig);
 
         IModelScraper? modelScraper = null;
         modelScraper =
             (IModelScraper?)Activator.CreateInstance(
                 modelScraperType,
-                ((IRequiredConfigure)model.InstanceRequired!).initialQuantity,
+                ((IRequiredConfigure)modelScraperInternal.InstanceRequired!).initialQuantity,
                 (IServiceProvider)_serviceProvider,
                 delegateEvents.CreateGetData(),
                 delegateEvents.CreateOnOccursException(),
                 delegateEvents.CreateOnDataFinished(),
                 delegateEvents.CreateOnAllWorksEnd(),
-                delegateEvents.CreateOnCollected(),
-                delegateEvents.CreateOnCreated(),
+                delegateEvents.CreateOnDataToSearchCollected(),
+                delegateEvents.CreateOnCreatedQuest(),
                 delegateEvents.CreateArgs()
             ) ?? throw new ArgumentNullException(nameof(IModelScraper));
 
         delegateEvents.Context = modelScraper;
 
-        SetParametersOnModel(model);
-
-        SetFiltersOnModel(model);
+        SetParametersAndFiltersOnModelWithContext(delegateEvents, modelScraperInternal, modelScraper);
 
         return modelScraper;
+    }
+
+    /// <summary>
+    /// Set parameters and filters with a context to current thread
+    /// </summary>
+    /// <param name="delegates">delegates with events to model</param>
+    /// <param name="modelScraperInternal">Instances and types to model</param>
+    /// <inheritdoc cref="SetParametersOnModel" path="/exception"/>
+    /// <inheritdoc cref="SetFiltersOnModel" path="/exception"/>
+    private void SetParametersAndFiltersOnModelWithContext(DelageteHolder delegates, ScrapModelInternal modelScraperInternal, IModelScraperInfo context)
+    {
+        try
+        {
+            delegates.SetCurrentContextThread(context);
+
+            SetParametersOnModel(modelScraperInternal);
+
+            SetFiltersOnModel(modelScraperInternal);
+
+            delegates.AddFilters(modelScraperInternal.Filters);
+        }
+        finally
+        {
+            delegates.SetCurrentContextThread();
+        }
     }
 
     /// <summary>
@@ -181,9 +204,14 @@ internal class ScrapBuilder : IScrapBuilder
         if (model is null)
             throw new ArgumentNullException(nameof(model));
 
+        var configure = (IRequiredConfigure?)model.InstanceRequired ?? throw new ArgumentNullException();
+
         #region IGetArgsConfigure
         Type? typeInstaceArgs =
             TypeUtils.GetUniqueAssignableFrom(_assemblies.ToArray(), typeof(IGetArgsConfigure<,>).MakeGenericType(model.QuestType, model.DataType));
+
+        if (typeInstaceArgs is null && configure.IsRequiredArgs)
+            throw ThrowRequiredTypeNotFound(model, typeof(IGetArgsConfigure<,>));
 
         if (typeInstaceArgs is not null)
             model.InstanceArgs =
