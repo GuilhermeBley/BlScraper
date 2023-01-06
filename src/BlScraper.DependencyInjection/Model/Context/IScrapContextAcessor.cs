@@ -5,7 +5,7 @@ namespace BlScraper.DependencyInjection.Model.Context;
 /// <summary>
 /// Context Scrap
 /// </summary>
-public interface IScrapContextAcessor
+public interface IScrapContextAccessor
 {
     /// <summary>
     /// Current context of thread

@@ -8,17 +8,17 @@ public interface IRouteObjectService
     /// <summary>
     /// Enumerable which contains a storages of sequence of methods executed
     /// </summary>
-    IEnumerable<(MethodInfo Method, object? ObjRoute)> Routes { get; }
+    IEnumerable<(MethodBase Method, object? ObjRoute)> Routes { get; }
 
-    void Add(MethodInfo? methodExcuted, object? objRoute);
+    void Add(MethodBase? methodExcuted, object? objRoute);
 }
 
 public class RouteObjectService : IRouteObjectService
 {
-    private ConcurrentQueue<(MethodInfo, object?)> _queue = new();
-    public IEnumerable<(MethodInfo, object?)> Routes => _queue;
+    private ConcurrentQueue<(MethodBase, object?)> _queue = new();
+    public IEnumerable<(MethodBase, object?)> Routes => _queue;
 
-    public void Add(MethodInfo? methodExcuted, object? objRoute)
+    public void Add(MethodBase? methodExcuted, object? objRoute)
     {
         if (methodExcuted is null)
             return;

@@ -13,7 +13,7 @@ public static class BuilderExtension
     /// <remarks>
     ///     <para>Add follow services:</para>
     ///     <list type="bullet">
-    ///         <item><see cref="IScrapContextAcessor"/></item>
+    ///         <item><see cref="IScrapContextAccessor"/></item>
     ///         <item><see cref="IMapQuest"/></item>
     ///         <item><see cref="IScrapBuilder"/></item>
     ///     </list>
@@ -26,7 +26,7 @@ public static class BuilderExtension
         onAddAssemblies?.Invoke(assemblyBuilderAdd);
         return
             serviceCollection
-                .AddSingleton<IScrapContextAcessor>((serviceProvider) => new ScrapContextAcessor())
+                .AddSingleton<IScrapContextAccessor>((serviceProvider) => new ScrapContextAcessor())
                 .AddSingleton(typeof(IMapQuest), (serviceProvidier) => MapQuestFactory.Create(assemblyBuilderAdd.Assemblies.ToArray()))
                 .AddSingleton(typeof(IScrapBuilder), 
                     (serviceProvider) => new ScrapBuilder(serviceProvider.CreateScope().ServiceProvider, assemblyBuilderAdd));

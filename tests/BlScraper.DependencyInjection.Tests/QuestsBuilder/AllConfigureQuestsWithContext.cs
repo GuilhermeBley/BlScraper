@@ -10,13 +10,14 @@ namespace BlScraper.DependencyInjection.Tests.QuestsBuilder;
 public class AllConfigureQuestsWithContext : Quest<PublicSimpleData>
 {
     private bool _shouldHaveException = true;
-    private readonly IScrapContextAcessor _contextAcessor;
+    private readonly IScrapContextAccessor _contextAccessor;
     private readonly IRouteObjectService _routeService;
 
-    public AllConfigureQuestsWithContext(IScrapContextAcessor contextAcessor, IRouteObjectService route)
+    public AllConfigureQuestsWithContext(IScrapContextAccessor contextAccessor, IRouteObjectService route)
     {
-        _contextAcessor = contextAcessor;
+        _contextAccessor = contextAccessor;
         _routeService = route;
+        _routeService.Add(GetType().GetConstructors().FirstOrDefault(), _contextAccessor.ScrapContext);
     }
 
     public override QuestResult Execute(PublicSimpleData data, CancellationToken cancellationToken = default)
@@ -27,7 +28,7 @@ public class AllConfigureQuestsWithContext : Quest<PublicSimpleData>
             throw new Exception();
         }
 
-        _routeService.Add(this.GetType().GetMethod(nameof(Execute)), _contextAcessor.ScrapContext);
+        _routeService.Add(this.GetType().GetMethod(nameof(Execute)), _contextAccessor.ScrapContext);
         return QuestResult.Ok();
     }
 }
@@ -39,7 +40,7 @@ public class AllConfigureQuestsWithContextRequiredConfigure : RequiredConfigure<
 {
     private IServiceMocPublicSimpleData _serviceData;
     private readonly IRouteObjectService _routeService;
-    private readonly IScrapContextAcessor _contextAccessor;
+    private readonly IScrapContextAccessor _contextAccessor;
 
     public override int initialQuantity => 5;
     public override bool IsRequiredDataFinished => true;
@@ -49,11 +50,12 @@ public class AllConfigureQuestsWithContextRequiredConfigure : RequiredConfigure<
     public override bool IsRequiredQuestCreated => true;
     public override bool IsRequiredQuestException => true;
 
-    public AllConfigureQuestsWithContextRequiredConfigure(IServiceMocPublicSimpleData serviceData, IRouteObjectService routeService, IScrapContextAcessor scrapContextAcessor)
+    public AllConfigureQuestsWithContextRequiredConfigure(IServiceMocPublicSimpleData serviceData, IRouteObjectService routeService, IScrapContextAccessor scrapcontextAccessor)
     {
         _serviceData = serviceData;
         _routeService = routeService;
-        _contextAccessor = scrapContextAcessor;
+        _contextAccessor = scrapcontextAccessor;
+        _routeService.Add(GetType().GetConstructors().FirstOrDefault(), _contextAccessor.ScrapContext);
     }
 
     public override async Task<IEnumerable<PublicSimpleData>> GetData()
@@ -68,10 +70,11 @@ public class AllConfigureQuestsWithContextAllWorkEndConfigure : IAllWorksEndConf
     private readonly IRouteObjectService _routeService;
     private readonly IModelScraperInfo _context;
 
-    public AllConfigureQuestsWithContextAllWorkEndConfigure(IRouteObjectService routeService, IScrapContextAcessor scrapContextAcessor)
+    public AllConfigureQuestsWithContextAllWorkEndConfigure(IRouteObjectService routeService, IScrapContextAccessor scrapcontextAccessor)
     {
         _routeService = routeService;
-        _context = scrapContextAcessor.RequiredScrapContext;
+        _context = scrapcontextAccessor.RequiredScrapContext;
+        _routeService.Add(GetType().GetConstructors().FirstOrDefault(), scrapcontextAccessor.ScrapContext);
     }
 
     public void OnFinished(EndEnumerableModel results)
@@ -85,10 +88,11 @@ public class AllConfigureQuestsWithContextDataCollectedConfigure : IDataCollecte
     private readonly IRouteObjectService _routeService;
     private readonly IModelScraperInfo _context;
 
-    public AllConfigureQuestsWithContextDataCollectedConfigure(IRouteObjectService routeService, IScrapContextAcessor scrapContextAcessor)
+    public AllConfigureQuestsWithContextDataCollectedConfigure(IRouteObjectService routeService, IScrapContextAccessor scrapcontextAccessor)
     {
         _routeService = routeService;
-        _context = scrapContextAcessor.RequiredScrapContext;
+        _context = scrapcontextAccessor.RequiredScrapContext;
+        _routeService.Add(GetType().GetConstructors().FirstOrDefault(), scrapcontextAccessor.ScrapContext);
     }
 
     public void OnCollected(IEnumerable<PublicSimpleData> dataCollected)
@@ -102,10 +106,11 @@ public class AllConfigureQuestsWithContextDataFinishedConfigure : IDataFinishedC
     private readonly IRouteObjectService _routeService;
     private readonly IModelScraperInfo _context;
 
-    public AllConfigureQuestsWithContextDataFinishedConfigure(IRouteObjectService routeService, IScrapContextAcessor scrapContextAcessor)
+    public AllConfigureQuestsWithContextDataFinishedConfigure(IRouteObjectService routeService, IScrapContextAccessor scrapcontextAccessor)
     {
         _routeService = routeService;
-        _context = scrapContextAcessor.RequiredScrapContext;
+        _context = scrapcontextAccessor.RequiredScrapContext;
+        _routeService.Add(GetType().GetConstructors().FirstOrDefault(), scrapcontextAccessor.ScrapContext);
     }
 
     public void OnDataFinished(ResultBase<PublicSimpleData> resultFinished)
@@ -119,10 +124,11 @@ public class AllConfigureQuestsWithContextGetArgsConfigure : IGetArgsConfigure<A
     private readonly IRouteObjectService _routeService;
     private readonly IModelScraperInfo? _context;
 
-    public AllConfigureQuestsWithContextGetArgsConfigure(IRouteObjectService routeService, IScrapContextAcessor scrapContextAcessor)
+    public AllConfigureQuestsWithContextGetArgsConfigure(IRouteObjectService routeService, IScrapContextAccessor scrapcontextAccessor)
     {
         _routeService = routeService;
-        _context = scrapContextAcessor.ScrapContext;
+        _context = scrapcontextAccessor.ScrapContext;
+        _routeService.Add(GetType().GetConstructors().FirstOrDefault(), scrapcontextAccessor.ScrapContext);
     }
 
     public object[] GetArgs()
@@ -137,10 +143,11 @@ public class AllConfigureQuestsWithContextQuestCreatedConfigure : IQuestCreatedC
     private readonly IRouteObjectService _routeService;
     private readonly IModelScraperInfo _context;
 
-    public AllConfigureQuestsWithContextQuestCreatedConfigure(IRouteObjectService routeService, IScrapContextAcessor scrapContextAcessor)
+    public AllConfigureQuestsWithContextQuestCreatedConfigure(IRouteObjectService routeService, IScrapContextAccessor scrapcontextAccessor)
     {
         _routeService = routeService;
-        _context = scrapContextAcessor.RequiredScrapContext;
+        _context = scrapcontextAccessor.RequiredScrapContext;
+        _routeService.Add(GetType().GetConstructors().FirstOrDefault(), scrapcontextAccessor.ScrapContext);
     }
 
     public void OnCreated(AllConfigureQuestsWithContext questCreated)
@@ -154,10 +161,11 @@ public class AllConfigureQuestsWithContextQuestExceptionConfigure : IQuestExcept
     private readonly IRouteObjectService _routeService;
     private readonly IModelScraperInfo _context;
 
-    public AllConfigureQuestsWithContextQuestExceptionConfigure(IRouteObjectService routeService, IScrapContextAcessor scrapContextAcessor)
+    public AllConfigureQuestsWithContextQuestExceptionConfigure(IRouteObjectService routeService, IScrapContextAccessor scrapcontextAccessor)
     {
         _routeService = routeService;
-        _context = scrapContextAcessor.RequiredScrapContext;
+        _context = scrapcontextAccessor.RequiredScrapContext;
+        _routeService.Add(GetType().GetConstructors().FirstOrDefault(), scrapcontextAccessor.ScrapContext);
     }
 
     public QuestResult OnOccursException(Exception ex, PublicSimpleData data)
@@ -177,10 +185,11 @@ public class AllConfigureQuestsWithContextAllWorksEndConfigureFilter
     private readonly IRouteObjectService _routeService;
     private readonly IModelScraperInfo _context;
 
-    public AllConfigureQuestsWithContextAllWorksEndConfigureFilter(IRouteObjectService routeService, IScrapContextAcessor scrapContextAcessor)
+    public AllConfigureQuestsWithContextAllWorksEndConfigureFilter(IRouteObjectService routeService, IScrapContextAccessor scrapcontextAccessor)
     {
         _routeService = routeService;
-        _context = scrapContextAcessor.RequiredScrapContext;
+        _context = scrapcontextAccessor.RequiredScrapContext;
+        _routeService.Add(GetType().GetConstructors().FirstOrDefault(), scrapcontextAccessor.ScrapContext);
     }
 
     public async Task OnFinished(EndEnumerableModel results)
@@ -196,10 +205,11 @@ public class AllConfigureQuestsWithContextDataCollectedConfigureFilter
     private readonly IRouteObjectService _routeService;
     private readonly IModelScraperInfo _context;
 
-    public AllConfigureQuestsWithContextDataCollectedConfigureFilter(IRouteObjectService routeService, IScrapContextAcessor scrapContextAcessor)
+    public AllConfigureQuestsWithContextDataCollectedConfigureFilter(IRouteObjectService routeService, IScrapContextAccessor scrapcontextAccessor)
     {
         _routeService = routeService;
-        _context = scrapContextAcessor.RequiredScrapContext;
+        _context = scrapcontextAccessor.RequiredScrapContext;
+        _routeService.Add(GetType().GetConstructors().FirstOrDefault(), scrapcontextAccessor.ScrapContext);
     }
 
     public async Task OnCollected(IEnumerable<object> dataCollected)
@@ -215,10 +225,11 @@ public class AllConfigureQuestsWithContextDataFinishedConfigureFilter
     private readonly IRouteObjectService _routeService;
     private readonly IModelScraperInfo _context;
 
-    public AllConfigureQuestsWithContextDataFinishedConfigureFilter(IRouteObjectService routeService, IScrapContextAcessor scrapContextAcessor)
+    public AllConfigureQuestsWithContextDataFinishedConfigureFilter(IRouteObjectService routeService, IScrapContextAccessor scrapcontextAccessor)
     {
         _routeService = routeService;
-        _context = scrapContextAcessor.RequiredScrapContext;
+        _context = scrapcontextAccessor.RequiredScrapContext;
+        _routeService.Add(GetType().GetConstructors().FirstOrDefault(), scrapcontextAccessor.ScrapContext);
     }
 
     public async Task OnDataFinished(ResultBase resultFinished)
@@ -233,18 +244,18 @@ public class AllConfigureQuestsWithContextGetArgsConfigureFilter
     : IGetArgsConfigureFilter<AllConfigureQuestsWithContext, PublicSimpleData>
 {
     private readonly IRouteObjectService _routeService;
-    private readonly IScrapContextAcessor _contextAcessor;
+    private readonly IScrapContextAccessor _contextAccessor;
 
-    public AllConfigureQuestsWithContextGetArgsConfigureFilter(IRouteObjectService routeService, IScrapContextAcessor scrapContextAcessor)
+    public AllConfigureQuestsWithContextGetArgsConfigureFilter(IRouteObjectService routeService, IScrapContextAccessor scrapcontextAccessor)
     {
         _routeService = routeService;
-        _contextAcessor = scrapContextAcessor;
+        _contextAccessor = scrapcontextAccessor;
     }
 
     public async Task GetArgs(object[] args)
     {
         await Task.CompletedTask;
-        _routeService.Add(this.GetType().GetMethod(nameof(GetArgs)), _contextAcessor.ScrapContext);
+        _routeService.Add(this.GetType().GetMethod(nameof(GetArgs)), _contextAccessor.ScrapContext);
     }
 }
 
@@ -254,10 +265,11 @@ public class AllConfigureQuestsWithContextQuestCreatedConfigureFilter
     private readonly IRouteObjectService _routeService;
     private readonly IModelScraperInfo _context;
 
-    public AllConfigureQuestsWithContextQuestCreatedConfigureFilter(IRouteObjectService routeService, IScrapContextAcessor scrapContextAcessor)
+    public AllConfigureQuestsWithContextQuestCreatedConfigureFilter(IRouteObjectService routeService, IScrapContextAccessor scrapcontextAccessor)
     {
         _routeService = routeService;
-        _context = scrapContextAcessor.RequiredScrapContext;
+        _context = scrapcontextAccessor.RequiredScrapContext;
+        _routeService.Add(GetType().GetConstructors().FirstOrDefault(), scrapcontextAccessor.ScrapContext);
     }
 
     public async Task OnCreated(IQuest questCreated)
@@ -273,10 +285,11 @@ public class AllConfigureQuestsWithContextQuestExceptionConfigureFilter
     private readonly IRouteObjectService _routeService;
     private readonly IModelScraperInfo _context;
 
-    public AllConfigureQuestsWithContextQuestExceptionConfigureFilter(IRouteObjectService routeService, IScrapContextAcessor scrapContextAcessor)
+    public AllConfigureQuestsWithContextQuestExceptionConfigureFilter(IRouteObjectService routeService, IScrapContextAccessor scrapcontextAccessor)
     {
         _routeService = routeService;
-        _context = scrapContextAcessor.RequiredScrapContext;
+        _context = scrapcontextAccessor.RequiredScrapContext;
+        _routeService.Add(GetType().GetConstructors().FirstOrDefault(), scrapcontextAccessor.ScrapContext);
     }
 
     public async Task OnOccursException(Exception ex, object data, QuestResult result)
