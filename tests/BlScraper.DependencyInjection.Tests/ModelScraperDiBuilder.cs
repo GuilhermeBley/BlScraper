@@ -1565,6 +1565,8 @@ public class ModelScraperDiBuilder
                             config
                             .AddAssembly(this.GetType().Assembly))
                         .AddSingleton<IRouteObjectService, RouteObjectService>()
+                        .AddScoped<ICountScrapService>((serviceProvider) => 
+                            new CountScrapService(AllConfigureQuestsWithContextRequiredConfigure.InitialQuantityScrap))
                         .AddScoped<IServiceMocPublicSimpleData>((serviceProvider)=> new ServiceMocPublicSimpleData(10, 100));
                 });
 
@@ -1595,6 +1597,8 @@ public class ModelScraperDiBuilder
                             config
                             .AddAssembly(this.GetType().Assembly))
                         .AddSingleton<IRouteObjectService, RouteObjectService>()
+                        .AddScoped<ICountScrapService>((serviceProvider) => 
+                            new CountScrapService(AllConfigureQuestsWithContextRequiredConfigure.InitialQuantityScrap))
                         .AddScoped<IServiceMocPublicSimpleData>((serviceProvider)=> new ServiceMocPublicSimpleData(10));
                 });
 
@@ -1788,6 +1792,19 @@ public class ModelScraperDiBuilder
         Assert.Contains((expectedMethod, tuple.modelScrapCreated), 
             route.Routes);
     }
+    
+    [Fact]
+    public async Task AllWorksEndConfigureFilter_CheckCountInstancesConstructor_SuccessToGetTheContext()
+    {
+        const int countInstancesExpected = 1;
+        var tuple = await CreateContextModelAndRun();
+        var route = tuple.ServiceProvider.GetRequiredService<IRouteObjectService>();
+        var expectedMethod = typeof(AllConfigureQuestsWithContextAllWorksEndConfigureFilter)
+            .GetConstructors().FirstOrDefault()
+            ?? throw new ArgumentNullException("expected method");
+        int countInstancesActual = route.Routes.Where(r => r == (expectedMethod, tuple.modelScrapCreated)).Count();
+        Assert.Equal(countInstancesExpected, countInstancesActual);
+    }
 
     [Fact]
     public async Task DataCollectedConfigureFilter_CheckContext_SuccessToGetTheContext()
@@ -1814,6 +1831,19 @@ public class ModelScraperDiBuilder
     }
 
     [Fact]
+    public async Task DataCollectedConfigureFilter_CheckCountInstancesConstructor_SuccessToGetTheContext()
+    {
+        const int countInstancesExpected = 1;
+        var tuple = await CreateContextModelAndRun();
+        var route = tuple.ServiceProvider.GetRequiredService<IRouteObjectService>();
+        var expectedMethod = typeof(AllConfigureQuestsWithContextDataCollectedConfigureFilter)
+            .GetConstructors().FirstOrDefault()
+            ?? throw new ArgumentNullException("expected method");
+        int countInstancesActual = route.Routes.Where(r => r == (expectedMethod, tuple.modelScrapCreated)).Count();
+        Assert.Equal(countInstancesExpected, countInstancesActual);
+    }
+
+    [Fact]
     public async Task DataFinishedConfigureFilter_CheckContext_SuccessToGetTheContext()
     {
         var tuple = await CreateContextModelAndRun();
@@ -1835,6 +1865,19 @@ public class ModelScraperDiBuilder
             ?? throw new ArgumentNullException("expected method");
         Assert.Contains((expectedMethod, tuple.modelScrapCreated), 
             route.Routes);
+    }
+
+    [Fact]
+    public async Task DataFinishedConfigureFilter_CheckCountInstancesConstructor_SuccessToGetTheContext()
+    {
+        const int countInstancesExpected = 10;
+        var tuple = await CreateContextModelAndRun(maxData: countInstancesExpected);
+        var route = tuple.ServiceProvider.GetRequiredService<IRouteObjectService>();
+        var expectedMethod = typeof(AllConfigureQuestsWithContextDataFinishedConfigureFilter)
+            .GetConstructors().FirstOrDefault()
+            ?? throw new ArgumentNullException("expected method");
+        int countInstancesActual = route.Routes.Where(r => r == (expectedMethod, tuple.modelScrapCreated)).Count();
+        Assert.Equal(countInstancesExpected, countInstancesActual);
     }
 
     [Obsolete("Args filters are not used.")]
@@ -1874,6 +1917,19 @@ public class ModelScraperDiBuilder
     }
 
     [Fact]
+    public async Task QuestCreatedConfigureFilter_CheckCountInstancesConstructor_SuccessToGetTheContext()
+    {
+        const int countInstancesExpected = AllConfigureQuestsWithContextRequiredConfigure.InitialQuantityScrap;
+        var tuple = await CreateContextModelAndRun();
+        var route = tuple.ServiceProvider.GetRequiredService<IRouteObjectService>();
+        var expectedMethod = typeof(AllConfigureQuestsWithContextQuestCreatedConfigureFilter)
+            .GetConstructors().FirstOrDefault()
+            ?? throw new ArgumentNullException("expected method");
+        int countInstancesActual = route.Routes.Where(r => r == (expectedMethod, tuple.modelScrapCreated)).Count();
+        Assert.Equal(countInstancesExpected, countInstancesActual);
+    }
+
+    [Fact]
     public async Task QuestExceptionConfigureFilter_CheckContext_SuccessToGetTheContext()
     {
         var tuple = await CreateContextModelAndRun();
@@ -1893,11 +1949,28 @@ public class ModelScraperDiBuilder
         var expectedMethod = typeof(AllConfigureQuestsWithContextQuestExceptionConfigureFilter)
             .GetConstructors().FirstOrDefault()
             ?? throw new ArgumentNullException("expected method");
+        int countInstancesActual = route.Routes.Where(r => r == (expectedMethod, tuple.modelScrapCreated)).Count();
         Assert.Contains((expectedMethod, tuple.modelScrapCreated), 
             route.Routes);
     }
 
-    private async Task<(IServiceProvider ServiceProvider, BlScraper.Model.IModelScraper modelScrapCreated)> CreateContextModelAndRun(int maxData = 10, ServicesTestBase? servicesBase = null)
+    [Fact]
+    public async Task QuestExceptionConfigureFilter_CheckCountInstancesConstructor_SuccessToGetTheContext()
+    {
+        const int countInstancesExpected = 1;
+        var tuple = await CreateContextModelAndRun(countScrap: countInstancesExpected);
+        var route = tuple.ServiceProvider.GetRequiredService<IRouteObjectService>();
+        var expectedMethod = typeof(AllConfigureQuestsWithContextQuestExceptionConfigureFilter)
+            .GetConstructors().FirstOrDefault()
+            ?? throw new ArgumentNullException("expected method");
+        int countInstancesActual = route.Routes.Where(r => r == (expectedMethod, tuple.modelScrapCreated)).Count();
+        Assert.Equal(countInstancesExpected, countInstancesActual);
+    }
+
+    private async Task<(IServiceProvider ServiceProvider, BlScraper.Model.IModelScraper modelScrapCreated)> CreateContextModelAndRun(
+        int maxData = 10, 
+        int countScrap = AllConfigureQuestsWithContextRequiredConfigure.InitialQuantityScrap, 
+        ServicesTestBase? servicesBase = null)
     {
         if (servicesBase is null)
             servicesBase
@@ -1908,6 +1981,7 @@ public class ModelScraperDiBuilder
                             config
                             .AddAssembly(this.GetType().Assembly))
                         .AddSingleton<IRouteObjectService, RouteObjectService>()
+                        .AddScoped<ICountScrapService>((serviceProvider) => new CountScrapService(countScrap))
                         .AddScoped<IServiceMocPublicSimpleData>((serviceProvider)=> new ServiceMocPublicSimpleData(maxData));
                 });
         

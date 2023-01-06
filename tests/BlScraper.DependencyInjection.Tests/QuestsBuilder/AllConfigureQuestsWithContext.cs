@@ -38,11 +38,12 @@ public class AllConfigureQuestsWithContext : Quest<PublicSimpleData>
 
 public class AllConfigureQuestsWithContextRequiredConfigure : RequiredConfigure<AllConfigureQuestsWithContext, PublicSimpleData>
 {
+    public const int InitialQuantityScrap = 5;
     private IServiceMocPublicSimpleData _serviceData;
     private readonly IRouteObjectService _routeService;
     private readonly IScrapContextAccessor _contextAccessor;
 
-    public override int initialQuantity => 5;
+    public override int initialQuantity { get; } = InitialQuantityScrap;
     public override bool IsRequiredDataFinished => true;
     public override bool IsRequiredAllWorksEnd => true;
     public override bool IsRequiredArgs => true;
@@ -50,11 +51,12 @@ public class AllConfigureQuestsWithContextRequiredConfigure : RequiredConfigure<
     public override bool IsRequiredQuestCreated => true;
     public override bool IsRequiredQuestException => true;
 
-    public AllConfigureQuestsWithContextRequiredConfigure(IServiceMocPublicSimpleData serviceData, IRouteObjectService routeService, IScrapContextAccessor scrapcontextAccessor)
+    public AllConfigureQuestsWithContextRequiredConfigure(ICountScrapService countScrapService, IServiceMocPublicSimpleData serviceData, IRouteObjectService routeService, IScrapContextAccessor scrapcontextAccessor)
     {
         _serviceData = serviceData;
         _routeService = routeService;
         _contextAccessor = scrapcontextAccessor;
+        initialQuantity = countScrapService.CountScrap;
         _routeService.Add(GetType().GetConstructors().FirstOrDefault(), _contextAccessor.ScrapContext);
     }
 
