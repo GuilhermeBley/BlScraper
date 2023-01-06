@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using System.Reflection;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace BlScraper.DependencyInjection.Builder.Internal;
 
@@ -281,11 +282,133 @@ internal static class TypeUtils
         if (typeof(ConfigureModel.Filter.IAllWorksEndConfigureFilter).IsAssignableFrom(type) ||
             typeof(ConfigureModel.Filter.IDataCollectedConfigureFilter).IsAssignableFrom(type) ||
             typeof(ConfigureModel.Filter.IDataFinishedConfigureFilter).IsAssignableFrom(type) ||
-            typeof(ConfigureModel.Filter.IGetArgsConfigureFilter).IsAssignableFrom(type) ||
             typeof(ConfigureModel.Filter.IQuestCreatedConfigureFilter).IsAssignableFrom(type) ||
             typeof(ConfigureModel.Filter.IQuestExceptionConfigureFilter).IsAssignableFrom(type))
             return true;
 
         return false;
+    }
+
+    /// <summary>
+    /// Create instances with new scope of <paramref name="types"/> and convert to <typeparamref name="T"/>
+    /// </summary>
+    /// <typeparam name="T">Type to convert</typeparam>
+    /// <param name="serviceProvider">providier</param>
+    /// <param name="types">classes types</param>
+    /// <returns>List of instaced types</returns>
+    public static IEnumerable<T> CreateInstancesOfType<T>(IServiceProvider serviceProvider, IEnumerable<Type> types)
+    {
+        foreach (var type in types)
+        {
+            yield return (T)CreateInstanceWithNewScope(serviceProvider, type);
+        }
+    }
+
+    /// <summary>
+    /// Create instance of object with new scope
+    /// </summary>
+    /// <typeparam name="T">Convert</typeparam>
+    /// <param name="serviceProvider">Provider</param>
+    /// <param name="args">Obj args</param>
+    /// <returns>new <typeparamref name="T"/></returns>
+    public static T CreateInstanceWithNewScope<T>(this IServiceProvider serviceProvider, params object[] args)
+    {
+        return (T)CreateInstanceWithNewScope(serviceProvider, typeof(T), args);
+    }
+
+    /// <summary>
+    /// Create instance of object with new scope
+    /// </summary>
+    /// <param name="serviceProvider">Provider</param>
+    /// <param name="instanceType">type to create</param>
+    /// <param name="args">Obj args</param>
+    /// <returns>new obj of <paramref name="instanceType"/></returns>
+    public static object CreateInstanceWithNewScope(this IServiceProvider serviceProvider, Type instanceType, params object[] args)
+    {
+        return Microsoft.Extensions.DependencyInjection.ActivatorUtilities.CreateInstance(serviceProvider.CreateScope().ServiceProvider, instanceType, args);
+    }
+
+    /// <summary>
+    /// Create instance of object with new scope
+    /// </summary>
+    /// <param name="serviceProvider">Provider</param>
+    /// <param name="instanceType">type to create</param>
+    /// <param name="args">Obj args</param>
+    /// <returns>new obj of <paramref name="instanceType"/></returns>
+    public static FactoryType CreateFactory(this IServiceProvider serviceProvider, Type instanceType, params object[] args)
+    {
+        return new FactoryType(serviceProvider, instanceType, args);
+    }
+
+    /// <summary>
+    /// Factory with service provider
+    /// </summary>
+    public class FactoryType
+    {
+        public Type TypeToCreate { get; }
+        private object[] _args { get; }
+        private readonly IServiceProvider? _serviceProvider;
+
+        /// <summary>
+        /// Factory
+        /// </summary>
+        /// <param name="typeToCreate">Type to create</param>
+        /// <param name="args">complements args to create</param>
+        /// <exception cref="ArgumentNullException"></exception>
+        public FactoryType(Type typeToCreate, params object[] args)
+        {
+            if (typeToCreate is null)
+                throw new ArgumentNullException($"{nameof(typeToCreate)} is null.");
+            
+            TypeToCreate = typeToCreate;
+            _args = args;
+        }
+
+        /// <summary>
+        /// Factory
+        /// </summary>
+        /// <param name="serviceProvider">Default provider</param>
+        /// <param name="typeToCreate">Type to create</param>
+        /// <param name="args">complements args to create</param>
+        /// <exception cref="ArgumentNullException"></exception>
+        public FactoryType(IServiceProvider serviceProvider, Type typeToCreate, params object[] args)
+        {
+            if (typeToCreate is null)
+                throw new ArgumentNullException($"{nameof(typeToCreate)} is null.");
+
+            _serviceProvider = serviceProvider;
+            TypeToCreate = typeToCreate;
+            _args = args;
+        }
+
+        public object CreateInstanceWithNewScope()
+        {
+            if (_serviceProvider is null)
+                throw new ArgumentNullException("Service provider is null.");
+
+            return CreateInstanceWithNewScope(_serviceProvider);
+        }
+        
+        public T CreateInstanceWithNewScope<T>()
+        {
+            if (_serviceProvider is null)
+                throw new ArgumentNullException("Service provider is null.");
+                
+            return CreateInstanceWithNewScope<T>(_serviceProvider);
+        }
+
+        private object CreateInstanceWithNewScope(IServiceProvider serviceProvider)
+        {
+            return TypeUtils.CreateInstanceWithNewScope(serviceProvider, TypeToCreate, _args);
+        }
+        
+        private T CreateInstanceWithNewScope<T>(IServiceProvider serviceProvider)
+        {
+            if (!typeof(T).Equals(TypeToCreate) ||
+                !typeof(T).IsAssignableFrom(TypeToCreate))
+                throw new ArgumentException($"Type '{typeof(T).FullName}' isn't equal or assignable from '{TypeToCreate.FullName}'.", "paramType");
+
+            return TypeUtils.CreateInstanceWithNewScope<T>(serviceProvider, TypeToCreate, _args);
+        }
     }
 }

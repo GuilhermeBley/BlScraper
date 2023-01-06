@@ -7,6 +7,9 @@ namespace BlScraper.DependencyInjection.ConfigureModel;
 /// <summary>
 /// Implementation for classes which want manage finished searchs
 /// </summary>
+/// <remarks>
+///     <para>This interface is instanced when model created.</para>
+/// <remarks>
 /// <typeparam name="TQuest">Identifier quest</typeparam>
 /// <typeparam name="TData">Data type</typeparam>
 public interface IAllWorksEndConfigure<TQuest, TData>

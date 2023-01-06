@@ -5,6 +5,9 @@ namespace BlScraper.DependencyInjection.ConfigureModel;
 /// <summary>
 /// Implementation for classes which want manage event on create quests
 /// </summary>
+/// <remarks>
+///     <para>This interface is instanced when model created.</para>
+/// <remarks>
 /// <typeparam name="TQuest">Identifier quest</typeparam>
 /// <typeparam name="TData">Data type</typeparam>
 public interface IQuestCreatedConfigure<TQuest, TData>

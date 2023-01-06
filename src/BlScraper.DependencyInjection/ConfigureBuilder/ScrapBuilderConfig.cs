@@ -133,6 +133,7 @@ public class ScrapBuilderConfig
     /// </summary>
     /// <typeparam name="TFilter">Type of filter</typeparam>
     /// <inheritdoc cref="AddGetArgsConfigureFilter(Type)" path="/exception"/>
+    [Obsolete]
     public ScrapBuilderConfig AddGetArgsConfigureFilter<TFilter>()
         where TFilter : IGetArgsConfigureFilter
     {
@@ -144,6 +145,7 @@ public class ScrapBuilderConfig
     /// </summary>
     /// <param name="filter">filter to add</param>
     /// <inheritdoc cref="PoolFilter.Add(Type, Type)" path="/exception"/>
+    [Obsolete]
     public ScrapBuilderConfig AddGetArgsConfigureFilter(Type filter)
     {
         if (TypeUtils.IsObsolete(filter)) return this;

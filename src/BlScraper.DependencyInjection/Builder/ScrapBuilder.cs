@@ -119,65 +119,92 @@ internal class ScrapBuilder : IScrapBuilder
     /// <inheritdoc cref="SetParametersOnModel(ScrapModelInternal)" path="exception"/>
     private IModelScraper Create(Type questType)
     {
-        var model = new ScrapModelInternal(questType);
+        var modelScraperInternal = new ScrapModelInternal(questType);
 
-        SetParametersOnModel(model);
+        SetRequiredConfigure(modelScraperInternal);
 
-        SetFiltersOnModel(model);
+        SetArgsOnModel(modelScraperInternal);
 
-        var modelScraperType = TypeUtils.SetGenericParameters(_modelType, model.QuestType, model.DataType);
+        var modelScraperType = TypeUtils.SetGenericParameters(_modelType, modelScraperInternal.QuestType, modelScraperInternal.DataType);
 
-        var filterEvents = ActivatorUtilities.CreateInstance<CreateFilters>(_serviceProvider, model, _builderConfig);
-        
+        var delegateEvents = new DelageteHolder(modelScraperInternal, _serviceProvider, _builderConfig);
+
         IModelScraper? modelScraper = null;
         modelScraper =
             (IModelScraper?)Activator.CreateInstance(
                 modelScraperType,
-                ((IRequiredConfigure)model.InstanceRequired!).initialQuantity,
+                ((IRequiredConfigure)modelScraperInternal.InstanceRequired!).initialQuantity,
                 (IServiceProvider)_serviceProvider,
-                filterEvents.CreateGetData(),
-                filterEvents.CreateOnOccursException(),
-                filterEvents.CreateOnDataFinished(),
-                filterEvents.CreateOnAllWorksEnd(),
-                filterEvents.CreateOnCollected(),
-                filterEvents.CreateOnCreated(),
-                filterEvents.CreateArgs()
+                delegateEvents.CreateGetData(),
+                delegateEvents.CreateOnOccursException(),
+                delegateEvents.CreateOnDataFinished(),
+                delegateEvents.CreateOnAllWorksEnd(),
+                delegateEvents.CreateOnDataToSearchCollected(),
+                delegateEvents.CreateOnCreatedQuest(),
+                delegateEvents.CreateArgs()
             ) ?? throw new ArgumentNullException(nameof(IModelScraper));
 
-        filterEvents.CurrentInfo = modelScraper;
+        delegateEvents.Context = modelScraper;
+
+        SetParametersAndFiltersOnModelWithContext(delegateEvents, modelScraperInternal, modelScraper);
 
         return modelScraper;
     }
 
     /// <summary>
-    /// Set parameters in model
+    /// Set parameters and filters with a context to current thread
     /// </summary>
-    /// <param name="model">Model to set parameters</param>
-    /// <exception cref="ArgumentNullException"></exception>
-    private void SetParametersOnModel(ScrapModelInternal model)
+    /// <param name="delegates">delegates with events to model</param>
+    /// <param name="modelScraperInternal">Instances and types to model</param>
+    /// <inheritdoc cref="SetParametersOnModel" path="/exception"/>
+    /// <inheritdoc cref="SetFiltersOnModel" path="/exception"/>
+    private void SetParametersAndFiltersOnModelWithContext(DelageteHolder delegates, ScrapModelInternal modelScraperInternal, IModelScraperInfo context)
     {
+        try
+        {
+            delegates.SetCurrentContextThread(context);
+
+            SetParametersOnModel(modelScraperInternal);
+
+            SetFiltersOnModel(modelScraperInternal);
+
+            delegates.AddFilters(modelScraperInternal.Filters);
+        }
+        finally
+        {
+            delegates.SetCurrentContextThread();
+        }
+    }
+
+    /// <summary>
+    /// Set <see cref="ScrapModelInternal.InstanceRequired"/> on <paramref name="model"/>
+    /// </summary>
+    /// <param name="model"></param>
+    private void SetRequiredConfigure(ScrapModelInternal model)
+    {
+        if (model is null)
+            throw new ArgumentNullException(nameof(model));
+
         #region RequiredConfigure
         Type typeInstaceRequired =
             TypeUtils.GetUniqueAssignableFrom(_assemblies.ToArray(), typeof(RequiredConfigure<,>).MakeGenericType(model.QuestType, model.DataType))
             ?? throw ThrowRequiredTypeNotFound(model, typeof(RequiredConfigure<,>));
 
-        model.InstanceRequired =
-            ActivatorUtilities.CreateInstance(_serviceProvider.CreateScope().ServiceProvider, typeInstaceRequired);
-
-        var configure = (IRequiredConfigure)model.InstanceRequired;
+        model.InstanceRequired = 
+            _serviceProvider.CreateFactory(typeInstaceRequired).CreateInstanceWithNewScope();
         #endregion
+    }
+    
+    /// <summary>
+    /// Set <see cref="ScrapModelInternal.InstanceArgs"/> on <paramref name="model"/>
+    /// </summary>
+    /// <exception cref="ArgumentNullException"></exception>
+    private void SetArgsOnModel(ScrapModelInternal model)
+    {
+        if (model is null)
+            throw new ArgumentNullException(nameof(model));
 
-        #region IOnAllWorksEndConfigure
-        Type? typeInstaceAllWorksEnd =
-            TypeUtils.GetUniqueAssignableFrom(_assemblies.ToArray(), typeof(IAllWorksEndConfigure<,>).MakeGenericType(model.QuestType, model.DataType));
-
-        if (typeInstaceAllWorksEnd is null && configure.IsRequiredAllWorksEnd)
-            throw ThrowRequiredTypeNotFound(model, typeof(IAllWorksEndConfigure<,>));
-
-        if (typeInstaceAllWorksEnd is not null)
-            model.InstanceAllWorksEnd =
-                ActivatorUtilities.CreateInstance(_serviceProvider.CreateScope().ServiceProvider, typeInstaceAllWorksEnd);
-        #endregion
+        var configure = (IRequiredConfigure?)model.InstanceRequired ?? throw new ArgumentNullException();
 
         #region IGetArgsConfigure
         Type? typeInstaceArgs =
@@ -190,6 +217,30 @@ internal class ScrapBuilder : IScrapBuilder
             model.InstanceArgs =
                 ActivatorUtilities.CreateInstance(_serviceProvider.CreateScope().ServiceProvider, typeInstaceArgs);
         #endregion
+    }
+
+    /// <summary>
+    /// Set parameters in model
+    /// </summary>
+    /// <param name="model">Model to set parameters</param>
+    /// <exception cref="ArgumentNullException"></exception>
+    private void SetParametersOnModel(ScrapModelInternal model)
+    {
+        if (model is null)
+            throw new ArgumentNullException(nameof(model));
+
+        var configure = (IRequiredConfigure?)model.InstanceRequired ?? throw new ArgumentNullException();
+
+        #region IOnAllWorksEndConfigure
+        Type? typeInstaceAllWorksEnd =
+            TypeUtils.GetUniqueAssignableFrom(_assemblies.ToArray(), typeof(IAllWorksEndConfigure<,>).MakeGenericType(model.QuestType, model.DataType));
+
+        if (typeInstaceAllWorksEnd is null && configure.IsRequiredAllWorksEnd)
+            throw ThrowRequiredTypeNotFound(model, typeof(IAllWorksEndConfigure<,>));
+
+        if (typeInstaceAllWorksEnd is not null)
+            model.InstanceAllWorksEnd = _serviceProvider.CreateInstanceWithNewScope(typeInstaceAllWorksEnd);
+        #endregion
 
         #region IOnDataCollectedConfigure
         Type? typeDataCollected =
@@ -199,8 +250,7 @@ internal class ScrapBuilder : IScrapBuilder
             throw ThrowRequiredTypeNotFound(model, typeof(IDataCollectedConfigure<,>));
 
         if (typeDataCollected is not null)
-            model.InstanceDataCollected =
-                ActivatorUtilities.CreateInstance(_serviceProvider.CreateScope().ServiceProvider, typeDataCollected);
+            model.InstanceDataCollected = _serviceProvider.CreateInstanceWithNewScope(typeDataCollected);
         #endregion
 
         #region IDataFinishedConfigure
@@ -211,8 +261,7 @@ internal class ScrapBuilder : IScrapBuilder
             throw ThrowRequiredTypeNotFound(model, typeof(IDataFinishedConfigure<,>));
 
         if (typeDataFinished is not null)
-            model.InstanceDataFinished =
-                ActivatorUtilities.CreateInstance(_serviceProvider.CreateScope().ServiceProvider, typeDataFinished);
+            model.InstanceDataFinished = _serviceProvider.CreateInstanceWithNewScope(typeDataFinished);
         #endregion
 
         #region IOnQuestCreatedConfigure
@@ -223,8 +272,8 @@ internal class ScrapBuilder : IScrapBuilder
             throw ThrowRequiredTypeNotFound(model, typeof(IQuestCreatedConfigure<,>));
 
         if (typeQuestCreated is not null)
-            model.InstanceQuestCreated =
-                ActivatorUtilities.CreateInstance(_serviceProvider.CreateScope().ServiceProvider, typeQuestCreated);
+            model.InstanceQuestCreated = _serviceProvider.CreateInstanceWithNewScope(typeQuestCreated);
+        
         #endregion
 
         #region IQuestExceptionConfigure
@@ -235,8 +284,7 @@ internal class ScrapBuilder : IScrapBuilder
             throw ThrowRequiredTypeNotFound(model, typeof(IQuestExceptionConfigure<,>));
 
         if (typeQuestException is not null)
-            model.InstanceQuestException =
-                ActivatorUtilities.CreateInstance(_serviceProvider.CreateScope().ServiceProvider, typeQuestException);
+            model.InstanceQuestException = _serviceProvider.CreateInstanceWithNewScope(typeQuestException);
         #endregion
     }
 
@@ -246,17 +294,13 @@ internal class ScrapBuilder : IScrapBuilder
     /// <param name="model">Model to set parameters</param>
     private void SetFiltersOnModel(ScrapModelInternal model)
     {
+        if (model is null)
+            throw new ArgumentNullException(nameof(model));
+
         #region IAllWorksEndConfigureFilter
 
         foreach (var filterType in TypeUtils.GetAssignableFrom(_assemblies.ToArray(), typeof(IAllWorksEndConfigureFilter<,>).MakeGenericType(model.QuestType, model.DataType)))
             model.Filters.Add(typeof(IAllWorksEndConfigureFilter), filterType);
-
-        #endregion
-
-        #region IGetArgsConfigureFilter
-
-        foreach (var filterType in TypeUtils.GetAssignableFrom(_assemblies.ToArray(), typeof(IGetArgsConfigureFilter<,>).MakeGenericType(model.QuestType, model.DataType)))
-            model.Filters.Add(typeof(IGetArgsConfigureFilter), filterType);
 
         #endregion
 
@@ -375,57 +419,5 @@ internal class ScrapBuilder : IScrapBuilder
             throw new ArgumentException($"QuestTypes with name {name} wasn't found. Check if the possible class target is public, non-obsolete and concrete.", nameof(name));
 
         return questTypefound;
-    }
-
-    /// <summary>
-    /// Create instance of type <typeparamref name="T"/> with constructor parameters <paramref name="args"/>
-    /// </summary>
-    /// <typeparam name="T">type of model</typeparam>
-    /// <param name="args">constructor arguments</param>
-    /// <returns>instanced <see cref="IModelScraper"/></returns>
-    /// <inheritdoc cref="CreateModel(Type, object[])" path="/exception"/>
-    [Obsolete]
-    private static IModelScraper? CreateModel<T>(params object[] args)
-        where T : IModelScraper
-    {
-        return CreateModel(typeof(T), args);
-    }
-
-    /// <summary>
-    /// Create instance of type <paramref name="model"/> with constructor parameters <paramref name="args"/>
-    /// </summary>
-    /// <param name="model">type of model</param>
-    /// <param name="args">constructor arguments</param>
-    /// <returns>instanced <see cref="IModelScraper"/></returns>
-    /// <exception cref="ArgumentException"></exception>
-    /// <exception cref="ArgumentNullException"></exception>
-    [Obsolete]
-    private static IModelScraper? CreateModel(Type model, params object[] args)
-    {
-        if (!typeof(IModelScraper).IsAssignableFrom(model))
-            throw new ArgumentException($"'{model.FullName}' isn't assignable to '{typeof(IModelScraper).FullName}'.");
-
-        if (model.ContainsGenericParameters)
-            throw new ArgumentException($"'{model.FullName}' cannot be create. The class contains not setted generic parameters.");
-
-        if (!model.IsClass ||
-            model.IsAbstract ||
-            !model.IsPublic || 
-            !model.GetConstructors().Where(c => c.IsPublic || !c.IsStatic).Any())
-            throw new ArgumentException($"'{model.FullName}' cannot be create. Check if the class is public, contains a public constructor and non-abstract.");
-
-        foreach (var constructor in model.GetConstructors().Where(c => c.IsPublic || !c.IsStatic).OrderByDescending(o => o.GetParameters().Count()))
-        {
-            var parsedArgs = TypeUtils.TryParseConstructorParameters(constructor, args);
-            if (parsedArgs is null)
-                continue;
-
-            return (IModelScraper?)Activator.CreateInstance(
-                model,
-                parsedArgs
-            ) ?? throw new ArgumentNullException(nameof(IModelScraper));
-        }
-
-        return null;
     }
 }
